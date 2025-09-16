@@ -19,4 +19,8 @@ class Festive extends Model
     {
         return $this->belongsTo(Town::class);
     }
+    public function advertisements()
+    {
+        return $this->hasMany(Advertisement::class);
+    }
 }
