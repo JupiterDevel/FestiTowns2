@@ -21,6 +21,6 @@ class Festive extends Model
     }
     public function advertisements()
     {
-        return $this->hasMany(Advertisement::class);
+        return $this->hasMany(Adverticements::class);
     }
 }

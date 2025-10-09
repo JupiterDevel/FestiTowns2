@@ -12,7 +12,8 @@ class TownController extends Controller
      */
     public function index()
     {
-        //
+        $towns = Town::with('festive')->paginate(12);
+        return view('towns.index', compact('towns'));
     }
 
     /**
@@ -20,7 +21,7 @@ class TownController extends Controller
      */
     public function create()
     {
-        //
+        return view('towns.create');
     }
 
     /**
@@ -28,7 +29,16 @@ class TownController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
+            'photo' => 'nullable|url',
+        ]);
+
+        Town::create($request->all());
+
+        return redirect()->route('towns.index')
+            ->with('success', 'Pueblo creado exitosamente.');
     }
 
     /**
@@ -36,7 +46,8 @@ class TownController extends Controller
      */
     public function show(Town $town)
     {
-        //
+        $town->load('festive.advertisements');
+        return view('towns.show', compact('town'));
     }
 
     /**
@@ -44,7 +55,7 @@ class TownController extends Controller
      */
     public function edit(Town $town)
     {
-        //
+        return view('towns.edit', compact('town'));
     }
 
     /**
@@ -52,7 +63,16 @@ class TownController extends Controller
      */
     public function update(Request $request, Town $town)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'province' => 'required|string|max:255',
+            'photo' => 'nullable|url',
+        ]);
+
+        $town->update($request->all());
+
+        return redirect()->route('towns.index')
+            ->with('success', 'Pueblo actualizado exitosamente.');
     }
 
     /**
@@ -60,6 +80,9 @@ class TownController extends Controller
      */
     public function destroy(Town $town)
     {
-        //
+        $town->delete();
+
+        return redirect()->route('towns.index')
+            ->with('success', 'Pueblo eliminado exitosamente.');
     }
 }

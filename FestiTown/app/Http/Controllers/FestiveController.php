@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Festive;
+use App\Models\Town;
 use Illuminate\Http\Request;
 
 class FestiveController extends Controller
@@ -12,7 +13,8 @@ class FestiveController extends Controller
      */
     public function index()
     {
-        //
+        $festives = Festive::with(['town', 'advertisements'])->paginate(12);
+        return view('festives.index', compact('festives'));
     }
 
     /**
@@ -20,7 +22,8 @@ class FestiveController extends Controller
      */
     public function create()
     {
-        //
+        $towns = Town::all();
+        return view('festives.create', compact('towns'));
     }
 
     /**
@@ -28,7 +31,16 @@ class FestiveController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'town_id' => 'required|exists:towns,id',
+        ]);
+
+        Festive::create($request->all());
+
+        return redirect()->route('festives.index')
+            ->with('success', 'Festividad creada exitosamente.');
     }
 
     /**
@@ -36,7 +48,8 @@ class FestiveController extends Controller
      */
     public function show(Festive $festive)
     {
-        //
+        $festive->load(['town', 'advertisements']);
+        return view('festives.show', compact('festive'));
     }
 
     /**
@@ -44,7 +57,8 @@ class FestiveController extends Controller
      */
     public function edit(Festive $festive)
     {
-        //
+        $towns = Town::all();
+        return view('festives.edit', compact('festive', 'towns'));
     }
 
     /**
@@ -52,7 +66,16 @@ class FestiveController extends Controller
      */
     public function update(Request $request, Festive $festive)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'town_id' => 'required|exists:towns,id',
+        ]);
+
+        $festive->update($request->all());
+
+        return redirect()->route('festives.index')
+            ->with('success', 'Festividad actualizada exitosamente.');
     }
 
     /**
@@ -60,6 +83,9 @@ class FestiveController extends Controller
      */
     public function destroy(Festive $festive)
     {
-        //
+        $festive->delete();
+
+        return redirect()->route('festives.index')
+            ->with('success', 'Festividad eliminada exitosamente.');
     }
 }
