@@ -22,6 +22,14 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('festivities.*') ? 'active' : '' }}" href="{{ route('festivities.index') }}">Festivities</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('festivities.most-voted') ? 'active' : '' }}" href="{{ route('festivities.most-voted') }}">Las Más Votadas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('home') && request()->has('search') ? 'active' : '' }}" href="{{ route('home') }}">
+                        <i class="bi bi-search me-1"></i>Buscar
+                    </a>
+                </li>
                 @auth
                     @if(auth()->user()->isAdmin() || auth()->user()->isTownHall())
                         <li class="nav-item">
@@ -44,6 +52,10 @@
                             <i class="bi bi-person-circle me-2"></i>
                             {{ Auth::user()->name }}
                             <span class="badge bg-secondary ms-2">{{ ucfirst(Auth::user()->role) }}</span>
+                            @if(Auth::user()->isVisitor())
+                                <span class="badge bg-warning ms-1">{{ Auth::user()->getRankIcon() }} {{ Auth::user()->getRankDisplayName() }}</span>
+                                <span class="badge bg-info ms-1">{{ Auth::user()->points }} pts</span>
+                            @endif
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>

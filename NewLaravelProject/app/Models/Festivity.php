@@ -37,4 +37,14 @@ class Festivity extends Model
     {
         return $this->hasMany(Comment::class)->where('approved', true);
     }
+
+    public function votes(): HasMany
+    {
+        return $this->hasMany(Vote::class);
+    }
+
+    public function getVotesCountAttribute(): int
+    {
+        return $this->votes()->count();
+    }
 }

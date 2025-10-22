@@ -34,6 +34,21 @@
             </div>
         @endif
 
+        @if(session('error'))
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
+        @if($visitPointsEarned ?? false)
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-star-fill me-2"></i>
+                <strong>¡Puntos ganados!</strong> Has obtenido 1 punto por visitar una festividad de otra localidad.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+
         <!-- Photos Carousel -->
         @if($festivity->photos && count($festivity->photos) > 0)
             <div class="mb-4">
@@ -95,6 +110,36 @@
                     <div class="col-md-6">
                         <h4 class="h5 fw-bold mb-3">About this Festivity</h4>
                         <p class="card-text">{{ $festivity->description }}</p>
+                        
+                        <!-- Vote Section -->
+                        <div class="mt-4 p-3 bg-light rounded">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-star-fill text-warning me-2"></i>
+                                    <span class="fw-bold text-primary">{{ $festivity->votes_count }}</span>
+                                    <span class="text-muted ms-1">{{ Str::plural('vote', $festivity->votes_count) }}</span>
+                                </div>
+                                
+                                @auth
+                                    @if($userVotedToday)
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                            <i class="bi bi-check-circle me-1"></i>Ya votaste hoy
+                                        </button>
+                                    @else
+                                        <form action="{{ route('votes.store', $festivity) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-outline-primary btn-sm">
+                                                <i class="bi bi-heart me-1"></i>Votar
+                                            </button>
+                                        </form>
+                                    @endif
+                                @else
+                                    <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-heart me-1"></i>Inicia sesión para votar
+                                    </a>
+                                @endauth
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

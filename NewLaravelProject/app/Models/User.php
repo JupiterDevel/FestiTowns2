@@ -25,6 +25,9 @@ class User extends Authenticatable
         'password',
         'role',
         'locality_id',
+        'rank',
+        'points',
+        'last_login_at',
     ];
 
     /**
@@ -47,6 +50,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
         ];
     }
 
@@ -58,6 +62,11 @@ class User extends Authenticatable
     public function comments(): HasMany
     {
         return $this->hasMany(Comment::class);
+    }
+
+    public function votes(): HasMany
+    {
+        return $this->hasMany(Vote::class);
     }
 
     public function isAdmin(): bool
@@ -73,5 +82,85 @@ class User extends Authenticatable
     public function isVisitor(): bool
     {
         return $this->role === 'visitor';
+    }
+
+    public function addPoints(int $points): void
+    {
+        $this->points += $points;
+        $this->updateRank();
+        $this->save();
+    }
+
+    public function updateRank(): void
+    {
+        $oldRank = $this->rank;
+        
+        if ($this->points >= 5) {
+            $this->rank = 'gold';
+        } elseif ($this->points >= 1) {
+            $this->rank = 'silver';
+        } else {
+            $this->rank = 'bronze';
+        }
+        
+        // Si el rango cambió, podríamos añadir lógica adicional aquí
+        if ($oldRank !== $this->rank) {
+            // El usuario ha subido de rango
+        }
+    }
+
+    public function getRankDisplayName(): string
+    {
+        return match($this->rank) {
+            'gold' => 'Oro',
+            'silver' => 'Plata',
+            'bronze' => 'Bronce',
+            default => 'Bronce',
+        };
+    }
+
+    public function getRankIcon(): string
+    {
+        return match($this->rank) {
+            'gold' => '🥇',
+            'silver' => '🥈',
+            'bronze' => '🥉',
+            default => '🥉',
+        };
+    }
+
+    public function canEarnLoginPoints(): bool
+    {
+        if (!$this->last_login_at) {
+            return true;
+        }
+        
+        return !$this->last_login_at->isToday();
+    }
+
+    public function canEarnVisitPoints(Festivity $festivity): bool
+    {
+        // Solo visitantes pueden ganar puntos por visitas
+        if (!$this->isVisitor()) {
+            return false;
+        }
+        
+        // No puede ganar puntos por festividades de su propia localidad
+        if ($this->locality_id && $this->locality_id === $festivity->locality_id) {
+            return false;
+        }
+        
+        // Verificar si ya visitó esta festividad hoy
+        $today = now()->toDateString();
+        $visitKey = "visit_{$festivity->id}_{$today}";
+        
+        return !session()->has($visitKey);
+    }
+
+    public function markVisitedToday(Festivity $festivity): void
+    {
+        $today = now()->toDateString();
+        $visitKey = "visit_{$festivity->id}_{$today}";
+        session()->put($visitKey, true);
     }
 }

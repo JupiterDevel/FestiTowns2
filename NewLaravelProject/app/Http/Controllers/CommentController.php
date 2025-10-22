@@ -27,6 +27,12 @@ class CommentController extends Controller
         $comment->approved = false; // Default to pending approval
         $comment->save();
 
+        // Otorgar puntos por comentar (solo a visitantes)
+        $user = Auth::user();
+        if ($user->isVisitor()) {
+            $user->addPoints(2); // 2 puntos por comentar
+        }
+
         return redirect()->route('festivities.show', $festivity)
             ->with('success', 'Your comment has been submitted and is pending approval.');
     }

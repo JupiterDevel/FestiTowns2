@@ -6,12 +6,14 @@ use App\Http\Controllers\LocalityController;
 use App\Http\Controllers\FestivityController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\VoteController;
 use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('localities', [LocalityController::class, 'index'])->name('localities.index');
 Route::get('festivities', [FestivityController::class, 'index'])->name('festivities.index');
+Route::get('most-voted', [VoteController::class, 'mostVoted'])->name('festivities.most-voted');
 
 // Authentication routes
 Route::middleware('auth')->group(function () {
@@ -24,6 +26,9 @@ Route::middleware('auth')->group(function () {
     Route::patch('comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
     Route::patch('comments/{comment}/reject', [CommentController::class, 'reject'])->name('comments.reject');
     Route::get('comments/pending', [CommentController::class, 'pending'])->name('comments.pending');
+    
+    // Vote routes
+    Route::post('festivities/{festivity}/vote', [VoteController::class, 'store'])->name('votes.store');
     
     // Protected localities routes
     Route::get('localities/create', [LocalityController::class, 'create'])->name('localities.create');

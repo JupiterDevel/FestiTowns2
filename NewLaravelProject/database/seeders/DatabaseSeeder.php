@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             LocalitySeeder::class,
             FestivitySeeder::class,
             UserSeeder::class,
+            DataSeeder::class,
         ]);
     }
 }

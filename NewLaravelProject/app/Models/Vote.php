@@ -1,0 +1,29 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Vote extends Model
+{
+    protected $fillable = [
+        'user_id',
+        'festivity_id',
+        'voted_at',
+    ];
+
+    protected $casts = [
+        'voted_at' => 'date',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function festivity(): BelongsTo
+    {
+        return $this->belongsTo(Festivity::class);
+    }
+}

@@ -24,6 +24,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'admin',
                 'locality_id' => null,
+                'rank' => 'bronze',
+                'points' => 0,
             ],
             [
                 'name' => 'Pamplona Town Hall',
@@ -31,6 +33,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'townhall',
                 'locality_id' => $pamplona->id,
+                'rank' => 'bronze',
+                'points' => 0,
             ],
             [
                 'name' => 'Visitor User',
@@ -38,6 +42,8 @@ class UserSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'role' => 'visitor',
                 'locality_id' => null,
+                'rank' => 'bronze',
+                'points' => 0,
             ]
         ];
 

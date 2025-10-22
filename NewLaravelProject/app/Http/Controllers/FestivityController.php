@@ -6,6 +6,7 @@ use App\Models\Festivity;
 use App\Models\Locality;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 
 class FestivityController extends Controller
 {
@@ -75,8 +76,28 @@ class FestivityController extends Controller
      */
     public function show(Festivity $festivity)
     {
-        $festivity->load(['locality', 'approvedComments.user']);
-        return view('festivities.show', compact('festivity'));
+        $festivity->load(['locality', 'approvedComments.user'])->loadCount('votes');
+        
+        // Verificar si el usuario ya votó hoy
+        $userVotedToday = false;
+        $visitPointsEarned = false;
+        
+        if (Auth::check()) {
+            $user = Auth::user();
+            
+            $userVotedToday = \App\Models\Vote::where('user_id', Auth::id())
+                ->where('voted_at', now()->toDateString())
+                ->exists();
+            
+            // Otorgar puntos por visitar festividades de otras localidades (solo visitantes)
+            if ($user->isVisitor() && $user->canEarnVisitPoints($festivity)) {
+                $user->addPoints(1); // 1 punto por visitar festividad de otra localidad
+                $user->markVisitedToday($festivity);
+                $visitPointsEarned = true;
+            }
+        }
+        
+        return view('festivities.show', compact('festivity', 'userVotedToday', 'visitPointsEarned'));
     }
 
     /**
