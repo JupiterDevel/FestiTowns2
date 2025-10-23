@@ -29,10 +29,7 @@ class FestivityController extends Controller
         try {
             $this->authorize('create', Festivity::class);
             
-            $localities = Locality::all();
-            $selectedLocalityId = $request->get('locality_id');
-            
-            return view('festivities.create', compact('localities', 'selectedLocalityId'));
+            return view('festivities.create');
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return redirect()->route('festivities.index')
                 ->with('error', 'You do not have permission to create festivities.');
@@ -48,7 +45,8 @@ class FestivityController extends Controller
             $this->authorize('create', Festivity::class);
             
             $validated = $request->validate([
-                'locality_id' => 'required|exists:localities,id',
+                'locality_name' => 'required|string|max:255',
+                'province' => 'required|string|in:' . implode(',', config('provinces.provinces')),
                 'name' => 'required|string|max:255',
                 'start_date' => 'required|date',
                 'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -56,7 +54,25 @@ class FestivityController extends Controller
                 'photos' => 'nullable|array',
             ]);
 
-            Festivity::create($validated);
+            // Find or create the locality
+            $locality = Locality::firstOrCreate(
+                ['name' => $validated['locality_name'], 'province' => $validated['province']],
+                [
+                    'name' => $validated['locality_name'],
+                    'address' => $validated['locality_name'], // Use name as address if not provided
+                    'province' => $validated['province'],
+                    'description' => 'Auto-created locality for festivity',
+                    'places_of_interest' => '',
+                    'monuments' => ''
+                ]
+            );
+
+            // Create festivity with locality_id
+            $festivityData = $validated;
+            $festivityData['locality_id'] = $locality->id;
+            unset($festivityData['locality_name']);
+            
+            Festivity::create($festivityData);
 
             return redirect()->route('festivities.index')
                 ->with('success', 'Festivity created successfully.');
@@ -76,7 +92,7 @@ class FestivityController extends Controller
      */
     public function show(Festivity $festivity)
     {
-        $festivity->load(['locality', 'approvedComments.user'])->loadCount('votes');
+        $festivity->load(['locality', 'approvedComments.user', 'events'])->loadCount('votes');
         
         // Verificar si el usuario ya votó hoy
         $userVotedToday = false;
@@ -107,8 +123,7 @@ class FestivityController extends Controller
     {
         $this->authorize('update', $festivity);
         
-        $localities = Locality::all();
-        return view('festivities.edit', compact('festivity', 'localities'));
+        return view('festivities.edit', compact('festivity'));
     }
 
     /**
@@ -119,7 +134,8 @@ class FestivityController extends Controller
         $this->authorize('update', $festivity);
         
         $validated = $request->validate([
-            'locality_id' => 'required|exists:localities,id',
+            'locality_name' => 'required|string|max:255',
+            'province' => 'required|string|in:' . implode(',', config('provinces.provinces')),
             'name' => 'required|string|max:255',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -127,7 +143,25 @@ class FestivityController extends Controller
             'photos' => 'nullable|array',
         ]);
 
-        $festivity->update($validated);
+        // Find or create the locality
+        $locality = Locality::firstOrCreate(
+            ['name' => $validated['locality_name'], 'province' => $validated['province']],
+            [
+                'name' => $validated['locality_name'],
+                'address' => $validated['locality_name'], // Use name as address if not provided
+                'province' => $validated['province'],
+                'description' => 'Auto-created locality for festivity',
+                'places_of_interest' => '',
+                'monuments' => ''
+            ]
+        );
+
+        // Update festivity with locality_id
+        $festivityData = $validated;
+        $festivityData['locality_id'] = $locality->id;
+        unset($festivityData['locality_name']);
+        
+        $festivity->update($festivityData);
 
         return redirect()->route('festivities.show', $festivity)
             ->with('success', 'Festivity updated successfully.');

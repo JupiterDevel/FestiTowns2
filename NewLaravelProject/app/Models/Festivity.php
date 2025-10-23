@@ -10,6 +10,7 @@ class Festivity extends Model
 {
     protected $fillable = [
         'locality_id',
+        'province',
         'name',
         'start_date',
         'end_date',
@@ -41,6 +42,11 @@ class Festivity extends Model
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
+    }
+
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class)->orderedChronologically();
     }
 
     public function getVotesCountAttribute(): int
