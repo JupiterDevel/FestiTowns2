@@ -48,6 +48,9 @@
                             <h5 class="card-title">{{ $locality->name }}</h5>
                             <p class="text-muted mb-2">
                                 <i class="bi bi-geo-alt me-1"></i>{{ $locality->address }}
+                                @if($locality->province)
+                                    <br><small><i class="bi bi-map me-1"></i>{{ $locality->province }}</small>
+                                @endif
                             </p>
                             <p class="card-text flex-grow-1">{{ Str::limit($locality->description, 120) }}</p>
                             

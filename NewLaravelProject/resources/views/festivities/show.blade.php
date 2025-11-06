@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="d-flex justify-content-between align-items-center">
             <h1 class="display-6 fw-bold text-primary mb-0">
-                <i class="bi bi-calendar-event me-2"></i>{{ $festivity->name }}
+                <i class="bi bi-calendar-event me-2" aria-hidden="true"></i>{{ $festivity->name }}
             </h1>
             @auth
                 <div class="d-flex gap-2">
@@ -66,7 +66,13 @@
                             <div class="carousel-inner">
                                 @foreach($festivity->photos as $index => $photo)
                                     <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                        <img src="{{ $photo }}" class="d-block w-100" alt="{{ $festivity->name }}" style="height: 400px; object-fit: cover;">
+                                        <img src="{{ $photo }}" 
+                                             class="d-block w-100" 
+                                             alt="{{ $festivity->name }} - Imagen {{ $index + 1 }}" 
+                                             loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
+                                             style="height: 400px; object-fit: cover;"
+                                             width="1200"
+                                             height="400">
                                     </div>
                                 @endforeach
                             </div>
@@ -88,11 +94,11 @@
         @endif
 
         <!-- Basic Information -->
-        <div class="card mb-4">
+        <article class="card mb-4">
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6">
-                        <h3 class="card-title h4 fw-bold mb-3">{{ $festivity->name }}</h3>
+                        <h2 class="card-title h4 fw-bold mb-3">{{ $festivity->name }}</h2>
                         <p class="text-muted mb-3">
                             <i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> 
                             <a href="{{ route('localities.show', $festivity->locality) }}" class="btn btn-outline-primary btn-sm ms-2">
@@ -108,7 +114,7 @@
                         </p>
                     </div>
                     <div class="col-md-6">
-                        <h4 class="h5 fw-bold mb-3">About this Festivity</h4>
+                        <h3 class="h5 fw-bold mb-3">Sobre esta Festividad</h3>
                         <p class="card-text">{{ $festivity->description }}</p>
                         
                         <!-- Vote Section -->
@@ -143,39 +149,156 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </article>
+
+        <!-- Events Section -->
+        <section class="card mb-4" aria-label="Eventos programados">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="card-title h4 fw-bold mb-0">
+                        <i class="bi bi-calendar-event me-2" aria-hidden="true"></i>Eventos Programados
+                    </h2>
+                    <a href="{{ route('events.index', $festivity) }}" class="btn btn-outline-primary btn-custom">
+                        <i class="bi bi-eye me-1"></i>Ver Todos los Eventos
+                    </a>
+                </div>
+
+                @if($festivity->events->count() > 0)
+                    <div class="row">
+                        @foreach($festivity->events->take(6) as $event)
+                            <div class="col-md-6 col-lg-4 mb-3">
+                                <div class="card h-100 border-0 bg-light">
+                                    <div class="card-body p-3">
+                                        <h6 class="card-title fw-bold mb-2">
+                                            <i class="bi bi-calendar-check me-1"></i>{{ $event->name }}
+                                        </h6>
+                                        
+                                        @if($event->start_time || $event->end_time)
+                                            @if($event->start_time)
+                                                <p class="text-muted small mb-1">
+                                                    <i class="bi bi-clock me-1"></i>
+                                                    <strong>Inicio:</strong> {{ $event->start_time->format('d/m H:i') }}
+                                                </p>
+                                            @endif
+                                            @if($event->end_time)
+                                                <p class="text-muted small mb-1">
+                                                    <i class="bi bi-clock-fill me-1"></i>
+                                                    <strong>Fin:</strong> {{ $event->end_time->format('d/m H:i') }}
+                                                </p>
+                                            @endif
+                                        @else
+                                            <span class="badge bg-secondary small">
+                                                <i class="bi bi-question-circle me-1"></i>Sin horario
+                                            </span>
+                                        @endif
+
+                                        @if($event->location)
+                                            <p class="text-muted small mb-2">
+                                                <i class="bi bi-geo-alt me-1"></i>{{ $event->location }}
+                                            </p>
+                                        @endif
+
+                                        @if($event->description)
+                                            <p class="card-text small text-muted">{{ Str::limit($event->description, 60) }}</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    @if($festivity->events->count() > 6)
+                        <div class="text-center mt-3">
+                            <a href="{{ route('events.index', $festivity) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-arrow-right me-1"></i>Ver {{ $festivity->events->count() - 6 }} eventos más
+                            </a>
+                        </div>
+                    @endif
+                @else
+                    <div class="text-center py-4">
+                        <i class="bi bi-calendar-x display-4 text-muted"></i>
+                        <p class="text-muted mt-3">No hay eventos programados para esta festividad.</p>
+                        <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-custom">
+                            <i class="bi bi-plus-circle me-1"></i>Crear Primer Evento
+                        </a>
+                    </div>
+                @endif
+            </div>
+        </section>
 
         <!-- Comments Section -->
-        <div class="card">
+        <section class="card" aria-label="Comentarios">
             <div class="card-body">
-                <h3 class="card-title h4 fw-bold mb-4">
-                    <i class="bi bi-chat-dots me-2"></i>Comments
-                </h3>
+                <h2 class="card-title h4 fw-bold mb-4">
+                    <i class="bi bi-chat-dots me-2" aria-hidden="true"></i>Comentarios
+                </h2>
 
                 <!-- Comment Form -->
                 @auth
                     <div class="mb-4">
-                        <form method="POST" action="{{ route('comments.store', $festivity) }}">
+                        <form method="POST" action="{{ route('comments.store', $festivity) }}" enctype="multipart/form-data">
                             @csrf
                             <div class="mb-3">
                                 <label for="content" class="form-label fw-bold">
-                                    <i class="bi bi-chat-quote me-1"></i>Share your experience
+                                    <i class="bi bi-chat-quote me-1"></i>Comparte tu experiencia
                                 </label>
                                 <textarea name="content" id="content" rows="4" 
                                         class="form-control @error('content') is-invalid @enderror"
-                                        placeholder="Tell us about your experience at this festivity..." required></textarea>
+                                        placeholder="Cuéntanos sobre tu experiencia en esta festividad..." required></textarea>
                                 @error('content')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+                            <div class="mb-3">
+                                <label for="photo" class="form-label fw-bold">
+                                    <i class="bi bi-image me-1"></i>Foto (opcional)
+                                </label>
+                                <input type="file" 
+                                       name="photo" 
+                                       id="photo" 
+                                       class="form-control @error('photo') is-invalid @enderror"
+                                       accept="image/jpeg,image/png,image/jpg,image/gif,image/webp">
+                                <small class="form-text text-muted">
+                                    Formatos permitidos: JPEG, PNG, JPG, GIF, WEBP. Tamaño máximo: 5MB
+                                </small>
+                                @error('photo')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <div id="photo-preview" class="mt-2" style="display: none;">
+                                    <img id="preview-image" src="" alt="Vista previa" class="img-thumbnail" style="max-width: 300px; max-height: 300px;">
+                                    <button type="button" class="btn btn-sm btn-danger mt-2" onclick="clearPhotoPreview()">
+                                        <i class="bi bi-x-circle me-1"></i>Eliminar foto
+                                    </button>
+                                </div>
+                            </div>
                             <button type="submit" class="btn btn-primary btn-custom">
-                                <i class="bi bi-send me-1"></i>Post Comment
+                                <i class="bi bi-send me-1"></i>Publicar Comentario
                             </button>
                         </form>
                         <div class="alert alert-info mt-3" role="alert">
-                            <i class="bi bi-info-circle me-2"></i>Your comment will be reviewed before being published.
+                            <i class="bi bi-info-circle me-2"></i>Tu comentario será revisado antes de ser publicado.
                         </div>
                     </div>
+                    
+                    <script>
+                        document.getElementById('photo').addEventListener('change', function(e) {
+                            const file = e.target.files[0];
+                            if (file) {
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    document.getElementById('preview-image').src = e.target.result;
+                                    document.getElementById('photo-preview').style.display = 'block';
+                                }
+                                reader.readAsDataURL(file);
+                            }
+                        });
+                        
+                        function clearPhotoPreview() {
+                            document.getElementById('photo').value = '';
+                            document.getElementById('preview-image').src = '';
+                            document.getElementById('photo-preview').style.display = 'none';
+                        }
+                    </script>
                 @else
                     <div class="alert alert-warning mb-4" role="alert">
                         <i class="bi bi-exclamation-triangle me-2"></i>
@@ -193,18 +316,55 @@
                         @foreach($festivity->approvedComments as $comment)
                             <div class="card mb-3">
                                 <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <h6 class="card-subtitle mb-1">
-                                            <i class="bi bi-person-circle me-1"></i>{{ $comment->user->name }}
-                                        </h6>
-                                        <small class="text-muted">
-                                            <i class="bi bi-clock me-1"></i>{{ $comment->created_at->format('M j, Y') }}
-                                        </small>
+                                    <div class="row g-3">
+                                        @if($comment->photo)
+                                            <div class="col-auto">
+                                                <img src="{{ asset($comment->photo) }}" 
+                                                     alt="Foto del comentario de {{ $comment->user->name }}" 
+                                                     class="rounded shadow-sm"
+                                                     style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;"
+                                                     onclick="openImageModal('{{ asset($comment->photo) }}')"
+                                                     onerror="this.style.display='none';">
+                                            </div>
+                                        @endif
+                                        <div class="col">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="card-subtitle mb-1">
+                                                    <i class="bi bi-person-circle me-1"></i>{{ $comment->user->name }}
+                                                </h6>
+                                                <small class="text-muted">
+                                                    <i class="bi bi-clock me-1"></i>{{ $comment->created_at->format('M j, Y') }}
+                                                </small>
+                                            </div>
+                                            <p class="card-text mb-0">{{ $comment->content }}</p>
+                                        </div>
                                     </div>
-                                    <p class="card-text">{{ $comment->content }}</p>
                                 </div>
                             </div>
                         @endforeach
+                        
+                        <!-- Modal para ver imagen en grande -->
+                        <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Imagen del comentario</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img id="modal-image" src="" alt="Imagen ampliada" class="img-fluid">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <script>
+                            function openImageModal(imageSrc) {
+                                document.getElementById('modal-image').src = imageSrc;
+                                const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                                modal.show();
+                            }
+                        </script>
                     </div>
                 @else
                     <div class="text-center py-4">
@@ -213,7 +373,7 @@
                     </div>
                 @endif
             </div>
-        </div>
+        </section>
     </div>
 
 </x-app-layout>

@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="d-flex justify-content-between align-items-center">
             <h1 class="display-6 fw-bold text-primary mb-0">
-                <i class="bi bi-geo-alt me-2"></i>{{ $locality->name }}
+                <i class="bi bi-geo-alt me-2" aria-hidden="true"></i>{{ $locality->name }}
             </h1>
             @auth
                 <div class="d-flex gap-2">
@@ -54,7 +54,13 @@
                                 <div class="carousel-inner">
                                     @foreach($locality->photos as $index => $photo)
                                         <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                            <img src="{{ $photo }}" class="d-block w-100" alt="{{ $locality->name }}" style="height: 400px; object-fit: cover;">
+                                            <img src="{{ $photo }}" 
+                                                 class="d-block w-100" 
+                                                 alt="{{ $locality->name }} - Imagen {{ $index + 1 }}" 
+                                                 loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
+                                                 style="height: 400px; object-fit: cover;"
+                                                 width="1200"
+                                                 height="400">
                                         </div>
                                     @endforeach
                                 </div>
@@ -76,45 +82,45 @@
             @endif
 
             <!-- Basic Information -->
-            <div class="card mb-4">
+            <article class="card mb-4">
                 <div class="card-body">
-                    <h3 class="card-title h4 fw-bold mb-3">
-                        <i class="bi bi-info-circle me-2"></i>About {{ $locality->name }}
-                    </h3>
+                    <h2 class="card-title h4 fw-bold mb-3">
+                        <i class="bi bi-info-circle me-2" aria-hidden="true"></i>Sobre {{ $locality->name }}
+                    </h2>
                     <p class="card-text mb-3">{{ $locality->description }}</p>
                     <p class="text-muted">
                         <i class="bi bi-geo-alt me-1"></i><strong>Address:</strong> {{ $locality->address }}
                     </p>
                 </div>
-            </div>
+            </article>
 
             <!-- Places of Interest -->
-            <div class="card mb-4">
+            <section class="card mb-4" aria-label="Lugares de interés">
                 <div class="card-body">
-                    <h3 class="card-title h4 fw-bold mb-3">
-                        <i class="bi bi-star me-2"></i>Places of Interest
-                    </h3>
+                    <h2 class="card-title h4 fw-bold mb-3">
+                        <i class="bi bi-star me-2" aria-hidden="true"></i>Lugares de Interés
+                    </h2>
                     <div class="card-text" style="white-space: pre-line;">{{ $locality->places_of_interest }}</div>
                 </div>
-            </div>
+            </section>
 
             <!-- Monuments -->
-            <div class="card mb-4">
+            <section class="card mb-4" aria-label="Monumentos">
                 <div class="card-body">
-                    <h3 class="card-title h4 fw-bold mb-3">
-                        <i class="bi bi-building me-2"></i>Monuments
-                    </h3>
+                    <h2 class="card-title h4 fw-bold mb-3">
+                        <i class="bi bi-building me-2" aria-hidden="true"></i>Monumentos
+                    </h2>
                     <div class="card-text" style="white-space: pre-line;">{{ $locality->monuments }}</div>
                 </div>
-            </div>
+            </section>
 
             <!-- Festivities -->
-            <div class="card">
+            <section class="card" aria-label="Festividades">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="card-title h4 fw-bold mb-0">
-                            <i class="bi bi-calendar-event me-2"></i>Festivities in {{ $locality->name }}
-                        </h3>
+                        <h2 class="card-title h4 fw-bold mb-0">
+                            <i class="bi bi-calendar-event me-2" aria-hidden="true"></i>Festividades en {{ $locality->name }}
+                        </h2>
                         @auth
                             @can('create', App\Models\Festivity::class)
                                 <a href="{{ route('festivities.create') }}?locality_id={{ $locality->id }}" class="btn btn-success btn-custom">
@@ -130,7 +136,13 @@
                                 <div class="col-md-6">
                                     <div class="card h-100 card-hover">
                                         @if($festivity->photos && count($festivity->photos) > 0)
-                                            <img src="{{ $festivity->photos[0] }}" class="card-img-top" alt="{{ $festivity->name }}" style="height: 150px; object-fit: cover;">
+                                            <img src="{{ $festivity->photos[0] }}" 
+                                                 class="card-img-top" 
+                                                 alt="{{ $festivity->name }}" 
+                                                 loading="lazy"
+                                                 style="height: 150px; object-fit: cover;"
+                                                 width="400"
+                                                 height="150">
                                         @endif
                                         <div class="card-body d-flex flex-column">
                                             <h5 class="card-title">{{ $festivity->name }}</h5>
@@ -157,7 +169,7 @@
                         </div>
                     @endif
                 </div>
-            </div>
+            </section>
         </div>
     </div>
 

@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\Festivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class CommentController extends Controller
@@ -19,12 +20,25 @@ class CommentController extends Controller
     {
         $validated = $request->validate([
             'content' => 'required|string|max:1000',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120', // 5MB max
         ]);
 
-        $comment = new Comment($validated);
+        $comment = new Comment();
+        $comment->content = $validated['content'];
         $comment->user_id = Auth::id();
         $comment->festivity_id = $festivity->id;
         $comment->approved = false; // Default to pending approval
+
+        // Handle photo upload if provided
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+            // Store in public disk under comments directory
+            $path = $photo->storeAs('comments', $filename, 'public');
+            // Get relative URL (without domain) for storage
+            $comment->photo = '/storage/comments/' . $filename;
+        }
+
         $comment->save();
 
         // Otorgar puntos por comentar (solo a visitantes)

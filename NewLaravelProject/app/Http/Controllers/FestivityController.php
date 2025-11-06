@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Festivity;
 use App\Models\Locality;
+use App\Services\SeoService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,7 +20,16 @@ class FestivityController extends Controller
     public function index()
     {
         $festivities = Festivity::with('locality')->orderBy('start_date')->get();
-        return view('festivities.index', compact('festivities'));
+        
+        // SEO Meta Tags
+        $meta = SeoService::generateMetaTags([
+            'title' => 'Festividades de España - Calendario Completo | FestiTowns',
+            'description' => 'Descubre todas las festividades tradicionales de España. Fallas de Valencia, San Fermín, Feria de Abril y muchas más. Calendario completo con fechas, eventos y tradiciones.',
+            'keywords' => 'festividades españa, calendario festividades, fiestas tradicionales, eventos culturales españa',
+            'url' => route('festivities.index'),
+        ]);
+        
+        return view('festivities.index', compact('festivities', 'meta'));
     }
 
     /**
@@ -29,7 +40,12 @@ class FestivityController extends Controller
         try {
             $this->authorize('create', Festivity::class);
             
-            return view('festivities.create');
+            $locality = null;
+            if ($request->has('locality_id')) {
+                $locality = Locality::find($request->get('locality_id'));
+            }
+            
+            return view('festivities.create', compact('locality'));
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return redirect()->route('festivities.index')
                 ->with('error', 'You do not have permission to create festivities.');
@@ -51,7 +67,8 @@ class FestivityController extends Controller
                 'start_date' => 'required|date',
                 'end_date' => 'nullable|date|after_or_equal:start_date',
                 'description' => 'required|string',
-                'photos' => 'nullable|array',
+                'photos' => 'nullable|array|max:10',
+                'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             ]);
 
             // Find or create the locality
@@ -67,9 +84,20 @@ class FestivityController extends Controller
                 ]
             );
 
+            // Process photos
+            $photos = [];
+            if ($request->hasFile('photos')) {
+                foreach ($request->file('photos') as $photo) {
+                    $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+                    $path = $photo->storeAs('festivities', $filename, 'public');
+                    $photos[] = '/storage/festivities/' . $filename;
+                }
+            }
+            
             // Create festivity with locality_id
             $festivityData = $validated;
             $festivityData['locality_id'] = $locality->id;
+            $festivityData['photos'] = $photos;
             unset($festivityData['locality_name']);
             
             Festivity::create($festivityData);
@@ -113,7 +141,28 @@ class FestivityController extends Controller
             }
         }
         
-        return view('festivities.show', compact('festivity', 'userVotedToday', 'visitPointsEarned'));
+        // SEO Meta Tags
+        $image = $festivity->photos && count($festivity->photos) > 0 
+            ? (filter_var($festivity->photos[0], FILTER_VALIDATE_URL) ? $festivity->photos[0] : url($festivity->photos[0]))
+            : asset('favicon.ico');
+        
+        $meta = SeoService::generateMetaTags([
+            'title' => SeoService::generateFestivityTitle($festivity),
+            'description' => SeoService::generateFestivityDescription($festivity),
+            'keywords' => SeoService::generateKeywords('festivity', [
+                'name' => $festivity->name,
+                'locality' => $festivity->locality->name ?? '',
+                'province' => $festivity->province ?? '',
+            ]),
+            'image' => $image,
+            'url' => route('festivities.show', $festivity),
+            'type' => 'article',
+        ]);
+        
+        // Schema.org JSON-LD
+        $schema = SeoService::generateEventSchema($festivity);
+        
+        return view('festivities.show', compact('festivity', 'userVotedToday', 'visitPointsEarned', 'meta', 'schema'));
     }
 
     /**
@@ -133,15 +182,17 @@ class FestivityController extends Controller
     {
         $this->authorize('update', $festivity);
         
-        $validated = $request->validate([
-            'locality_name' => 'required|string|max:255',
-            'province' => 'required|string|in:' . implode(',', config('provinces.provinces')),
-            'name' => 'required|string|max:255',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'description' => 'required|string',
-            'photos' => 'nullable|array',
-        ]);
+            $validated = $request->validate([
+                'locality_name' => 'required|string|max:255',
+                'province' => 'required|string|in:' . implode(',', config('provinces.provinces')),
+                'name' => 'required|string|max:255',
+                'start_date' => 'required|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'description' => 'required|string',
+                'photos' => 'nullable|array|max:10',
+                'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'existing_photos' => 'nullable|array',
+            ]);
 
         // Find or create the locality
         $locality = Locality::firstOrCreate(
@@ -156,9 +207,36 @@ class FestivityController extends Controller
             ]
         );
 
+        // Process photos - combine existing and new
+        $photos = [];
+        
+        // Keep existing photos that weren't removed
+        if ($request->has('existing_photos')) {
+            $photos = array_merge($photos, $request->input('existing_photos', []));
+        }
+        
+        // Add new photos
+        $newPhotosCount = $request->hasFile('photos') ? count($request->file('photos')) : 0;
+        $totalPhotos = count($photos) + $newPhotosCount;
+        
+        if ($totalPhotos > 10) {
+            return redirect()->back()
+                ->with('error', 'No puedes tener más de 10 fotos en total.')
+                ->withInput();
+        }
+        
+        if ($request->hasFile('photos')) {
+            foreach ($request->file('photos') as $photo) {
+                $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+                $path = $photo->storeAs('festivities', $filename, 'public');
+                $photos[] = '/storage/festivities/' . $filename;
+            }
+        }
+
         // Update festivity with locality_id
         $festivityData = $validated;
         $festivityData['locality_id'] = $locality->id;
+        $festivityData['photos'] = $photos;
         unset($festivityData['locality_name']);
         
         $festivity->update($festivityData);

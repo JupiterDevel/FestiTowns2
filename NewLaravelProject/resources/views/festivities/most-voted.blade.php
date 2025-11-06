@@ -64,24 +64,7 @@
                                             <span class="text-muted ms-1">{{ Str::plural('voto', $festivity->votes_count) }}</span>
                                         </div>
                                         
-                                        @auth
-                                            @if($userVotedToday)
-                                                <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
-                                                    <i class="bi bi-check-circle me-1"></i>Ya votaste hoy
-                                                </button>
-                                            @else
-                                                <form action="{{ route('votes.store', $festivity) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-primary btn-sm">
-                                                        <i class="bi bi-heart me-1"></i>Votar
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        @else
-                                            <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">
-                                                <i class="bi bi-heart me-1"></i>Inicia sesión para votar
-                                            </a>
-                                        @endauth
+
                                     </div>
                                     
                                     <div class="d-grid">

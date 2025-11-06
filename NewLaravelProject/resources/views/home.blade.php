@@ -12,10 +12,20 @@
                     <label for="search" class="form-label">Término de búsqueda</label>
                     <div class="input-group">
                         <input type="text" class="form-control" id="search" name="search" 
-                               value="{{ $searchQuery }}" placeholder="Buscar festividades, localidades...">
+                               value="{{ $searchType !== 'date' ? $searchQuery : '' }}" placeholder="Buscar festividades, localidades...">
                         <input type="date" class="form-control" id="search_date" name="search_date" 
                                value="{{ $searchType == 'date' ? $searchQuery : '' }}" 
                                style="display: none;">
+                        <select class="form-control" id="search_province" name="search_province" 
+                                style="display: none;">
+                            <option value="">Seleccionar provincia...</option>
+                            @foreach(config('provinces.provinces') as $province)
+                                <option value="{{ $province }}" 
+                                        {{ ($searchType == 'province' && $searchQuery == $province) ? 'selected' : '' }}>
+                                    {{ $province }}
+                                </option>
+                            @endforeach
+                        </select>
                         <span class="input-group-text" id="search_icon" style="display: none;">
                             <i class="bi bi-calendar3"></i>
                         </span>
@@ -32,6 +42,9 @@
                         </option>
                         <option value="date" {{ ($searchType ?? '') == 'date' ? 'selected' : '' }}>
                             Por Fecha
+                        </option>
+                        <option value="province" {{ ($searchType ?? '') == 'province' ? 'selected' : '' }}>
+                            Por Provincia
                         </option>
                     </select>
                 </div>
@@ -51,6 +64,13 @@
                     <small class="text-muted">
                         <i class="bi bi-info-circle me-1"></i>
                         Selecciona una fecha para ver festividades cercanas (hasta una semana después)
+                    </small>
+                </div>
+            @elseif($searchType == 'province')
+                <div class="mt-2">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Selecciona una provincia para ver todas las festividades en esa provincia
                     </small>
                 </div>
             @endif
@@ -81,6 +101,9 @@
                                             <h5 class="card-title">{{ $locality->name }}</h5>
                                             <p class="text-muted mb-2">
                                                 <i class="bi bi-geo-alt me-1"></i>{{ $locality->address }}
+                                                @if($locality->province)
+                                                    <br><small><i class="bi bi-map me-1"></i>{{ $locality->province }}</small>
+                                                @endif
                                             </p>
                                             <p class="card-text flex-grow-1">{{ Str::limit($locality->description, 120) }}</p>
                                             <div class="d-flex justify-content-between align-items-center mt-auto">
@@ -110,6 +133,9 @@
                                             <h5 class="card-title">{{ $festivity->name }}</h5>
                                             <p class="text-muted mb-2">
                                                 <i class="bi bi-geo-alt me-1"></i>{{ $festivity->locality->name }}
+                                                @if($festivity->province)
+                                                    <br><small><i class="bi bi-map me-1"></i>{{ $festivity->province }}</small>
+                                                @endif
                                             </p>
                                             <p class="text-muted small mb-3">
                                                 <i class="bi bi-calendar me-1"></i>
@@ -178,6 +204,9 @@
                                 <h5 class="card-title">{{ $festivity->name }}</h5>
                                 <p class="text-muted mb-2">
                                     <i class="bi bi-geo-alt me-1"></i>{{ $festivity->locality->name }}
+                                    @if($festivity->province)
+                                        <br><small><i class="bi bi-map me-1"></i>{{ $festivity->province }}</small>
+                                    @endif
                                 </p>
                                 <p class="text-muted small mb-3">
                                     <i class="bi bi-calendar me-1"></i>
@@ -213,6 +242,9 @@
                                 <h5 class="card-title">{{ $locality->name }}</h5>
                                 <p class="text-muted mb-2">
                                     <i class="bi bi-geo-alt me-1"></i>{{ $locality->address }}
+                                    @if($locality->province)
+                                        <br><small><i class="bi bi-map me-1"></i>{{ $locality->province }}</small>
+                                    @endif
                                 </p>
                                 <p class="card-text flex-grow-1">{{ Str::limit($locality->description, 120) }}</p>
                                 <div class="d-flex justify-content-between align-items-center mt-auto">
@@ -356,27 +388,47 @@
             const searchTypeSelect = document.getElementById('search_type');
             const searchInput = document.getElementById('search');
             const searchDateInput = document.getElementById('search_date');
+            const searchProvinceSelect = document.getElementById('search_province');
             const searchIcon = document.getElementById('search_icon');
             const searchForm = document.querySelector('form[method="GET"]');
             
-            // Cambiar entre input de texto y selector de fecha
+            // Cambiar entre input de texto, selector de fecha y selector de provincia
             function toggleInputType() {
                 const searchType = searchTypeSelect.value;
                 
+                // Ocultar todos los inputs primero
+                searchInput.style.display = 'none';
+                searchDateInput.style.display = 'none';
+                searchProvinceSelect.style.display = 'none';
+                searchIcon.style.display = 'none';
+                
+                // Resetear required
+                searchInput.required = false;
+                searchDateInput.required = false;
+                searchProvinceSelect.required = false;
+                
                 if (searchType === 'date') {
-                    // Mostrar selector de fecha y ocultar input de texto
-                    searchInput.style.display = 'none';
+                    // Mostrar selector de fecha
                     searchDateInput.style.display = 'block';
                     searchIcon.style.display = 'block';
                     searchDateInput.required = true;
-                    searchInput.required = false;
+                    // Limpiar otros inputs
+                    searchInput.value = '';
+                    searchProvinceSelect.value = '';
+                } else if (searchType === 'province') {
+                    // Mostrar selector de provincia
+                    searchProvinceSelect.style.display = 'block';
+                    searchProvinceSelect.required = true;
+                    // Limpiar otros inputs
+                    searchInput.value = '';
+                    searchDateInput.value = '';
                 } else {
-                    // Mostrar input de texto y ocultar selector de fecha
+                    // Mostrar input de texto
                     searchInput.style.display = 'block';
-                    searchDateInput.style.display = 'none';
-                    searchIcon.style.display = 'none';
                     searchInput.required = true;
-                    searchDateInput.required = false;
+                    // Limpiar otros inputs
+                    searchDateInput.value = '';
+                    searchProvinceSelect.value = '';
                 }
             }
             
@@ -393,29 +445,30 @@
                     case 'date':
                         searchInput.placeholder = 'Selecciona una fecha';
                         break;
+                    case 'province':
+                        searchInput.placeholder = 'Selecciona una provincia';
+                        break;
                 }
             }
             
-            // Sincronizar valores entre inputs
+            // Sincronizar valores entre inputs (solo al cargar la página)
             function syncInputs() {
-                if (searchTypeSelect.value === 'date') {
-                    // Si hay valor en el input de texto, copiarlo al date picker
-                    if (searchInput.value && isValidDate(searchInput.value)) {
-                        searchDateInput.value = searchInput.value;
-                    }
-                } else {
-                    // Si hay valor en el date picker, copiarlo al input de texto
-                    if (searchDateInput.value) {
-                        searchInput.value = searchDateInput.value;
-                    }
+                // Solo sincronizar si hay valores válidos y el tipo coincide
+                if (searchTypeSelect.value === 'date' && searchDateInput.value) {
+                    // Si estamos en modo fecha y hay fecha, mantenerla
+                    return;
+                } else if (searchTypeSelect.value !== 'date' && searchInput.value) {
+                    // Si estamos en modo texto y hay texto, mantenerlo
+                    return;
                 }
+                // Si no hay valores válidos, no hacer nada
             }
             
             // Actualizar tipo de input al cambiar el selector
             searchTypeSelect.addEventListener('change', function() {
                 toggleInputType();
                 updatePlaceholder();
-                syncInputs();
+                // No sincronizar valores al cambiar tipo, solo limpiar
             });
             
             // Sincronizar cuando se cambie el valor del date picker
@@ -432,6 +485,13 @@
                         e.preventDefault();
                         alert('Por favor, selecciona una fecha');
                         searchDateInput.focus();
+                        return;
+                    }
+                } else if (searchTypeSelect.value === 'province') {
+                    if (!searchProvinceSelect.value) {
+                        e.preventDefault();
+                        alert('Por favor, selecciona una provincia');
+                        searchProvinceSelect.focus();
                         return;
                     }
                 }

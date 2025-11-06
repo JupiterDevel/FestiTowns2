@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Festivity extends Model
 {
@@ -12,11 +13,50 @@ class Festivity extends Model
         'locality_id',
         'province',
         'name',
+        'slug',
         'start_date',
         'end_date',
         'description',
         'photos',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($festivity) {
+            if (empty($festivity->slug)) {
+                $festivity->slug = static::generateUniqueSlug($festivity->name);
+            }
+        });
+
+        static::updating(function ($festivity) {
+            if ($festivity->isDirty('name') && empty($festivity->slug)) {
+                $festivity->slug = static::generateUniqueSlug($festivity->name, $festivity->id);
+            }
+        });
+    }
+
+    protected static function generateUniqueSlug($name, $id = null)
+    {
+        $slug = Str::slug($name);
+        $query = static::where('slug', $slug);
+        
+        if ($id) {
+            $query->where('id', '!=', $id);
+        }
+        
+        if ($query->exists()) {
+            $slug .= '-' . ($query->count() + 1);
+        }
+        
+        return $slug;
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     protected $casts = [
         'start_date' => 'date',

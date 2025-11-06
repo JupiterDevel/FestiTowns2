@@ -11,6 +11,7 @@ class Comment extends Model
         'festivity_id',
         'user_id',
         'content',
+        'photo',
         'approved',
     ];
 

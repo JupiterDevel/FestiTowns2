@@ -1,2 +1,24 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Disallow admin and private areas
+Disallow: /profile
+Disallow: /users
+Disallow: /comentarios/pendientes
+Disallow: /localidades/crear
+Disallow: /localidades/*/editar
+Disallow: /festividades/crear
+Disallow: /festividades/*/editar
+Disallow: /festividades/*/eventos/crear
+Disallow: /festividades/*/eventos/*/editar
+
+# Allow public content
+Allow: /
+Allow: /localidades
+Allow: /festividades
+Allow: /mas-votadas
+Allow: /festividades/*
+Allow: /localidades/*
+
+# Crawl-delay
+Crawl-delay: 1

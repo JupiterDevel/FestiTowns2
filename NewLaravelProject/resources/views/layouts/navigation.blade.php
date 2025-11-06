@@ -25,11 +25,6 @@
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('festivities.most-voted') ? 'active' : '' }}" href="{{ route('festivities.most-voted') }}">Las Más Votadas</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('home') && request()->has('search') ? 'active' : '' }}" href="{{ route('home') }}">
-                        <i class="bi bi-search me-1"></i>Buscar
-                    </a>
-                </li>
                 @auth
                     @if(auth()->user()->isAdmin() || auth()->user()->isTownHall())
                         <li class="nav-item">

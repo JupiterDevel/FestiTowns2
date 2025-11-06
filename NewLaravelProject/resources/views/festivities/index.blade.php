@@ -48,6 +48,9 @@
                             <h5 class="card-title">{{ $festivity->name }}</h5>
                             <p class="text-muted mb-2">
                                 <i class="bi bi-geo-alt me-1"></i>{{ $festivity->locality->name }}
+                                @if($festivity->province)
+                                    <br><small><i class="bi bi-map me-1"></i>{{ $festivity->province }}</small>
+                                @endif
                             </p>
                             <p class="text-muted small mb-3">
                                 <i class="bi bi-calendar me-1"></i>
