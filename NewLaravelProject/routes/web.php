@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdvertisementController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocalityController;
@@ -72,6 +73,10 @@ Route::middleware('auth')->group(function () {
     Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::patch('users/{user}', [UserController::class, 'update'])->name('users.patch');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Premium advertisements admin
+    Route::resource('advertisements', AdvertisementController::class)->except(['show']);
+    Route::patch('advertisements/{advertisement}/toggle-active', [AdvertisementController::class, 'toggle'])->name('advertisements.toggle');
 });
 
 require __DIR__.'/auth.php';
