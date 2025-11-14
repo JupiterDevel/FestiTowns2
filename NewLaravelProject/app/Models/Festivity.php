@@ -35,6 +35,14 @@ class Festivity extends Model
                 $festivity->slug = static::generateUniqueSlug($festivity->name, $festivity->id);
             }
         });
+
+        static::updated(function ($festivity) {
+            if ($festivity->wasChanged(['start_date', 'end_date'])) {
+                $festivity->advertisements()->get()->each(function ($advertisement) {
+                    $advertisement->save();
+                });
+            }
+        });
     }
 
     protected static function generateUniqueSlug($name, $id = null)
@@ -82,6 +90,11 @@ class Festivity extends Model
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
+    }
+
+    public function advertisements(): HasMany
+    {
+        return $this->hasMany(Advertisement::class);
     }
 
     public function events(): HasMany

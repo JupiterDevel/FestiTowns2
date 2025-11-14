@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Festivity;
 use App\Models\Locality;
+use App\Services\AdvertisementService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,10 @@ use Illuminate\Support\Facades\Auth;
 class FestivityController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(private AdvertisementService $advertisementService)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -161,8 +166,23 @@ class FestivityController extends Controller
         
         // Schema.org JSON-LD
         $schema = SeoService::generateEventSchema($festivity);
+
+        $ads = $this->advertisementService->forFestivity($festivity);
+        $adCreationParams = [
+            'festivity_id' => $festivity->id,
+            'locality_id' => $festivity->locality_id,
+        ];
         
-        return view('festivities.show', compact('festivity', 'userVotedToday', 'visitPointsEarned', 'meta', 'schema'));
+        return view('festivities.show', [
+            'festivity' => $festivity,
+            'userVotedToday' => $userVotedToday,
+            'visitPointsEarned' => $visitPointsEarned,
+            'meta' => $meta,
+            'schema' => $schema,
+            'mainAdvertisement' => $ads['main'],
+            'secondaryAdvertisements' => $ads['secondary'],
+            'adCreationParams' => $adCreationParams,
+        ]);
     }
 
     /**
