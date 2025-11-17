@@ -45,9 +45,27 @@ class FestivityController extends Controller
         try {
             $this->authorize('create', Festivity::class);
             
-            $locality = null;
-            if ($request->has('locality_id')) {
+            $user = Auth::user();
+            
+            // Si el usuario es townhall, debe venir desde una localidad
+            if ($user->isTownHall()) {
+                if (!$request->has('locality_id')) {
+                    return redirect()->route('festivities.index')
+                        ->with('error', 'Los usuarios con rol de ayuntamiento solo pueden añadir festividades desde la vista de su localidad.');
+                }
+                
                 $locality = Locality::find($request->get('locality_id'));
+                
+                // Verificar que la localidad pertenece al usuario townhall
+                if (!$locality || $locality->id !== $user->locality_id) {
+                    return redirect()->route('festivities.index')
+                        ->with('error', 'Solo puedes añadir festividades para tu localidad asignada.');
+                }
+            } else {
+                $locality = null;
+                if ($request->has('locality_id')) {
+                    $locality = Locality::find($request->get('locality_id'));
+                }
             }
             
             return view('festivities.create', compact('locality'));
@@ -65,6 +83,8 @@ class FestivityController extends Controller
         try {
             $this->authorize('create', Festivity::class);
             
+            $user = Auth::user();
+            
             $validated = $request->validate([
                 'locality_name' => 'required|string|max:255',
                 'province' => 'required|string|in:' . implode(',', config('provinces.provinces')),
@@ -75,6 +95,25 @@ class FestivityController extends Controller
                 'photos' => 'nullable|array|max:10',
                 'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             ]);
+
+            // Si el usuario es townhall, validar que está creando para su localidad
+            if ($user->isTownHall()) {
+                if (!$user->locality_id) {
+                    return redirect()->back()
+                        ->with('error', 'No tienes una localidad asignada. Contacta con un administrador.')
+                        ->withInput();
+                }
+                
+                // Verificar que la localidad que está creando coincide con la suya
+                $userLocality = Locality::find($user->locality_id);
+                if (!$userLocality || 
+                    ($userLocality->name !== $validated['locality_name'] || 
+                     $userLocality->province !== $validated['province'])) {
+                    return redirect()->back()
+                        ->with('error', 'Solo puedes añadir festividades para tu localidad asignada.')
+                        ->withInput();
+                }
+            }
 
             // Find or create the locality
             $locality = Locality::firstOrCreate(
@@ -88,6 +127,13 @@ class FestivityController extends Controller
                     'monuments' => ''
                 ]
             );
+            
+            // Si es townhall, asegurar que la localidad encontrada/creada es la suya
+            if ($user->isTownHall() && $locality->id !== $user->locality_id) {
+                return redirect()->back()
+                    ->with('error', 'Solo puedes añadir festividades para tu localidad asignada.')
+                    ->withInput();
+            }
 
             // Process photos
             $photos = [];
@@ -106,6 +152,12 @@ class FestivityController extends Controller
             unset($festivityData['locality_name']);
             
             Festivity::create($festivityData);
+
+            // Redirigir según el origen
+            if ($user->isTownHall() && $locality) {
+                return redirect()->route('localities.show', $locality)
+                    ->with('success', 'Festividad creada exitosamente.');
+            }
 
             return redirect()->route('festivities.index')
                 ->with('success', 'Festivity created successfully.');

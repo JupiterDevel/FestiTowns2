@@ -131,9 +131,11 @@
                             </h2>
                             @auth
                                 @can('create', App\Models\Festivity::class)
-                                    <a href="{{ route('festivities.create') }}?locality_id={{ $locality->id }}" class="btn btn-success btn-custom">
-                                        <i class="bi bi-plus-circle me-1"></i>Add Festivity
-                                    </a>
+                                    @if(!auth()->user()->isTownHall() || (auth()->user()->isTownHall() && auth()->user()->locality_id === $locality->id))
+                                        <a href="{{ route('festivities.create') }}?locality_id={{ $locality->id }}" class="btn btn-success btn-custom">
+                                            <i class="bi bi-plus-circle me-1"></i>Add Festivity
+                                        </a>
+                                    @endif
                                 @endcan
                             @endauth
                         </div>
