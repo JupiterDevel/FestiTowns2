@@ -58,6 +58,11 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Google AdSense Script (GDPR-friendly: lazy loading) -->
+        @if(config('services.google.adsense_client_id'))
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config('services.google.adsense_client_id') }}" crossorigin="anonymous"></script>
+        @endif
     </head>
     <body>
         @include('layouts.navigation')
@@ -75,5 +80,8 @@
         <main class="py-4">
             {{ $slot }}
         </main>
+        
+        <!-- Stack for additional scripts (e.g., Google Maps) -->
+        @stack('scripts')
     </body>
 </html>

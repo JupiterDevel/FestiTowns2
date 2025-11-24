@@ -18,6 +18,9 @@ class Festivity extends Model
         'end_date',
         'description',
         'photos',
+        'latitude',
+        'longitude',
+        'google_maps_url',
     ];
 
     protected static function boot()
@@ -70,6 +73,8 @@ class Festivity extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'photos' => 'array',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     public function locality(): BelongsTo

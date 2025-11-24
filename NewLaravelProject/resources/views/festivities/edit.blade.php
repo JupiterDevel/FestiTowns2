@@ -92,6 +92,22 @@
                             </div>
 
                             <div class="mb-4">
+                                <label for="google_maps_url" class="form-label fw-bold">
+                                    <i class="bi bi-geo-alt-fill me-1"></i>Google Maps URL <small class="text-muted">(opcional)</small>
+                                </label>
+                                <input type="url" name="google_maps_url" id="google_maps_url" 
+                                       value="{{ old('google_maps_url', $festivity->google_maps_url) }}" 
+                                       class="form-control @error('google_maps_url') is-invalid @enderror"
+                                       placeholder="https://maps.google.com/?q=40.7128,-74.0060">
+                                <small class="form-text text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>Pega la URL de Google Maps de la ubicación de la festividad. Las coordenadas se extraerán automáticamente.
+                                </small>
+                                @error('google_maps_url')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-4">
                                 <label class="form-label fw-bold">
                                     <i class="bi bi-images me-1"></i>Fotos actuales
                                 </label>
