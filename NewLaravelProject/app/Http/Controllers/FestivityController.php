@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Festivity;
 use App\Models\Locality;
 use App\Services\AdvertisementService;
+use App\Services\GoogleMapsService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,8 +17,10 @@ class FestivityController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(private AdvertisementService $advertisementService)
-    {
+    public function __construct(
+        private AdvertisementService $advertisementService,
+        private GoogleMapsService $googleMapsService
+    ) {
     }
 
     /**
@@ -35,6 +39,127 @@ class FestivityController extends Controller
         ]);
         
         return view('festivities.index', compact('festivities', 'meta'));
+    }
+
+    /**
+     * Get nearby festivities based on user coordinates.
+     * Uses Haversine formula to calculate distance.
+     */
+    public function nearby(Request $request)
+    {
+        try {
+            $request->validate([
+                'latitude' => 'required|numeric|between:-90,90',
+                'longitude' => 'required|numeric|between:-180,180',
+                'radius' => 'nullable|numeric|min:1|max:500', // radius in kilometers
+            ]);
+
+            $latitude = $request->input('latitude');
+            $longitude = $request->input('longitude');
+            $radius = $request->input('radius', 50); // Default 50km
+
+            // Check database driver
+            $driver = config('database.default');
+            $connection = config("database.connections.{$driver}.driver");
+            
+            if ($connection === 'sqlite') {
+                // SQLite doesn't support radians/degrees functions, use a simpler approach
+                // Get all festivities with coordinates and calculate distance in PHP
+                $festivities = Festivity::with('locality')
+                    ->whereNotNull('latitude')
+                    ->whereNotNull('longitude')
+                    ->get()
+                    ->map(function ($festivity) use ($latitude, $longitude) {
+                        $festivity->distance = $this->calculateDistance(
+                            $latitude,
+                            $longitude,
+                            $festivity->latitude,
+                            $festivity->longitude
+                        );
+                        return $festivity;
+                    })
+                    ->filter(function ($festivity) use ($radius) {
+                        return $festivity->distance <= $radius;
+                    })
+                    ->sortBy('distance')
+                    ->take(20)
+                    ->values();
+            } else {
+                // MySQL/PostgreSQL: Use SQL Haversine formula
+                $festivities = Festivity::with('locality')
+                    ->whereNotNull('latitude')
+                    ->whereNotNull('longitude')
+                    ->selectRaw('*, (
+                        6371 * acos(
+                            cos(radians(?)) * 
+                            cos(radians(latitude)) * 
+                            cos(radians(longitude) - radians(?)) + 
+                            sin(radians(?)) * 
+                            sin(radians(latitude))
+                        )
+                    ) AS distance', [$latitude, $longitude, $latitude])
+                    ->havingRaw('distance <= ?', [$radius])
+                    ->orderBy('distance')
+                    ->limit(20)
+                    ->get();
+            }
+
+            return response()->json([
+                'success' => true,
+                'festivities' => $festivities->map(function ($festivity) {
+                    return [
+                        'id' => $festivity->id,
+                        'name' => $festivity->name,
+                        'slug' => $festivity->slug,
+                        'description' => Str::limit($festivity->description, 150),
+                        'start_date' => $festivity->start_date->format('Y-m-d'),
+                        'end_date' => $festivity->end_date ? $festivity->end_date->format('Y-m-d') : null,
+                        'latitude' => $festivity->latitude,
+                        'longitude' => $festivity->longitude,
+                        'distance' => round($festivity->distance, 2),
+                        'locality' => [
+                            'name' => $festivity->locality->name ?? null,
+                            'province' => $festivity->province ?? null,
+                        ],
+                        'photo' => $festivity->photos && count($festivity->photos) > 0 ? $festivity->photos[0] : null,
+                        'url' => route('festivities.show', $festivity),
+                    ];
+                }),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error in nearby festivities: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Calculate distance between two coordinates using Haversine formula
+     * Returns distance in kilometers
+     */
+    private function calculateDistance($lat1, $lon1, $lat2, $lon2)
+    {
+        $earthRadius = 6371; // Earth's radius in kilometers
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLon = deg2rad($lon2 - $lon1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+             sin($dLon / 2) * sin($dLon / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        $distance = $earthRadius * $c;
+
+        return $distance;
     }
 
     /**
@@ -94,6 +219,7 @@ class FestivityController extends Controller
                 'description' => 'required|string',
                 'photos' => 'nullable|array|max:10',
                 'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+                'google_maps_url' => 'nullable|url|max:500',
             ]);
 
             // Si el usuario es townhall, validar que está creando para su localidad
@@ -145,10 +271,21 @@ class FestivityController extends Controller
                 }
             }
             
+            // Process Google Maps URL and extract coordinates
+            $googleMapsUrl = $validated['google_maps_url'] ?? null;
+            $coordinates = null;
+            
+            if ($googleMapsUrl) {
+                $coordinates = $this->googleMapsService->extractCoordinatesFromUrl($googleMapsUrl);
+            }
+            
             // Create festivity with locality_id
             $festivityData = $validated;
             $festivityData['locality_id'] = $locality->id;
             $festivityData['photos'] = $photos;
+            $festivityData['google_maps_url'] = $googleMapsUrl;
+            $festivityData['latitude'] = $coordinates['latitude'] ?? null;
+            $festivityData['longitude'] = $coordinates['longitude'] ?? null;
             unset($festivityData['locality_name']);
             
             Festivity::create($festivityData);
@@ -264,6 +401,7 @@ class FestivityController extends Controller
                 'photos' => 'nullable|array|max:10',
                 'photos.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
                 'existing_photos' => 'nullable|array',
+                'google_maps_url' => 'nullable|url|max:500',
             ]);
 
         // Find or create the locality
@@ -305,10 +443,21 @@ class FestivityController extends Controller
             }
         }
 
+        // Process Google Maps URL and extract coordinates
+        $googleMapsUrl = $validated['google_maps_url'] ?? null;
+        $coordinates = null;
+        
+        if ($googleMapsUrl) {
+            $coordinates = $this->googleMapsService->extractCoordinatesFromUrl($googleMapsUrl);
+        }
+        
         // Update festivity with locality_id
         $festivityData = $validated;
         $festivityData['locality_id'] = $locality->id;
         $festivityData['photos'] = $photos;
+        $festivityData['google_maps_url'] = $googleMapsUrl;
+        $festivityData['latitude'] = $coordinates['latitude'] ?? null;
+        $festivityData['longitude'] = $coordinates['longitude'] ?? null;
         unset($festivityData['locality_name']);
         
         $festivity->update($festivityData);

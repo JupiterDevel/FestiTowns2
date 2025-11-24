@@ -28,6 +28,7 @@ class User extends Authenticatable
         'rank',
         'points',
         'last_login_at',
+        'google_id',
     ];
 
     /**

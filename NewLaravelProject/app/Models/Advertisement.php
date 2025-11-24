@@ -27,6 +27,10 @@ class Advertisement extends Model
         'start_date',
         'end_date',
         'active',
+        'is_adsense',
+        'adsense_client_id',
+        'adsense_slot_id',
+        'adsense_type',
     ];
 
     protected $casts = [
@@ -34,12 +38,14 @@ class Advertisement extends Model
         'active' => 'boolean',
         'start_date' => 'date',
         'end_date' => 'date',
+        'is_adsense' => 'boolean',
     ];
 
     protected $attributes = [
         'priority' => self::PRIORITY_SECONDARY,
         'premium' => false,
         'active' => true,
+        'is_adsense' => false,
     ];
 
     protected static function booted(): void

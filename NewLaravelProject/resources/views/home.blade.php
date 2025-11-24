@@ -188,6 +188,63 @@
             </div>
         </div>
 
+        <!-- Near Me Section -->
+        <div class="mb-5" id="near-me-section">
+            <h2 class="display-6 fw-bold text-dark mb-4">
+                <i class="bi bi-geo-alt-fill me-2"></i>Near Me
+            </h2>
+            
+            <!-- Location Permission Request -->
+            <div id="location-permission-request" class="card bg-light border-0 shadow-sm">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-geo-alt-fill display-4 text-primary mb-3"></i>
+                    <h4 class="fw-bold mb-3">Discover Festivities Near You</h4>
+                    <p class="text-muted mb-4">
+                        Allow location access to find festivities happening near your current location.
+                    </p>
+                    <button id="request-location-btn" class="btn btn-primary btn-lg">
+                        <i class="bi bi-geo-alt me-2"></i>Find Festivities Near Me
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div id="location-loading" class="card bg-light border-0 shadow-sm" style="display: none;">
+                <div class="card-body text-center py-5">
+                    <div class="spinner-border text-primary mb-3" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="text-muted mb-0">Finding festivities near you...</p>
+                </div>
+            </div>
+            
+            <!-- Error State -->
+            <div id="location-error" class="alert alert-warning" style="display: none;" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <span id="location-error-message"></span>
+            </div>
+            
+            <!-- Results Container -->
+            <div id="nearby-festivities-results" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <p class="text-muted mb-0">
+                        <i class="bi bi-info-circle me-1"></i>
+                        <span id="nearby-count">0</span> festivities found within <span id="search-radius">50</span> km
+                    </p>
+                    <button id="refresh-location-btn" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                </div>
+                <div id="nearby-festivities-grid" class="row g-4">
+                    <!-- Festivities will be loaded here via JavaScript -->
+                </div>
+                <div id="no-nearby-festivities" class="alert alert-info" style="display: none;">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No festivities found near your location. Try increasing the search radius or check back later!
+                </div>
+            </div>
+        </div>
+
         <!-- Upcoming Festivities -->
         <div class="mb-5">
             <h2 class="display-6 fw-bold text-dark mb-4">
@@ -511,5 +568,324 @@
             updatePlaceholder();
             syncInputs();
         });
+        
+        // Near Me Section - Geolocation
+        (function() {
+            const requestLocationBtn = document.getElementById('request-location-btn');
+            const refreshLocationBtn = document.getElementById('refresh-location-btn');
+            const permissionRequest = document.getElementById('location-permission-request');
+            const locationLoading = document.getElementById('location-loading');
+            const locationError = document.getElementById('location-error');
+            const errorMessage = document.getElementById('location-error-message');
+            const resultsContainer = document.getElementById('nearby-festivities-results');
+            const resultsGrid = document.getElementById('nearby-festivities-grid');
+            const noResultsAlert = document.getElementById('no-nearby-festivities');
+            const nearbyCount = document.getElementById('nearby-count');
+            const searchRadius = document.getElementById('search-radius');
+            
+            let currentLatitude = null;
+            let currentLongitude = null;
+            const defaultRadius = 50; // km
+            
+            function showPermissionRequest() {
+                permissionRequest.style.display = 'block';
+                locationLoading.style.display = 'none';
+                locationError.style.display = 'none';
+                resultsContainer.style.display = 'none';
+            }
+            
+            function showLoading() {
+                permissionRequest.style.display = 'none';
+                locationLoading.style.display = 'block';
+                locationError.style.display = 'none';
+                resultsContainer.style.display = 'none';
+            }
+            
+            function showError(message) {
+                permissionRequest.style.display = 'none';
+                locationLoading.style.display = 'none';
+                locationError.style.display = 'block';
+                errorMessage.textContent = message;
+                resultsContainer.style.display = 'none';
+            }
+            
+            function showResults() {
+                permissionRequest.style.display = 'none';
+                locationLoading.style.display = 'none';
+                locationError.style.display = 'none';
+                resultsContainer.style.display = 'block';
+            }
+            
+            function getLocation() {
+                if (!navigator.geolocation) {
+                    showError('Geolocation is not supported by your browser. Please use a modern browser like Chrome, Firefox, or Edge.');
+                    return;
+                }
+                
+                showLoading();
+                
+                const options = {
+                    enableHighAccuracy: false, // Changed to false for better compatibility
+                    timeout: 15000, // Increased timeout
+                    maximumAge: 300000 // Allow cached position up to 5 minutes
+                };
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        currentLatitude = position.coords.latitude;
+                        currentLongitude = position.coords.longitude;
+                        console.log('Location obtained:', currentLatitude, currentLongitude);
+                        fetchNearbyFestivities(currentLatitude, currentLongitude, defaultRadius);
+                    },
+                    function(error) {
+                        console.error('Geolocation error:', error);
+                        let errorMsg = 'Unable to retrieve your location. ';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMsg += 'Location access was denied. Please allow location access in your browser settings and try again.';
+                                // Show manual input option
+                                showManualLocationInput();
+                                return;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMsg += 'Location information is unavailable. This might be because:<br>' +
+                                    '• Your device doesn\'t have GPS/WiFi location services enabled<br>' +
+                                    '• You\'re using HTTP instead of HTTPS (geolocation requires HTTPS on most browsers)<br>' +
+                                    '• Your browser is blocking location access<br><br>' +
+                                    '<strong>Tip:</strong> Try using HTTPS or manually enter your location below.';
+                                showManualLocationInput();
+                                return;
+                            case error.TIMEOUT:
+                                errorMsg += 'The request to get your location timed out. Please try again or enter your location manually.';
+                                showManualLocationInput();
+                                return;
+                            default:
+                                errorMsg += 'An unknown error occurred. Error code: ' + error.code;
+                                showManualLocationInput();
+                                return;
+                        }
+                        showError(errorMsg);
+                    },
+                    options
+                );
+            }
+            
+            function showManualLocationInput() {
+                // Create manual input container
+                let manualContainer = document.getElementById('manual-location-container');
+                if (!manualContainer) {
+                    manualContainer = document.createElement('div');
+                    manualContainer.id = 'manual-location-container';
+                    manualContainer.className = 'card bg-light border-0 shadow-sm mt-3';
+                    manualContainer.innerHTML = `
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2"></i>Enter Location Manually</h5>
+                            <p class="text-muted small mb-3">You can enter coordinates manually if automatic location detection fails:</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="manual-latitude" class="form-label">Latitude</label>
+                                    <input type="number" step="any" id="manual-latitude" class="form-control" 
+                                           placeholder="e.g., 40.4168" min="-90" max="90">
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="manual-longitude" class="form-label">Longitude</label>
+                                    <input type="number" step="any" id="manual-longitude" class="form-control" 
+                                           placeholder="e.g., -3.7038" min="-180" max="180">
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button id="use-manual-location-btn" class="btn btn-primary">
+                                    <i class="bi bi-search me-1"></i>Find Festivities
+                                </button>
+                                <button id="try-again-btn" class="btn btn-outline-secondary ms-2">
+                                    <i class="bi bi-arrow-clockwise me-1"></i>Try Again
+                                </button>
+                            </div>
+                            <div class="mt-3">
+                                <small class="text-muted">
+                                    <strong>Quick locations:</strong><br>
+                                    Madrid: 40.4168, -3.7038 | Barcelona: 41.3851, 2.1734 | Valencia: 39.4699, -0.3763
+                                </small>
+                            </div>
+                        </div>
+                    `;
+                    locationError.appendChild(manualContainer);
+                } else {
+                    manualContainer.style.display = 'block';
+                }
+                
+                // Add event listeners for manual input (only once)
+                setTimeout(function() {
+                    const useManualBtn = document.getElementById('use-manual-location-btn');
+                    const tryAgainBtn = document.getElementById('try-again-btn');
+                    const manualLat = document.getElementById('manual-latitude');
+                    const manualLng = document.getElementById('manual-longitude');
+                    
+                    if (useManualBtn && !useManualBtn.hasAttribute('data-listener-added')) {
+                        useManualBtn.setAttribute('data-listener-added', 'true');
+                        useManualBtn.addEventListener('click', function() {
+                            const lat = parseFloat(manualLat.value);
+                            const lng = parseFloat(manualLng.value);
+                            
+                            if (isNaN(lat) || isNaN(lng)) {
+                                alert('Please enter valid latitude and longitude values.');
+                                return;
+                            }
+                            
+                            if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                                alert('Please enter valid coordinates. Latitude: -90 to 90, Longitude: -180 to 180');
+                                return;
+                            }
+                            
+                            currentLatitude = lat;
+                            currentLongitude = lng;
+                            showLoading();
+                            fetchNearbyFestivities(lat, lng, defaultRadius);
+                        });
+                    }
+                    
+                    if (tryAgainBtn && !tryAgainBtn.hasAttribute('data-listener-added')) {
+                        tryAgainBtn.setAttribute('data-listener-added', 'true');
+                        tryAgainBtn.addEventListener('click', function() {
+                            const manualContainer = document.getElementById('manual-location-container');
+                            if (manualContainer) {
+                                manualContainer.style.display = 'none';
+                            }
+                            locationError.style.display = 'none';
+                            showPermissionRequest();
+                        });
+                    }
+                }, 100);
+            }
+            
+            function fetchNearbyFestivities(lat, lng, radius) {
+                const url = `{{ route('festivities.nearby') }}?latitude=${lat}&longitude=${lng}&radius=${radius}`;
+                
+                console.log('Fetching from URL:', url);
+                
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(async response => {
+                    console.log('Response status:', response.status, response.statusText);
+                    
+                    if (!response.ok) {
+                        // Try to get error message from response
+                        let errorMessage = `Server returned ${response.status}: ${response.statusText}`;
+                        try {
+                            const errorData = await response.json();
+                            if (errorData.message) {
+                                errorMessage = errorData.message;
+                            } else if (errorData.errors) {
+                                errorMessage = 'Validation error: ' + JSON.stringify(errorData.errors);
+                            }
+                        } catch (e) {
+                            // If response is not JSON, use status text
+                            const text = await response.text();
+                            if (text) {
+                                errorMessage += ' - ' + text.substring(0, 200);
+                            }
+                        }
+                        throw new Error(errorMessage);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success && data.festivities !== undefined) {
+                        displayNearbyFestivities(data.festivities);
+                    } else {
+                        showError('Failed to load nearby festivities. Response: ' + JSON.stringify(data));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching nearby festivities:', error);
+                    showError('Failed to load nearby festivities: ' + error.message + '. Please check the browser console for more details.');
+                });
+            }
+            
+            function displayNearbyFestivities(festivities) {
+                resultsGrid.innerHTML = '';
+                
+                if (festivities.length === 0) {
+                    noResultsAlert.style.display = 'block';
+                    nearbyCount.textContent = '0';
+                    showResults();
+                    return;
+                }
+                
+                noResultsAlert.style.display = 'none';
+                nearbyCount.textContent = festivities.length;
+                
+                festivities.forEach(festivity => {
+                    const card = createFestivityCard(festivity);
+                    resultsGrid.appendChild(card);
+                });
+                
+                showResults();
+            }
+            
+            function createFestivityCard(festivity) {
+                const col = document.createElement('div');
+                col.className = 'col-md-6 col-lg-4';
+                
+                const photoHtml = festivity.photo 
+                    ? `<img src="${festivity.photo}" class="card-img-top" alt="${festivity.name}" style="height: 200px; object-fit: cover;">`
+                    : '';
+                
+                const endDateHtml = festivity.end_date 
+                    ? ` - ${new Date(festivity.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+                    : '';
+                
+                const distanceHtml = festivity.distance 
+                    ? `<span class="badge bg-success ms-2"><i class="bi bi-rulers me-1"></i>${festivity.distance} km</span>`
+                    : '';
+                
+                col.innerHTML = `
+                    <div class="card festivity-card card-hover h-100">
+                        ${photoHtml}
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">${festivity.name}</h5>
+                            <p class="text-muted mb-2">
+                                <i class="bi bi-geo-alt me-1"></i>${festivity.locality.name || 'Unknown'}
+                                ${festivity.locality.province ? `<br><small><i class="bi bi-map me-1"></i>${festivity.locality.province}</small>` : ''}
+                            </p>
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-calendar me-1"></i>
+                                ${new Date(festivity.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}${endDateHtml}
+                                ${distanceHtml}
+                            </p>
+                            <p class="card-text flex-grow-1">${festivity.description || ''}</p>
+                            <a href="${festivity.url}" class="btn btn-primary btn-custom">
+                                Learn More <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                `;
+                
+                return col;
+            }
+            
+            // Event Listeners
+            if (requestLocationBtn) {
+                requestLocationBtn.addEventListener('click', getLocation);
+            }
+            
+            if (refreshLocationBtn) {
+                refreshLocationBtn.addEventListener('click', function() {
+                    if (currentLatitude && currentLongitude) {
+                        showLoading();
+                        fetchNearbyFestivities(currentLatitude, currentLongitude, defaultRadius);
+                    } else {
+                        getLocation();
+                    }
+                });
+            }
+        })();
     </script>
 </x-app-layout>

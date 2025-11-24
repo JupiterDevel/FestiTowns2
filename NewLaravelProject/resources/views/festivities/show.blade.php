@@ -154,6 +154,30 @@
                     </div>
                 </article>
 
+                <!-- Google Maps Section -->
+                @if($festivity->latitude && $festivity->longitude)
+                    <section class="card mb-4" aria-label="Ubicación en el mapa">
+                        <div class="card-body">
+                            <h2 class="card-title h4 fw-bold mb-3">
+                                <i class="bi bi-geo-alt-fill me-2"></i>Ubicación
+                            </h2>
+                            <x-google-map 
+                                :latitude="$festivity->latitude" 
+                                :longitude="$festivity->longitude"
+                                :title="$festivity->name"
+                                height="400px"
+                            />
+                            @if($festivity->google_maps_url)
+                                <div class="mt-3">
+                                    <a href="{{ $festivity->google_maps_url }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
+                                        <i class="bi bi-box-arrow-up-right me-1"></i>Abrir en Google Maps
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    </section>
+                @endif
+
                 <!-- Events Section -->
                 <section class="card mb-4" aria-label="Eventos programados">
                     <div class="card-body">

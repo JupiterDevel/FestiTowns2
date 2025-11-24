@@ -1,7 +1,8 @@
 @php
     $ad = $ad ?? null;
     $isPremium = $ad && $ad->premium;
-    $imageUrl = $isPremium && $ad->image
+    $isAdSense = $ad && $ad->is_adsense;
+    $imageUrl = $isPremium && $ad->image && !$isAdSense
         ? (\Illuminate\Support\Str::startsWith($ad->image, ['http://', 'https://']) ? $ad->image : asset($ad->image))
         : null;
     $adminCanManageAds = auth()->check() && auth()->user()->isAdmin();
@@ -54,12 +55,28 @@
                         @endif
                     </div>
                 @endif
+            @elseif($isAdSense && $ad->adsense_client_id && $ad->adsense_slot_id)
+                <div class="p-0">
+                    <x-adsense-ad 
+                        :clientId="$ad->adsense_client_id" 
+                        :slotId="$ad->adsense_slot_id"
+                        type="{{ $ad->adsense_type ?? 'display' }}"
+                        style="display:block; min-height: 180px;"
+                        format="auto"
+                    />
+                </div>
             @else
                 <div class="p-4 text-center bg-light border border-2 border-secondary border-opacity-25" style="min-height: 180px; border-style: dashed;">
                     <div class="h5 text-uppercase text-muted mb-2">Google Ads</div>
                     <p class="mb-0 text-muted">
                         Espacio reservado para el banner principal (800x400).<br>
-                        Próximamente se integrará el script de Google Ads.
+                        @if($adminCanManageAds)
+                            <a href="{{ route('advertisements.create', $createParams) }}" class="btn btn-sm btn-primary mt-2">
+                                <i class="bi bi-plus-circle me-1"></i>Crear anuncio
+                            </a>
+                        @else
+                            Próximamente se integrará el script de Google Ads.
+                        @endif
                     </p>
                 </div>
             @endif
