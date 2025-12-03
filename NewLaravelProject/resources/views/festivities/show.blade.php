@@ -245,9 +245,22 @@
                             <div class="text-center py-4">
                                 <i class="bi bi-calendar-x display-4 text-muted"></i>
                                 <p class="text-muted mt-3">No hay eventos programados para esta festividad.</p>
-                                <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-custom">
-                                    <i class="bi bi-plus-circle me-1"></i>Crear Primer Evento
-                                </a>
+                                @auth
+                                    @php
+                                        $user = auth()->user();
+                                        $canCreate = false;
+                                        if ($user->isAdmin()) {
+                                            $canCreate = true;
+                                        } elseif ($user->isTownHall() && $user->locality_id && $festivity->locality_id === $user->locality_id) {
+                                            $canCreate = true;
+                                        }
+                                    @endphp
+                                    @if($canCreate)
+                                        <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-custom">
+                                            <i class="bi bi-plus-circle me-1"></i>Crear Primer Evento
+                                        </a>
+                                    @endif
+                                @endauth
                             </div>
                         @endif
                     </div>
