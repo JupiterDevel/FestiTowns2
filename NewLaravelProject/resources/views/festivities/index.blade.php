@@ -15,10 +15,6 @@
                             <small><i class="bi bi-info-circle me-1"></i>Los usuarios con rol de ayuntamiento solo pueden añadir festividades desde la vista de su localidad.</small>
                         </div>
                     @endif
-                @else
-                    <div class="alert alert-warning">
-                        <small>You don't have permission to create festivities. Current role: {{ auth()->user()->role }}</small>
-                    </div>
                 @endcan
             @else
                 <div class="alert alert-info">
