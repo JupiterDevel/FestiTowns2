@@ -23,8 +23,13 @@ Route::get('festividades/mapa', [FestivityController::class, 'forMap'])->name('f
 Route::get('sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('robots.txt', [\App\Http\Controllers\SitemapController::class, 'robots'])->name('robots');
 
+// Legal routes (public)
+Route::get('legal', [\App\Http\Controllers\LegalController::class, 'index'])->name('legal.index');
+Route::get('legal/accept', [\App\Http\Controllers\LegalController::class, 'acceptForm'])->name('legal.accept');
+Route::post('legal/accept', [\App\Http\Controllers\LegalController::class, 'accept'])->name('legal.accept');
+
 // Authentication routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'legal.accepted'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

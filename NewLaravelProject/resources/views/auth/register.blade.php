@@ -53,7 +53,7 @@
                             </div>
 
                             <!-- Confirm Password -->
-                            <div class="mb-4">
+                            <div class="mb-3">
                                 <label for="password_confirmation" class="form-label fw-bold">
                                     <i class="bi bi-lock-fill me-1"></i>{{ __('Confirm Password') }}
                                 </label>
@@ -63,6 +63,21 @@
                                 @error('password_confirmation')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+
+                            <!-- Legal Acceptance -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input @error('accepted_legal') is-invalid @enderror" 
+                                           type="checkbox" name="accepted_legal" id="accepted_legal" 
+                                           value="1" required>
+                                    <label class="form-check-label" for="accepted_legal">
+                                        He leído y acepto los <a href="{{ route('legal.index') }}" target="_blank" class="text-decoration-none">Términos y Condiciones</a> y la <a href="{{ route('legal.index') }}#cookies" target="_blank" class="text-decoration-none">Política de Cookies</a>.
+                                    </label>
+                                    @error('accepted_legal')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
+                                </div>
                             </div>
 
                             <div class="d-flex justify-content-between align-items-center mb-4">
