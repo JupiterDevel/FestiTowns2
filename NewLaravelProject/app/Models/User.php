@@ -28,6 +28,8 @@ class User extends Authenticatable
         'rank',
         'points',
         'last_login_at',
+        'google_id',
+        'accepted_legal',
     ];
 
     /**
@@ -51,6 +53,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
+            'accepted_legal' => 'boolean',
         ];
     }
 
@@ -95,9 +98,9 @@ class User extends Authenticatable
     {
         $oldRank = $this->rank;
         
-        if ($this->points >= 5) {
+        if ($this->points >= 500) {
             $this->rank = 'gold';
-        } elseif ($this->points >= 1) {
+        } elseif ($this->points >= 200) {
             $this->rank = 'silver';
         } else {
             $this->rank = 'bronze';

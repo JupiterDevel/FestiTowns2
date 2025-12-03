@@ -2,10 +2,12 @@
 
 namespace App\Providers;
 
+use App\Models\Advertisement;
 use App\Models\Comment;
 use App\Models\Festivity;
 use App\Models\Locality;
 use App\Models\User;
+use App\Policies\AdvertisementPolicy;
 use App\Policies\CommentPolicy;
 use App\Policies\FestivityPolicy;
 use App\Policies\LocalityPolicy;
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        Advertisement::class => AdvertisementPolicy::class,
         User::class => UserPolicy::class,
         Locality::class => LocalityPolicy::class,
         Festivity::class => FestivityPolicy::class,
