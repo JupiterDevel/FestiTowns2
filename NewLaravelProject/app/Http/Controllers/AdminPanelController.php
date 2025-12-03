@@ -40,7 +40,7 @@ class AdminPanelController extends Controller
         // Load advertisements (admin only)
         if (auth()->user()->isAdmin()) {
             $search = $request->get('search', '');
-            $sort = in_array($request->get('sort'), ['name', 'priority', 'active', 'created_at'], true) 
+            $sort = in_array($request->get('sort'), ['name', 'priority', 'active', 'created_at', 'end_date'], true) 
                 ? $request->get('sort') 
                 : 'created_at';
             $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
