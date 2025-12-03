@@ -188,59 +188,68 @@
             </div>
         </div>
 
-        <!-- Near Me Section -->
-        <div class="mb-5" id="near-me-section">
+        <!-- Map Search Section -->
+        <div class="mb-5" id="map-search-section">
             <h2 class="display-6 fw-bold text-dark mb-4">
-                <i class="bi bi-geo-alt-fill me-2"></i>Near Me
+                <i class="bi bi-map me-2"></i>Cerca de mí
             </h2>
             
-            <!-- Location Permission Request -->
-            <div id="location-permission-request" class="card bg-light border-0 shadow-sm">
-                <div class="card-body text-center py-5">
-                    <i class="bi bi-geo-alt-fill display-4 text-primary mb-3"></i>
-                    <h4 class="fw-bold mb-3">Discover Festivities Near You</h4>
-                    <p class="text-muted mb-4">
-                        Allow location access to find festivities happening near your current location.
-                    </p>
-                    <button id="request-location-btn" class="btn btn-primary btn-lg">
-                        <i class="bi bi-geo-alt me-2"></i>Find Festivities Near Me
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Loading State -->
-            <div id="location-loading" class="card bg-light border-0 shadow-sm" style="display: none;">
-                <div class="card-body text-center py-5">
-                    <div class="spinner-border text-primary mb-3" role="status">
-                        <span class="visually-hidden">Loading...</span>
+            <!-- Search Bar - Slim, Large, Round -->
+            <div class="mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center bg-white border border-2 rounded-pill shadow-sm p-2 flex-grow-1">
+                        <!-- Search Text Field -->
+                        <input type="text" id="map-search-query" class="form-control border-0 shadow-none flex-grow-1" 
+                               placeholder="Buscar todas las fiestas..." style="background: transparent;">
+                        
+                        <!-- Province Dropdown (blended) -->
+                        <select id="map-province-filter" class="form-select border-0 shadow-none" style="background: transparent; width: auto; min-width: 180px;">
+                            <option value="">Provincia</option>
+                            @foreach(config('provinces.provinces') as $province)
+                                <option value="{{ $province }}">{{ $province }}</option>
+                            @endforeach
+                        </select>
+                        
+                        <!-- Divider -->
+                        <div class="vr mx-2" style="height: 30px;"></div>
+                        
+                        <!-- Search Button -->
+                        <button id="map-search-btn" class="btn btn-primary rounded-pill px-4" type="button">
+                            <i class="bi bi-search"></i>
+                        </button>
                     </div>
-                    <p class="text-muted mb-0">Finding festivities near you...</p>
-                </div>
-            </div>
-            
-            <!-- Error State -->
-            <div id="location-error" class="alert alert-warning" style="display: none;" role="alert">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                <span id="location-error-message"></span>
-            </div>
-            
-            <!-- Results Container -->
-            <div id="nearby-festivities-results" style="display: none;">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <p class="text-muted mb-0">
-                        <i class="bi bi-info-circle me-1"></i>
-                        <span id="nearby-count">0</span> festivities found within <span id="search-radius">50</span> km
-                    </p>
-                    <button id="refresh-location-btn" class="btn btn-outline-primary btn-sm">
-                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    
+                    <!-- Location Button (Primary, outside the search bar) -->
+                    <button id="map-near-me-btn" class="btn btn-primary rounded-pill px-4" type="button">
+                        <i class="bi bi-geo-alt me-2"></i>Cerca de mí
                     </button>
                 </div>
-                <div id="nearby-festivities-grid" class="row g-4">
-                    <!-- Festivities will be loaded here via JavaScript -->
+            </div>
+            
+            <!-- Google Map -->
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-body p-0">
+                    <div id="festivities-map" style="width: 100%; height: 500px; border-radius: 8px; overflow: hidden;"></div>
                 </div>
-                <div id="no-nearby-festivities" class="alert alert-info" style="display: none;">
+            </div>
+            
+            <!-- Results - Horizontal Scrollable Cards -->
+            <div id="map-results-container" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-list-ul me-2"></i>
+                        <span id="map-results-count">0</span> festividades encontradas
+                    </h5>
+                    <button id="map-refresh-btn" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                    </button>
+                </div>
+                <div id="map-results-scroll" class="d-flex gap-3 overflow-auto pb-3" style="scroll-behavior: smooth;">
+                    <!-- Festivities cards will be loaded here -->
+                </div>
+                <div id="map-no-results" class="alert alert-info" style="display: none;">
                     <i class="bi bi-info-circle me-2"></i>
-                    No festivities found near your location. Try increasing the search radius or check back later!
+                    No se encontraron festividades. Intenta cambiar la provincia o mover el mapa.
                 </div>
             </div>
         </div>
@@ -274,7 +283,7 @@
                                 </p>
                                 <p class="card-text flex-grow-1">{{ Str::limit($festivity->description, 100) }}</p>
                                 <a href="{{ route('festivities.show', $festivity) }}" class="btn btn-primary btn-custom">
-                                    Learn More <i class="bi bi-arrow-right ms-1"></i>
+                                    Ver Más <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
                             </div>
                         </div>
@@ -569,323 +578,352 @@
             syncInputs();
         });
         
-        // Near Me Section - Geolocation
+        // Map Search Section - Google Maps Integration
         (function() {
-            const requestLocationBtn = document.getElementById('request-location-btn');
-            const refreshLocationBtn = document.getElementById('refresh-location-btn');
-            const permissionRequest = document.getElementById('location-permission-request');
-            const locationLoading = document.getElementById('location-loading');
-            const locationError = document.getElementById('location-error');
-            const errorMessage = document.getElementById('location-error-message');
-            const resultsContainer = document.getElementById('nearby-festivities-results');
-            const resultsGrid = document.getElementById('nearby-festivities-grid');
-            const noResultsAlert = document.getElementById('no-nearby-festivities');
-            const nearbyCount = document.getElementById('nearby-count');
-            const searchRadius = document.getElementById('search-radius');
+            const mapElement = document.getElementById('festivities-map');
+            const provinceFilter = document.getElementById('map-province-filter');
+            const searchQuery = document.getElementById('map-search-query');
+            const searchBtn = document.getElementById('map-search-btn');
+            const nearMeBtn = document.getElementById('map-near-me-btn');
+            const refreshBtn = document.getElementById('map-refresh-btn');
+            const resultsContainer = document.getElementById('map-results-container');
+            const resultsScroll = document.getElementById('map-results-scroll');
+            const resultsCount = document.getElementById('map-results-count');
+            const noResultsAlert = document.getElementById('map-no-results');
             
-            let currentLatitude = null;
-            let currentLongitude = null;
-            const defaultRadius = 50; // km
+            let map = null;
+            let markers = [];
+            let currentFestivities = [];
+            const madridCenter = { lat: 40.4168, lng: -3.7038 };
+            const mapKey = '{{ config('services.google.maps_key') }}';
             
-            function showPermissionRequest() {
-                permissionRequest.style.display = 'block';
-                locationLoading.style.display = 'none';
-                locationError.style.display = 'none';
-                resultsContainer.style.display = 'none';
-            }
-            
-            function showLoading() {
-                permissionRequest.style.display = 'none';
-                locationLoading.style.display = 'block';
-                locationError.style.display = 'none';
-                resultsContainer.style.display = 'none';
-            }
-            
-            function showError(message) {
-                permissionRequest.style.display = 'none';
-                locationLoading.style.display = 'none';
-                locationError.style.display = 'block';
-                errorMessage.textContent = message;
-                resultsContainer.style.display = 'none';
-            }
-            
-            function showResults() {
-                permissionRequest.style.display = 'none';
-                locationLoading.style.display = 'none';
-                locationError.style.display = 'none';
-                resultsContainer.style.display = 'block';
-            }
-            
-            function getLocation() {
-                if (!navigator.geolocation) {
-                    showError('Geolocation is not supported by your browser. Please use a modern browser like Chrome, Firefox, or Edge.');
+            // Initialize Google Map
+            function initMap() {
+                if (typeof google === 'undefined' || !google.maps) {
+                    console.error('Google Maps not loaded');
                     return;
                 }
                 
-                showLoading();
+                map = new google.maps.Map(mapElement, {
+                    center: madridCenter,
+                    zoom: 6,
+                    mapTypeControl: true,
+                    streetViewControl: true,
+                    fullscreenControl: true,
+                });
                 
-                const options = {
-                    enableHighAccuracy: false, // Changed to false for better compatibility
-                    timeout: 15000, // Increased timeout
-                    maximumAge: 300000 // Allow cached position up to 5 minutes
-                };
+                // Load initial festivities
+                loadFestivitiesForMap();
                 
-                navigator.geolocation.getCurrentPosition(
-                    function(position) {
-                        currentLatitude = position.coords.latitude;
-                        currentLongitude = position.coords.longitude;
-                        console.log('Location obtained:', currentLatitude, currentLongitude);
-                        fetchNearbyFestivities(currentLatitude, currentLongitude, defaultRadius);
-                    },
-                    function(error) {
-                        console.error('Geolocation error:', error);
-                        let errorMsg = 'Unable to retrieve your location. ';
-                        switch(error.code) {
-                            case error.PERMISSION_DENIED:
-                                errorMsg += 'Location access was denied. Please allow location access in your browser settings and try again.';
-                                // Show manual input option
-                                showManualLocationInput();
-                                return;
-                            case error.POSITION_UNAVAILABLE:
-                                errorMsg += 'Location information is unavailable. This might be because:<br>' +
-                                    '• Your device doesn\'t have GPS/WiFi location services enabled<br>' +
-                                    '• You\'re using HTTP instead of HTTPS (geolocation requires HTTPS on most browsers)<br>' +
-                                    '• Your browser is blocking location access<br><br>' +
-                                    '<strong>Tip:</strong> Try using HTTPS or manually enter your location below.';
-                                showManualLocationInput();
-                                return;
-                            case error.TIMEOUT:
-                                errorMsg += 'The request to get your location timed out. Please try again or enter your location manually.';
-                                showManualLocationInput();
-                                return;
-                            default:
-                                errorMsg += 'An unknown error occurred. Error code: ' + error.code;
-                                showManualLocationInput();
-                                return;
-                        }
-                        showError(errorMsg);
-                    },
-                    options
-                );
+                // Listen to map bounds changes
+                map.addListener('bounds_changed', function() {
+                    clearTimeout(window.mapBoundsTimeout);
+                    window.mapBoundsTimeout = setTimeout(function() {
+                        loadFestivitiesForMap();
+                    }, 500); // Debounce
+                });
             }
             
-            function showManualLocationInput() {
-                // Create manual input container
-                let manualContainer = document.getElementById('manual-location-container');
-                if (!manualContainer) {
-                    manualContainer = document.createElement('div');
-                    manualContainer.id = 'manual-location-container';
-                    manualContainer.className = 'card bg-light border-0 shadow-sm mt-3';
-                    manualContainer.innerHTML = `
-                        <div class="card-body">
-                            <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square me-2"></i>Enter Location Manually</h5>
-                            <p class="text-muted small mb-3">You can enter coordinates manually if automatic location detection fails:</p>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="manual-latitude" class="form-label">Latitude</label>
-                                    <input type="number" step="any" id="manual-latitude" class="form-control" 
-                                           placeholder="e.g., 40.4168" min="-90" max="90">
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="manual-longitude" class="form-label">Longitude</label>
-                                    <input type="number" step="any" id="manual-longitude" class="form-control" 
-                                           placeholder="e.g., -3.7038" min="-180" max="180">
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <button id="use-manual-location-btn" class="btn btn-primary">
-                                    <i class="bi bi-search me-1"></i>Find Festivities
-                                </button>
-                                <button id="try-again-btn" class="btn btn-outline-secondary ms-2">
-                                    <i class="bi bi-arrow-clockwise me-1"></i>Try Again
-                                </button>
-                            </div>
-                            <div class="mt-3">
-                                <small class="text-muted">
-                                    <strong>Quick locations:</strong><br>
-                                    Madrid: 40.4168, -3.7038 | Barcelona: 41.3851, 2.1734 | Valencia: 39.4699, -0.3763
-                                </small>
-                            </div>
-                        </div>
-                    `;
-                    locationError.appendChild(manualContainer);
-                } else {
-                    manualContainer.style.display = 'block';
+            // Load festivities for current map view
+            function loadFestivitiesForMap() {
+                if (!map) {
+                    return;
                 }
                 
-                // Add event listeners for manual input (only once)
-                setTimeout(function() {
-                    const useManualBtn = document.getElementById('use-manual-location-btn');
-                    const tryAgainBtn = document.getElementById('try-again-btn');
-                    const manualLat = document.getElementById('manual-latitude');
-                    const manualLng = document.getElementById('manual-longitude');
-                    
-                    if (useManualBtn && !useManualBtn.hasAttribute('data-listener-added')) {
-                        useManualBtn.setAttribute('data-listener-added', 'true');
-                        useManualBtn.addEventListener('click', function() {
-                            const lat = parseFloat(manualLat.value);
-                            const lng = parseFloat(manualLng.value);
-                            
-                            if (isNaN(lat) || isNaN(lng)) {
-                                alert('Please enter valid latitude and longitude values.');
-                                return;
-                            }
-                            
-                            if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-                                alert('Please enter valid coordinates. Latitude: -90 to 90, Longitude: -180 to 180');
-                                return;
-                            }
-                            
-                            currentLatitude = lat;
-                            currentLongitude = lng;
-                            showLoading();
-                            fetchNearbyFestivities(lat, lng, defaultRadius);
-                        });
-                    }
-                    
-                    if (tryAgainBtn && !tryAgainBtn.hasAttribute('data-listener-added')) {
-                        tryAgainBtn.setAttribute('data-listener-added', 'true');
-                        tryAgainBtn.addEventListener('click', function() {
-                            const manualContainer = document.getElementById('manual-location-container');
-                            if (manualContainer) {
-                                manualContainer.style.display = 'none';
-                            }
-                            locationError.style.display = 'none';
-                            showPermissionRequest();
-                        });
-                    }
-                }, 100);
-            }
-            
-            function fetchNearbyFestivities(lat, lng, radius) {
-                const url = `{{ route('festivities.nearby') }}?latitude=${lat}&longitude=${lng}&radius=${radius}`;
+                const bounds = map.getBounds();
+                if (!bounds) {
+                    return;
+                }
                 
-                console.log('Fetching from URL:', url);
+                const ne = bounds.getNorthEast();
+                const sw = bounds.getSouthWest();
                 
-                fetch(url, {
+                const province = provinceFilter.value;
+                const params = new URLSearchParams({
+                    north: ne.lat(),
+                    south: sw.lat(),
+                    east: ne.lng(),
+                    west: sw.lng(),
+                });
+                
+                if (province) {
+                    params.append('province', province);
+                }
+                
+                fetch(`{{ route('festivities.map') }}?${params.toString()}`, {
                     method: 'GET',
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json'
                     },
-                    credentials: 'same-origin'
                 })
-                .then(async response => {
-                    console.log('Response status:', response.status, response.statusText);
-                    
-                    if (!response.ok) {
-                        // Try to get error message from response
-                        let errorMessage = `Server returned ${response.status}: ${response.statusText}`;
-                        try {
-                            const errorData = await response.json();
-                            if (errorData.message) {
-                                errorMessage = errorData.message;
-                            } else if (errorData.errors) {
-                                errorMessage = 'Validation error: ' + JSON.stringify(errorData.errors);
-                            }
-                        } catch (e) {
-                            // If response is not JSON, use status text
-                            const text = await response.text();
-                            if (text) {
-                                errorMessage += ' - ' + text.substring(0, 200);
-                            }
-                        }
-                        throw new Error(errorMessage);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log('Response data:', data);
-                    if (data.success && data.festivities !== undefined) {
-                        displayNearbyFestivities(data.festivities);
-                    } else {
-                        showError('Failed to load nearby festivities. Response: ' + JSON.stringify(data));
+                    if (data.success && data.festivities) {
+                        currentFestivities = data.festivities;
+                        updateMapMarkers(data.festivities);
+                        displayMapResults(data.festivities);
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching nearby festivities:', error);
-                    showError('Failed to load nearby festivities: ' + error.message + '. Please check the browser console for more details.');
+                    console.error('Error loading festivities:', error);
                 });
             }
             
-            function displayNearbyFestivities(festivities) {
-                resultsGrid.innerHTML = '';
+            // Update map markers
+            function updateMapMarkers(festivities) {
+                // Clear existing markers
+                markers.forEach(marker => marker.setMap(null));
+                markers = [];
                 
-                if (festivities.length === 0) {
+                // Add new markers
+                festivities.forEach(festivity => {
+                    if (festivity.latitude && festivity.longitude) {
+                        const marker = new google.maps.Marker({
+                            position: { lat: parseFloat(festivity.latitude), lng: parseFloat(festivity.longitude) },
+                            map: map,
+                            title: festivity.name,
+                        });
+                        
+                        // Add info window
+                        const infoWindow = new google.maps.InfoWindow({
+                            content: `
+                                <div style="padding: 10px; max-width: 250px;">
+                                    <h6 class="fw-bold mb-2">${festivity.name}</h6>
+                                    <p class="small mb-1"><i class="bi bi-geo-alt"></i> ${festivity.locality.name || ''}</p>
+                                    <p class="small mb-2"><i class="bi bi-calendar"></i> ${festivity.start_date}</p>
+                                    <a href="${festivity.url}" class="btn btn-sm btn-primary">Ver Más</a>
+                                </div>
+                            `,
+                        });
+                        
+                        marker.addListener('click', () => {
+                            infoWindow.open(map, marker);
+                        });
+                        
+                        markers.push(marker);
+                    }
+                });
+            }
+            
+            // Display results in horizontal scrollable list
+            function displayMapResults(festivities) {
+                // Filter by search query if present
+                const query = searchQuery.value.toLowerCase().trim();
+                let filtered = festivities;
+                if (query) {
+                    filtered = festivities.filter(festivity => {
+                        const name = (festivity.name || '').toLowerCase();
+                        const locality = (festivity.locality?.name || '').toLowerCase();
+                        return name.includes(query) || locality.includes(query);
+                    });
+                }
+                
+                if (filtered.length === 0) {
+                    resultsContainer.style.display = 'none';
                     noResultsAlert.style.display = 'block';
-                    nearbyCount.textContent = '0';
-                    showResults();
                     return;
                 }
                 
                 noResultsAlert.style.display = 'none';
-                nearbyCount.textContent = festivities.length;
+                resultsContainer.style.display = 'block';
+                resultsCount.textContent = filtered.length;
+                resultsScroll.innerHTML = '';
                 
-                festivities.forEach(festivity => {
-                    const card = createFestivityCard(festivity);
-                    resultsGrid.appendChild(card);
+                filtered.forEach(festivity => {
+                    const card = createHorizontalCard(festivity);
+                    resultsScroll.appendChild(card);
                 });
-                
-                showResults();
             }
             
-            function createFestivityCard(festivity) {
-                const col = document.createElement('div');
-                col.className = 'col-md-6 col-lg-4';
+            // Create horizontal scrollable card
+            function createHorizontalCard(festivity) {
+                const card = document.createElement('div');
+                card.className = 'card flex-shrink-0';
+                card.style.width = '300px';
                 
                 const photoHtml = festivity.photo 
-                    ? `<img src="${festivity.photo}" class="card-img-top" alt="${festivity.name}" style="height: 200px; object-fit: cover;">`
-                    : '';
+                    ? `<img src="${festivity.photo}" class="card-img-top" alt="${festivity.name}" style="height: 150px; object-fit: cover;">`
+                    : '<div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px;"><i class="bi bi-image text-muted" style="font-size: 3rem;"></i></div>';
                 
                 const endDateHtml = festivity.end_date 
-                    ? ` - ${new Date(festivity.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+                    ? ` - ${new Date(festivity.end_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`
                     : '';
                 
-                const distanceHtml = festivity.distance 
-                    ? `<span class="badge bg-success ms-2"><i class="bi bi-rulers me-1"></i>${festivity.distance} km</span>`
-                    : '';
-                
-                col.innerHTML = `
-                    <div class="card festivity-card card-hover h-100">
-                        ${photoHtml}
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">${festivity.name}</h5>
-                            <p class="text-muted mb-2">
-                                <i class="bi bi-geo-alt me-1"></i>${festivity.locality.name || 'Unknown'}
-                                ${festivity.locality.province ? `<br><small><i class="bi bi-map me-1"></i>${festivity.locality.province}</small>` : ''}
-                            </p>
-                            <p class="text-muted small mb-3">
-                                <i class="bi bi-calendar me-1"></i>
-                                ${new Date(festivity.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}${endDateHtml}
-                                ${distanceHtml}
-                            </p>
-                            <p class="card-text flex-grow-1">${festivity.description || ''}</p>
-                            <a href="${festivity.url}" class="btn btn-primary btn-custom">
-                                Learn More <i class="bi bi-arrow-right ms-1"></i>
-                            </a>
-                        </div>
+                card.innerHTML = `
+                    ${photoHtml}
+                    <div class="card-body d-flex flex-column">
+                        <h6 class="card-title fw-bold">${festivity.name}</h6>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-geo-alt me-1"></i>${festivity.locality.name || ''}
+                            ${festivity.locality.province ? `<br><small>${festivity.locality.province}</small>` : ''}
+                        </p>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-calendar me-1"></i>
+                            ${new Date(festivity.start_date).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}${endDateHtml}
+                        </p>
+                        <p class="card-text small flex-grow-1">${festivity.description || ''}</p>
+                        <a href="${festivity.url}" class="btn btn-primary btn-sm mt-auto">
+                            Ver Más <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
                     </div>
                 `;
                 
-                return col;
+                return card;
             }
+            
+            // Get user location and center map
+            function getNearMeLocation() {
+                if (!navigator.geolocation) {
+                    alert('La geolocalización no es compatible con tu navegador.');
+                    return;
+                }
+                
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                        };
+                        map.setCenter(userLocation);
+                        map.setZoom(12);
+                        loadFestivitiesForMap();
+                    },
+                    function(error) {
+                        alert('No se pudo obtener tu ubicación. Por favor, verifica los permisos de ubicación.');
+                    },
+                    {
+                        enableHighAccuracy: false,
+                        timeout: 10000,
+                        maximumAge: 60000,
+                    }
+                );
+            }
+            
+            // Province to coordinates mapping (center of each province)
+            const provinceCoordinates = {
+                'Álava': { lat: 42.8467, lng: -2.6716, zoom: 10 },
+                'Albacete': { lat: 38.9942, lng: -1.8584, zoom: 10 },
+                'Alicante': { lat: 38.3452, lng: -0.4810, zoom: 10 },
+                'Almería': { lat: 36.8381, lng: -2.4597, zoom: 10 },
+                'Asturias': { lat: 43.3614, lng: -5.8593, zoom: 9 },
+                'Ávila': { lat: 40.6564, lng: -4.7004, zoom: 11 },
+                'Badajoz': { lat: 38.8782, lng: -6.9706, zoom: 10 },
+                'Barcelona': { lat: 41.3851, lng: 2.1734, zoom: 10 },
+                'Burgos': { lat: 42.3439, lng: -3.6969, zoom: 10 },
+                'Cáceres': { lat: 39.4753, lng: -6.3724, zoom: 10 },
+                'Cádiz': { lat: 36.5270, lng: -6.2886, zoom: 10 },
+                'Cantabria': { lat: 43.4623, lng: -3.8099, zoom: 10 },
+                'Castellón': { lat: 39.9864, lng: -0.0513, zoom: 10 },
+                'Ciudad Real': { lat: 38.9861, lng: -3.9293, zoom: 10 },
+                'Córdoba': { lat: 37.8882, lng: -4.7794, zoom: 10 },
+                'Cuenca': { lat: 40.0718, lng: -2.1340, zoom: 11 },
+                'Girona': { lat: 41.9794, lng: 2.8214, zoom: 10 },
+                'Granada': { lat: 37.1773, lng: -3.5986, zoom: 10 },
+                'Guadalajara': { lat: 40.6289, lng: -3.1618, zoom: 10 },
+                'Guipúzcoa': { lat: 43.3183, lng: -1.9812, zoom: 10 },
+                'Huelva': { lat: 37.2614, lng: -6.9447, zoom: 10 },
+                'Huesca': { lat: 42.1361, lng: -0.4087, zoom: 10 },
+                'Islas Baleares': { lat: 39.5696, lng: 2.6502, zoom: 9 },
+                'Jaén': { lat: 37.7699, lng: -3.7903, zoom: 10 },
+                'La Coruña': { lat: 43.3623, lng: -8.4115, zoom: 10 },
+                'La Rioja': { lat: 42.4627, lng: -2.4449, zoom: 10 },
+                'Las Palmas': { lat: 28.1248, lng: -15.4300, zoom: 10 },
+                'León': { lat: 42.5987, lng: -5.5671, zoom: 10 },
+                'Lérida': { lat: 41.6176, lng: 0.6200, zoom: 10 },
+                'Lugo': { lat: 43.0097, lng: -7.5568, zoom: 10 },
+                'Madrid': { lat: 40.4168, lng: -3.7038, zoom: 10 },
+                'Málaga': { lat: 36.7213, lng: -4.4214, zoom: 10 },
+                'Murcia': { lat: 37.9922, lng: -1.1307, zoom: 10 },
+                'Navarra': { lat: 42.8181, lng: -1.6443, zoom: 10 },
+                'Ourense': { lat: 42.3360, lng: -7.8643, zoom: 10 },
+                'Palencia': { lat: 42.0096, lng: -4.5241, zoom: 11 },
+                'Pontevedra': { lat: 42.4310, lng: -8.6444, zoom: 10 },
+                'Salamanca': { lat: 40.9701, lng: -5.6635, zoom: 10 },
+                'Santa Cruz de Tenerife': { lat: 28.4636, lng: -16.2518, zoom: 10 },
+                'Segovia': { lat: 40.9429, lng: -4.1088, zoom: 11 },
+                'Sevilla': { lat: 37.3891, lng: -5.9845, zoom: 10 },
+                'Soria': { lat: 41.7640, lng: -2.4688, zoom: 11 },
+                'Tarragona': { lat: 41.1189, lng: 1.2445, zoom: 10 },
+                'Teruel': { lat: 40.3458, lng: -1.1065, zoom: 11 },
+                'Toledo': { lat: 39.8628, lng: -4.0273, zoom: 10 },
+                'Valencia': { lat: 39.4699, lng: -0.3763, zoom: 10 },
+                'Valladolid': { lat: 41.6523, lng: -4.7245, zoom: 10 },
+                'Vizcaya': { lat: 43.2627, lng: -2.9253, zoom: 10 },
+                'Zamora': { lat: 41.5033, lng: -5.7438, zoom: 11 },
+                'Zaragoza': { lat: 41.6488, lng: -0.8891, zoom: 10 },
+            };
             
             // Event Listeners
-            if (requestLocationBtn) {
-                requestLocationBtn.addEventListener('click', getLocation);
+            if (provinceFilter) {
+                provinceFilter.addEventListener('change', function() {
+                    const selectedProvince = provinceFilter.value;
+                    
+                    // If a province is selected, center map on that province
+                    if (selectedProvince && provinceCoordinates[selectedProvince]) {
+                        const coords = provinceCoordinates[selectedProvince];
+                        if (map) {
+                            map.setCenter({ lat: coords.lat, lng: coords.lng });
+                            map.setZoom(coords.zoom);
+                        }
+                    } else if (!selectedProvince) {
+                        // If "Provincia" (all) is selected, reset to Madrid
+                        if (map) {
+                            map.setCenter(madridCenter);
+                            map.setZoom(6);
+                        }
+                    }
+                    
+                    // Load festivities for the new map view
+                    loadFestivitiesForMap();
+                });
             }
             
-            if (refreshLocationBtn) {
-                refreshLocationBtn.addEventListener('click', function() {
-                    if (currentLatitude && currentLongitude) {
-                        showLoading();
-                        fetchNearbyFestivities(currentLatitude, currentLongitude, defaultRadius);
-                    } else {
-                        getLocation();
+            // Search functionality
+            function performSearch() {
+                displayMapResults(currentFestivities);
+            }
+            
+            if (searchQuery) {
+                searchQuery.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        performSearch();
                     }
                 });
             }
+            
+            if (searchBtn) {
+                searchBtn.addEventListener('click', performSearch);
+            }
+            
+            if (nearMeBtn) {
+                nearMeBtn.addEventListener('click', getNearMeLocation);
+            }
+            
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', loadFestivitiesForMap);
+            }
+            
+            // Load Google Maps script
+            if (!window.googleMapsScriptLoaded) {
+                window.googleMapsScriptLoaded = true;
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${mapKey}&callback=initFestivitiesMap`;
+                script.async = true;
+                script.defer = true;
+                script.onerror = function() {
+                    console.error('Failed to load Google Maps script');
+                    mapElement.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Error al cargar Google Maps. Por favor, verifica tu API key.</div>';
+                };
+                document.head.appendChild(script);
+                
+                window.initFestivitiesMap = function() {
+                    initMap();
+                };
+            } else if (typeof google !== 'undefined' && google.maps) {
+                initMap();
+            }
+            
         })();
     </script>
 </x-app-layout>

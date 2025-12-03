@@ -17,6 +17,7 @@ Route::get('localidades', [LocalityController::class, 'index'])->name('localitie
 Route::get('festividades', [FestivityController::class, 'index'])->name('festivities.index');
 Route::get('mas-votadas', [VoteController::class, 'mostVoted'])->name('festivities.most-voted');
 Route::get('festividades/cercanas', [FestivityController::class, 'nearby'])->name('festivities.nearby');
+Route::get('festividades/mapa', [FestivityController::class, 'forMap'])->name('festivities.map');
 
 // SEO routes
 Route::get('sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');

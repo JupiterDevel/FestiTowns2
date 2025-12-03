@@ -163,6 +163,87 @@ class FestivityController extends Controller
     }
 
     /**
+     * Get festivities for map display (by province and/or map bounds)
+     */
+    public function forMap(Request $request)
+    {
+        try {
+            $request->validate([
+                'province' => 'nullable|string|in:' . implode(',', config('provinces.provinces')),
+                'north' => 'nullable|numeric',
+                'south' => 'nullable|numeric',
+                'east' => 'nullable|numeric',
+                'west' => 'nullable|numeric',
+            ]);
+
+            $query = Festivity::with('locality')
+                ->whereNotNull('latitude')
+                ->whereNotNull('longitude');
+
+            // Filter by province if provided
+            if ($request->has('province') && $request->province) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('province', $request->province)
+                      ->orWhereHas('locality', function ($localityQuery) use ($request) {
+                          $localityQuery->where('province', $request->province);
+                      });
+                });
+            }
+
+            // Filter by map bounds if provided
+            if ($request->has(['north', 'south', 'east', 'west'])) {
+                $query->whereBetween('latitude', [
+                    min($request->south, $request->north),
+                    max($request->south, $request->north)
+                ])->whereBetween('longitude', [
+                    min($request->west, $request->east),
+                    max($request->west, $request->east)
+                ]);
+            }
+
+            $festivities = $query->withCount('votes')
+                ->orderBy('votes_count', 'desc')
+                ->orderBy('start_date', 'asc') // Secondary sort by date
+                ->limit(50)
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'festivities' => $festivities->map(function ($festivity) {
+                    return [
+                        'id' => $festivity->id,
+                        'name' => $festivity->name,
+                        'slug' => $festivity->slug,
+                        'description' => Str::limit($festivity->description, 150),
+                        'start_date' => $festivity->start_date->format('Y-m-d'),
+                        'end_date' => $festivity->end_date ? $festivity->end_date->format('Y-m-d') : null,
+                        'latitude' => $festivity->latitude,
+                        'longitude' => $festivity->longitude,
+                        'locality' => [
+                            'name' => $festivity->locality->name ?? null,
+                            'province' => $festivity->province ?? null,
+                        ],
+                        'photo' => $festivity->photos && count($festivity->photos) > 0 ? $festivity->photos[0] : null,
+                        'url' => route('festivities.show', $festivity),
+                    ];
+                }),
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Error in map festivities: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create(Request $request)
