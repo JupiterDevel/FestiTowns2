@@ -25,6 +25,20 @@ class EventController extends Controller
      */
     public function create(Festivity $festivity)
     {
+        $user = Auth::user();
+        
+        // Los usuarios Visitor no pueden crear eventos
+        if ($user && $user->isVisitor()) {
+            abort(403, 'Los usuarios con rol Visitor no pueden crear eventos.');
+        }
+        
+        // Los usuarios TownHall solo pueden crear eventos en festividades de su localidad
+        if ($user && $user->isTownHall()) {
+            if (!$user->locality_id || $festivity->locality_id !== $user->locality_id) {
+                abort(403, 'Solo puedes crear eventos en festividades de tu localidad.');
+            }
+        }
+        
         return view('events.create', compact('festivity'));
     }
 
@@ -33,6 +47,20 @@ class EventController extends Controller
      */
     public function store(Request $request, Festivity $festivity)
     {
+        $user = Auth::user();
+        
+        // Los usuarios Visitor no pueden crear eventos
+        if ($user && $user->isVisitor()) {
+            abort(403, 'Los usuarios con rol Visitor no pueden crear eventos.');
+        }
+        
+        // Los usuarios TownHall solo pueden crear eventos en festividades de su localidad
+        if ($user && $user->isTownHall()) {
+            if (!$user->locality_id || $festivity->locality_id !== $user->locality_id) {
+                abort(403, 'Solo puedes crear eventos en festividades de tu localidad.');
+            }
+        }
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
