@@ -10,9 +10,7 @@
         @php
             $isPremium = $ad && $ad->premium;
             $isAdSense = $ad && $ad->is_adsense;
-            $imageUrl = $isPremium && $ad->image && !$isAdSense
-                ? (\Illuminate\Support\Str::startsWith($ad->image, ['http://', 'https://']) ? $ad->image : asset($ad->image))
-                : null;
+            $imageUrl = ($ad && $ad->image && !$isAdSense) ? $ad->image_url : null;
         @endphp
         <div class="card shadow-sm border-0 h-100 position-relative">
             @if($adminCanManageAds)
@@ -35,22 +33,35 @@
                     @endif
                 </div>
             @endif
-            @if($isPremium && $imageUrl)
-                <a href="{{ $ad->url ?? '#' }}"
-                   class="text-decoration-none"
-                   target="{{ $ad->url ? '_blank' : '_self' }}"
-                   rel="noopener">
-                    <img src="{{ $imageUrl }}"
-                         alt="{{ $ad->name ?? 'Publicidad secundaria' }}"
-                         class="w-100"
-                         style="height: 180px; object-fit: cover;">
-                </a>
+            @if($imageUrl)
+                @if($ad->url)
+                    <a href="{{ $ad->url }}"
+                       class="text-decoration-none d-block"
+                       target="_blank"
+                       rel="noopener">
+                @endif
+                <img src="{{ $imageUrl }}"
+                     alt="{{ $ad->name ?? 'Publicidad secundaria' }}"
+                     class="w-100"
+                     style="height: 180px; object-fit: cover; {{ $ad->url ? 'cursor: pointer;' : '' }}">
+                @if($ad->url)
+                    </a>
+                @endif
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between mb-2">
                         <span class="badge bg-primary text-uppercase small">Premium</span>
                         <span class="text-muted small">{{ ucfirst($ad->priority) }}</span>
                     </div>
-                    <p class="mb-0 fw-semibold text-dark">{{ $ad->name }}</p>
+                    @if($ad->url)
+                        <a href="{{ $ad->url }}" 
+                           class="text-decoration-none d-block"
+                           target="_blank"
+                           rel="noopener">
+                            <p class="mb-0 fw-semibold text-dark">{{ $ad->name }}</p>
+                        </a>
+                    @else
+                        <p class="mb-0 fw-semibold text-dark">{{ $ad->name }}</p>
+                    @endif
                 </div>
             @elseif($isAdSense && $ad->adsense_client_id && $ad->adsense_slot_id)
                 <div class="card-body p-0">

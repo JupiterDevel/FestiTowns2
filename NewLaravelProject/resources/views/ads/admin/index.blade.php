@@ -80,6 +80,11 @@
                                     Creado {!! $sortIcon('created_at') !!}
                                 </a>
                             </th>
+                            <th>
+                                <a href="{{ $sortLink('end_date') }}" class="text-decoration-none d-inline-flex align-items-center gap-1 text-dark">
+                                    Fecha de fin {!! $sortIcon('end_date') !!}
+                                </a>
+                            </th>
                             <th class="text-end">Acciones</th>
                         </tr>
                     </thead>
@@ -131,6 +136,18 @@
                                     </form>
                                 </td>
                                 <td>{{ $ad->created_at->format('d/m/Y') }}</td>
+                                <td>
+                                    @if($ad->end_date)
+                                        <span class="{{ $ad->isExpired() ? 'text-danger' : 'text-dark' }}">
+                                            {{ $ad->end_date->format('d/m/Y') }}
+                                        </span>
+                                        @if($ad->isExpired())
+                                            <span class="badge bg-danger ms-1">Expirado</span>
+                                        @endif
+                                    @else
+                                        <span class="text-muted">Sin fecha</span>
+                                    @endif
+                                </td>
                                 <td class="text-end">
                                     <div class="d-flex gap-2 justify-content-end">
                                         <a href="{{ route('advertisements.edit', $ad) }}" class="btn btn-sm btn-outline-warning">
@@ -149,7 +166,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5">
+                                <td colspan="8" class="text-center py-5">
                                     <i class="bi bi-badge-ad display-5 text-muted d-block mb-3"></i>
                                     <p class="mb-3 text-muted">No hay anuncios premium todavía.</p>
                                     <a href="{{ route('advertisements.create') }}" class="btn btn-primary">
