@@ -57,19 +57,21 @@
                             
                             @if(auth()->user()->rank === 'bronze')
                                 <div class="mb-2">
-                                    <small class="text-muted d-block mb-1">Próximo: 🥈 Plata</small>
+                                    <small class="text-muted d-block mb-1">Próximo: 🥈 Plata (200 puntos)</small>
                                     <div class="progress" style="height: 6px;">
                                         <div class="progress-bar bg-warning" role="progressbar" 
-                                             style="width: {{ min(100, (auth()->user()->points / 1) * 100) }}%"></div>
+                                             style="width: {{ min(100, (auth()->user()->points / 200) * 100) }}%"></div>
                                     </div>
+                                    <small class="text-muted">{{ auth()->user()->points }} / 200 puntos</small>
                                 </div>
                             @elseif(auth()->user()->rank === 'silver')
                                 <div class="mb-2">
-                                    <small class="text-muted d-block mb-1">Próximo: 🥇 Oro</small>
+                                    <small class="text-muted d-block mb-1">Próximo: 🥇 Oro (500 puntos)</small>
                                     <div class="progress" style="height: 6px;">
                                         <div class="progress-bar bg-secondary" role="progressbar" 
-                                             style="width: {{ min(100, ((auth()->user()->points - 1) / 4) * 100) }}%"></div>
+                                             style="width: {{ min(100, ((auth()->user()->points - 200) / 300) * 100) }}%"></div>
                                     </div>
+                                    <small class="text-muted">{{ auth()->user()->points }} / 500 puntos</small>
                                 </div>
                             @else
                                 <p class="text-success small mb-0 fw-bold">¡Rango máximo!</p>
