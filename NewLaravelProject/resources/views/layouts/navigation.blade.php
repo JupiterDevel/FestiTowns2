@@ -28,12 +28,7 @@
                 @auth
                     @if(auth()->user()->isAdmin() || auth()->user()->isTownHall())
                         <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('comments.*') ? 'active' : '' }}" href="{{ route('comments.pending') }}">Moderate Comments</a>
-                        </li>
-                    @endif
-                    @if(auth()->user()->isAdmin())
-                        <li class="nav-item">
-                            <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}">Users</a>
+                            <a class="nav-link {{ request()->routeIs('admin.*') || request()->routeIs('comments.*') || request()->routeIs('users.*') || request()->routeIs('advertisements.*') ? 'active' : '' }}" href="{{ route('admin.panel') }}">Admin</a>
                         </li>
                     @endif
                 @endauth

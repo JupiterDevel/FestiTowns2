@@ -9,10 +9,6 @@
                     <a href="{{ route('localities.create') }}" class="btn btn-primary btn-custom">
                         <i class="bi bi-plus-circle me-1"></i>Add Locality
                     </a>
-                @else
-                    <div class="alert alert-warning">
-                        <small>You don't have permission to create localities. Current role: {{ auth()->user()->role }} (Only administrators can create localities)</small>
-                    </div>
                 @endcan
             @else
                 <div class="alert alert-info">

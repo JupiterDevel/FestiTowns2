@@ -18,6 +18,9 @@ class Festivity extends Model
         'end_date',
         'description',
         'photos',
+        'latitude',
+        'longitude',
+        'google_maps_url',
     ];
 
     protected static function boot()
@@ -35,19 +38,35 @@ class Festivity extends Model
                 $festivity->slug = static::generateUniqueSlug($festivity->name, $festivity->id);
             }
         });
+
+        static::updated(function ($festivity) {
+            if ($festivity->wasChanged(['start_date', 'end_date'])) {
+                $festivity->advertisements()->get()->each(function ($advertisement) {
+                    $advertisement->save();
+                });
+            }
+        });
     }
 
     protected static function generateUniqueSlug($name, $id = null)
     {
-        $slug = Str::slug($name);
-        $query = static::where('slug', $slug);
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $counter = 1;
         
+        $query = static::where('slug', $slug);
         if ($id) {
             $query->where('id', '!=', $id);
         }
         
-        if ($query->exists()) {
-            $slug .= '-' . ($query->count() + 1);
+        // Keep incrementing until we find a unique slug
+        while ($query->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+            $query = static::where('slug', $slug);
+            if ($id) {
+                $query->where('id', '!=', $id);
+            }
         }
         
         return $slug;
@@ -62,6 +81,8 @@ class Festivity extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'photos' => 'array',
+        'latitude' => 'decimal:8',
+        'longitude' => 'decimal:8',
     ];
 
     public function locality(): BelongsTo
@@ -82,6 +103,11 @@ class Festivity extends Model
     public function votes(): HasMany
     {
         return $this->hasMany(Vote::class);
+    }
+
+    public function advertisements(): HasMany
+    {
+        return $this->hasMany(Advertisement::class);
     }
 
     public function events(): HasMany

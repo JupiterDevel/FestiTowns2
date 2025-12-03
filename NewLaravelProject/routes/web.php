@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdvertisementController;
+use App\Http\Controllers\AdminPanelController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocalityController;
@@ -15,13 +17,20 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('localidades', [LocalityController::class, 'index'])->name('localities.index');
 Route::get('festividades', [FestivityController::class, 'index'])->name('festivities.index');
 Route::get('mas-votadas', [VoteController::class, 'mostVoted'])->name('festivities.most-voted');
+Route::get('festividades/cercanas', [FestivityController::class, 'nearby'])->name('festivities.nearby');
+Route::get('festividades/mapa', [FestivityController::class, 'forMap'])->name('festivities.map');
 
 // SEO routes
 Route::get('sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('robots.txt', [\App\Http\Controllers\SitemapController::class, 'robots'])->name('robots');
 
+// Legal routes (public)
+Route::get('legal', [\App\Http\Controllers\LegalController::class, 'index'])->name('legal.index');
+Route::get('legal/accept', [\App\Http\Controllers\LegalController::class, 'acceptForm'])->name('legal.accept');
+Route::post('legal/accept', [\App\Http\Controllers\LegalController::class, 'accept'])->name('legal.accept');
+
 // Authentication routes
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'legal.accepted'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -72,6 +81,13 @@ Route::middleware('auth')->group(function () {
     Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::patch('users/{user}', [UserController::class, 'update'])->name('users.patch');
     Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Premium advertisements admin
+    Route::resource('advertisements', AdvertisementController::class)->except(['show']);
+    Route::patch('advertisements/{advertisement}/toggle-active', [AdvertisementController::class, 'toggle'])->name('advertisements.toggle');
+
+    // Unified admin panel
+    Route::get('admin-panel', [AdminPanelController::class, 'index'])->name('admin.panel');
 });
 
 require __DIR__.'/auth.php';

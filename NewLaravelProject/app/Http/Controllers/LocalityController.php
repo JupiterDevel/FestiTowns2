@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Locality;
+use App\Services\AdvertisementService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -11,6 +12,10 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class LocalityController extends Controller
 {
     use AuthorizesRequests;
+
+    public function __construct(private AdvertisementService $advertisementService)
+    {
+    }
 
     /**
      * Display a listing of the resource.
@@ -115,8 +120,20 @@ class LocalityController extends Controller
         
         // Schema.org JSON-LD
         $schema = SeoService::generateCitySchema($locality);
+
+        $ads = $this->advertisementService->forLocality($locality);
+        $adCreationParams = [
+            'locality_id' => $locality->id,
+        ];
         
-        return view('localities.show', compact('locality', 'meta', 'schema'));
+        return view('localities.show', [
+            'locality' => $locality,
+            'meta' => $meta,
+            'schema' => $schema,
+            'mainAdvertisement' => $ads['main'],
+            'secondaryAdvertisements' => $ads['secondary'],
+            'adCreationParams' => $adCreationParams,
+        ]);
     }
 
     /**

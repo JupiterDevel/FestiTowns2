@@ -6,13 +6,15 @@
             </h1>
             @auth
                 @can('create', App\Models\Festivity::class)
-                    <a href="{{ route('festivities.create') }}" class="btn btn-primary btn-custom">
-                        <i class="bi bi-plus-circle me-1"></i>Add Festivity
-                    </a>
-                @else
-                    <div class="alert alert-warning">
-                        <small>You don't have permission to create festivities. Current role: {{ auth()->user()->role }}</small>
-                    </div>
+                    @if(!auth()->user()->isTownHall())
+                        <a href="{{ route('festivities.create') }}" class="btn btn-primary btn-custom">
+                            <i class="bi bi-plus-circle me-1"></i>Add Festivity
+                        </a>
+                    @else
+                        <div class="alert alert-info">
+                            <small><i class="bi bi-info-circle me-1"></i>Los usuarios con rol de ayuntamiento solo pueden añadir festividades desde la vista de su localidad.</small>
+                        </div>
+                    @endif
                 @endcan
             @else
                 <div class="alert alert-info">
@@ -106,9 +108,11 @@
                 <p class="text-muted">Be the first to add a festivity!</p>
                 @auth
                     @can('create', App\Models\Festivity::class)
-                        <a href="{{ route('festivities.create') }}" class="btn btn-primary btn-custom mt-3">
-                            <i class="bi bi-plus-circle me-1"></i>Add First Festivity
-                        </a>
+                        @if(!auth()->user()->isTownHall())
+                            <a href="{{ route('festivities.create') }}" class="btn btn-primary btn-custom mt-3">
+                                <i class="bi bi-plus-circle me-1"></i>Add First Festivity
+                            </a>
+                        @endif
                     @endcan
                 @endauth
             </div>
