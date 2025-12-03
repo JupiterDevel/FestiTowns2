@@ -36,19 +36,36 @@ class GoogleAuthController extends Controller
                     $user->google_id = $googleUser->getId();
                     $user->save();
                 }
+                
+                // Check if user has accepted legal terms
+                if (!$user->accepted_legal) {
+                    // Store Google user data in session for later use
+                    session()->put('google_auth_pending', [
+                        'email' => $googleUser->getEmail(),
+                        'name' => $googleUser->getName(),
+                        'google_id' => $googleUser->getId(),
+                    ]);
+                    
+                    // Log the user in temporarily so middleware can identify them
+                    Auth::login($user, true);
+                    
+                    // Redirect to legal acceptance page
+                    return redirect()->route('legal.accept');
+                }
             } else {
-                // Create new user with default role 'visitor'
-                $user = User::create([
-                    'name' => $googleUser->getName(),
+                // New user - store Google user data in session
+                // Don't create user yet, require legal acceptance first
+                session()->put('google_auth_pending', [
                     'email' => $googleUser->getEmail(),
+                    'name' => $googleUser->getName(),
                     'google_id' => $googleUser->getId(),
-                    'password' => Hash::make(uniqid('', true)), // Random password since OAuth
-                    'role' => 'visitor', // Default role as specified
-                    'email_verified_at' => now(), // Google emails are verified
                 ]);
+                
+                // Redirect to legal acceptance page
+                return redirect()->route('legal.accept');
             }
 
-            // Log the user in
+            // User exists and has accepted legal terms - proceed with login
             Auth::login($user, true);
 
             return redirect()->intended(route('home', absolute: false));

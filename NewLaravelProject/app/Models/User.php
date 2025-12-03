@@ -29,6 +29,7 @@ class User extends Authenticatable
         'points',
         'last_login_at',
         'google_id',
+        'accepted_legal',
     ];
 
     /**
@@ -52,6 +53,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'last_login_at' => 'datetime',
+            'accepted_legal' => 'boolean',
         ];
     }
 

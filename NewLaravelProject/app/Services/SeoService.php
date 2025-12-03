@@ -12,7 +12,7 @@ class SeoService
     public static function generateMetaTags(array $data): array
     {
         $defaults = [
-            'title' => config('app.name', 'FestiTowns') . ' - Festividades y Eventos en España',
+            'title' => config('app.name', 'El Alma de las Fiestas') . ' - Festividades y Eventos en España',
             'description' => 'Descubre las mejores festividades y eventos tradicionales de España. Fallas de Valencia, San Fermín, Feria de Abril y muchas más.',
             'keywords' => 'festividades españa, eventos tradicionales, fiestas populares, turismo cultural',
             'image' => asset('favicon.ico'),
@@ -42,7 +42,7 @@ class SeoService
         $year = $year ?? $festivity->start_date->year ?? date('Y');
         $locality = $festivity->locality->name ?? '';
         
-        return "{$festivity->name} {$year} en {$locality}: Horarios, Eventos y Tradiciones | FestiTowns";
+        return "{$festivity->name} {$year} en {$locality}: Horarios, Eventos y Tradiciones | El Alma de las Fiestas";
     }
 
     /**
@@ -69,7 +69,7 @@ class SeoService
     public static function generateLocalityTitle($locality): string
     {
         $province = $locality->province ?? '';
-        return "{$locality->name}, {$province} - Festividades y Lugares de Interés | FestiTowns";
+        return "{$locality->name}, {$province} - Festividades y Lugares de Interés | El Alma de las Fiestas";
     }
 
     /**

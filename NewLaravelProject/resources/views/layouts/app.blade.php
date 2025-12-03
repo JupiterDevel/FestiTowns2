@@ -10,11 +10,11 @@
         @endphp
 
         <!-- Primary Meta Tags -->
-        <title>{{ $meta['title'] ?? config('app.name', 'FestiTowns') }}</title>
-        <meta name="title" content="{{ $meta['title'] ?? config('app.name', 'FestiTowns') }}">
+        <title>{{ $meta['title'] ?? config('app.name', 'El Alma de las Fiestas') }}</title>
+        <meta name="title" content="{{ $meta['title'] ?? config('app.name', 'El Alma de las Fiestas') }}">
         <meta name="description" content="{{ $meta['description'] ?? 'Descubre las mejores festividades y eventos tradicionales de España' }}">
         <meta name="keywords" content="{{ $meta['keywords'] ?? 'festividades españa, eventos tradicionales, fiestas populares' }}">
-        <meta name="author" content="FestiTowns">
+        <meta name="author" content="El Alma de las Fiestas">
         <meta name="robots" content="index, follow">
         <meta name="language" content="Spanish">
         <meta name="revisit-after" content="7 days">
@@ -22,16 +22,16 @@
         <!-- Open Graph / Facebook -->
         <meta property="og:type" content="{{ $meta['type'] ?? 'website' }}">
         <meta property="og:url" content="{{ $meta['url'] ?? url()->current() }}">
-        <meta property="og:title" content="{{ $meta['title'] ?? config('app.name', 'FestiTowns') }}">
+        <meta property="og:title" content="{{ $meta['title'] ?? config('app.name', 'El Alma de las Fiestas') }}">
         <meta property="og:description" content="{{ $meta['description'] ?? 'Descubre las mejores festividades y eventos tradicionales de España' }}">
         <meta property="og:image" content="{{ $meta['image'] ?? asset('favicon.ico') }}">
         <meta property="og:locale" content="{{ $meta['locale'] ?? 'es_ES' }}">
-        <meta property="og:site_name" content="{{ config('app.name', 'FestiTowns') }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'El Alma de las Fiestas') }}">
 
         <!-- Twitter -->
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:url" content="{{ $meta['url'] ?? url()->current() }}">
-        <meta name="twitter:title" content="{{ $meta['title'] ?? config('app.name', 'FestiTowns') }}">
+        <meta name="twitter:title" content="{{ $meta['title'] ?? config('app.name', 'El Alma de las Fiestas') }}">
         <meta name="twitter:description" content="{{ $meta['description'] ?? 'Descubre las mejores festividades y eventos tradicionales de España' }}">
         <meta name="twitter:image" content="{{ $meta['image'] ?? asset('favicon.ico') }}">
 
@@ -80,6 +80,9 @@
         <main class="py-4">
             {{ $slot }}
         </main>
+        
+        <!-- Footer -->
+        @include('partials.footer')
         
         <!-- Stack for additional scripts (e.g., Google Maps) -->
         @stack('scripts')
