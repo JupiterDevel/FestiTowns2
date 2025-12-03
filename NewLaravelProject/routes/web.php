@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdvertisementController;
+use App\Http\Controllers\AdminPanelController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LocalityController;
@@ -84,6 +85,9 @@ Route::middleware(['auth', 'legal.accepted'])->group(function () {
     // Premium advertisements admin
     Route::resource('advertisements', AdvertisementController::class)->except(['show']);
     Route::patch('advertisements/{advertisement}/toggle-active', [AdvertisementController::class, 'toggle'])->name('advertisements.toggle');
+
+    // Unified admin panel
+    Route::get('admin-panel', [AdminPanelController::class, 'index'])->name('admin.panel');
 });
 
 require __DIR__.'/auth.php';
