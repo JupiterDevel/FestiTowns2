@@ -50,15 +50,23 @@ class Festivity extends Model
 
     protected static function generateUniqueSlug($name, $id = null)
     {
-        $slug = Str::slug($name);
-        $query = static::where('slug', $slug);
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $counter = 1;
         
+        $query = static::where('slug', $slug);
         if ($id) {
             $query->where('id', '!=', $id);
         }
         
-        if ($query->exists()) {
-            $slug .= '-' . ($query->count() + 1);
+        // Keep incrementing until we find a unique slug
+        while ($query->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+            $query = static::where('slug', $slug);
+            if ($id) {
+                $query->where('id', '!=', $id);
+            }
         }
         
         return $slug;
