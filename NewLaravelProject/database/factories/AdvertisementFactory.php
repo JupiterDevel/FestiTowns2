@@ -34,12 +34,8 @@ class AdvertisementFactory extends Factory
             ]),
             'festivity_id' => $festivity?->id,
             'locality_id' => $localityId,
-            'start_date' => $premium && $festivity
-                ? $festivity->start_date?->copy()->subDays(7)
-                : null,
-            'end_date' => $premium && $festivity
-                ? $festivity->end_date
-                : null,
+            'start_date' => $premium ? now() : null,
+            'end_date' => $premium ? now()->addDays(365) : null,
             'active' => true,
         ];
     }

@@ -397,16 +397,20 @@ class FestivityController extends Controller
     {
         $festivity->load(['locality', 'approvedComments.user', 'events'])->loadCount('votes');
         
-        // Verificar si el usuario ya votó hoy
+        // Verificar si el usuario ya votó hoy (los administradores siempre pueden votar)
         $userVotedToday = false;
         $visitPointsEarned = false;
         
         if (Auth::check()) {
             $user = Auth::user();
             
-            $userVotedToday = \App\Models\Vote::where('user_id', Auth::id())
-                ->where('voted_at', now()->toDateString())
-                ->exists();
+            // Los administradores pueden votar múltiples veces, así que siempre pueden votar
+            // Visitor y TownHall solo pueden votar una vez al día
+            if ($user->isVisitor() || $user->isTownHall()) {
+                $userVotedToday = \App\Models\Vote::where('user_id', Auth::id())
+                    ->whereDate('voted_at', now()->toDateString())
+                    ->exists();
+            }
             
             // Otorgar puntos por visitar festividades de otras localidades (solo visitantes)
             if ($user->isVisitor() && $user->canEarnVisitPoints($festivity)) {

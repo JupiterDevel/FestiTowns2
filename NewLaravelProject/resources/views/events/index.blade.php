@@ -8,9 +8,22 @@
                 <a href="{{ route('festivities.show', $festivity) }}" class="btn btn-outline-secondary btn-custom">
                     <i class="bi bi-arrow-left me-1"></i>Volver a Festividad
                 </a>
-                <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-custom">
-                    <i class="bi bi-plus-circle me-1"></i>Nuevo Evento
-                </a>
+                @auth
+                    @php
+                        $user = auth()->user();
+                        $canCreate = false;
+                        if ($user->isAdmin()) {
+                            $canCreate = true;
+                        } elseif ($user->isTownHall() && $user->locality_id && $festivity->locality_id === $user->locality_id) {
+                            $canCreate = true;
+                        }
+                    @endphp
+                    @if($canCreate)
+                        <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-custom">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo Evento
+                        </a>
+                    @endif
+                @endauth
             </div>
         </div>
     </x-slot>
@@ -108,9 +121,22 @@
                 <i class="bi bi-calendar-x display-1 text-muted"></i>
                 <h3 class="mt-3 text-muted">No hay eventos programados</h3>
                 <p class="text-muted">Esta festividad aún no tiene eventos programados.</p>
-                <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-custom">
-                    <i class="bi bi-plus-circle me-1"></i>Crear Primer Evento
-                </a>
+                @auth
+                    @php
+                        $user = auth()->user();
+                        $canCreate = false;
+                        if ($user->isAdmin()) {
+                            $canCreate = true;
+                        } elseif ($user->isTownHall() && $user->locality_id && $festivity->locality_id === $user->locality_id) {
+                            $canCreate = true;
+                        }
+                    @endphp
+                    @if($canCreate)
+                        <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-custom">
+                            <i class="bi bi-plus-circle me-1"></i>Crear Primer Evento
+                        </a>
+                    @endif
+                @endauth
             </div>
         @endif
     </div>

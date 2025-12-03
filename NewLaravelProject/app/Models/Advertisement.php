@@ -125,21 +125,59 @@ class Advertisement extends Model
         return !is_null($this->end_date) && $this->end_date->isBefore(now());
     }
 
+    public function getImageUrlAttribute(): ?string
+    {
+        if (!$this->image) {
+            return null;
+        }
+
+        // Si es una URL completa (http/https), devolverla tal cual
+        if (\Illuminate\Support\Str::startsWith($this->image, ['http://', 'https://'])) {
+            return $this->image;
+        }
+
+        // Si es base64 (data:image...), devolverla tal cual
+        if (\Illuminate\Support\Str::startsWith($this->image, 'data:image')) {
+            return $this->image;
+        }
+
+        // Si parece ser base64 sin el prefijo data:, intentar detectarlo
+        // Base64 válido generalmente tiene caracteres alfanuméricos, +, /, y = al final
+        $base64Pattern = '/^[A-Za-z0-9+\/]+={0,2}$/';
+        if (preg_match($base64Pattern, $this->image) && strlen($this->image) > 100) {
+            try {
+                // Intentar decodificar base64
+                $decoded = base64_decode($this->image, true);
+                if ($decoded !== false) {
+                    // Intentar detectar el tipo MIME
+                    $imageInfo = @getimagesizefromstring($decoded);
+                    if ($imageInfo !== false && isset($imageInfo['mime'])) {
+                        $mime = $imageInfo['mime'];
+                        return 'data:' . $mime . ';base64,' . $this->image;
+                    }
+                    // Si no se puede detectar el MIME pero es binario válido, asumir JPEG
+                    if (strlen($decoded) > 0) {
+                        return 'data:image/jpeg;base64,' . $this->image;
+                    }
+                }
+            } catch (\Exception $e) {
+                // Si falla, continuar con el flujo normal
+            }
+        }
+
+        // Si es una ruta de archivo, usar asset()
+        return asset($this->image);
+    }
+
     protected function syncDatesFromFestivity(): void
     {
-        if (!$this->festivity_id) {
+        // Solo aplicar a anuncios premium
+        if (!$this->premium) {
             return;
         }
 
-        $festivity = $this->relationLoaded('festivity')
-            ? $this->festivity
-            : Festivity::select(['id', 'start_date', 'end_date'])->find($this->festivity_id);
-
-        if (!$festivity) {
-            return;
-        }
-
-        $this->start_date = Carbon::parse($festivity->start_date)->subDays(7);
-        $this->end_date = Carbon::parse($festivity->end_date);
+        // Para anuncios premium: fecha de inicio = ahora, fecha de fin = 365 días después
+        $this->start_date = now();
+        $this->end_date = now()->addDays(365);
     }
 }

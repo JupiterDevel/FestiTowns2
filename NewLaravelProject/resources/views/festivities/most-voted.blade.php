@@ -28,7 +28,7 @@
         @if($mostVotedFestivities->count() > 0)
             <div class="alert alert-info mb-4" role="alert">
                 <i class="bi bi-info-circle me-2"></i>
-                <strong>Regla de votación:</strong> Cada usuario puede votar una sola vez al día por cualquier festividad.
+                <strong>Regla de votación:</strong> Cada usuario puede votar una sola vez al día por cualquier festividad. Los administradores pueden votar múltiples veces al día.
             </div>
             
             <div class="row">
