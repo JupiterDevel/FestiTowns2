@@ -13,7 +13,7 @@ class AdvertisementController extends Controller
 {
     use AuthorizesRequests;
 
-    private const ALLOWED_SORTS = ['name', 'priority', 'active', 'created_at'];
+    private const ALLOWED_SORTS = ['name', 'priority', 'active', 'created_at', 'end_date'];
 
     /**
      * Display a listing of the resource.
