@@ -96,9 +96,9 @@ class User extends Authenticatable
     {
         $oldRank = $this->rank;
         
-        if ($this->points >= 5) {
+        if ($this->points >= 500) {
             $this->rank = 'gold';
-        } elseif ($this->points >= 1) {
+        } elseif ($this->points >= 200) {
             $this->rank = 'silver';
         } else {
             $this->rank = 'bronze';
