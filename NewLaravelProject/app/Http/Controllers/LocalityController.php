@@ -33,7 +33,42 @@ class LocalityController extends Controller
         $currentPage = $request->input('page', 1);
         
         // Step 1: Get localities with ACTIVE festivities (today or this week)
-        $activeLocalities = Locality::with(['festivities' => function ($query) use ($today, $endOfWeek) {
+        // Priority 1.1: Active festivities WITH paid ads
+        $activeWithAds = Locality::with(['festivities' => function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      })
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)
+                                  ->where('active', true);
+                      });
+            }])
+            ->whereHas('festivities', function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      })
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)
+                                  ->where('active', true);
+                      });
+            })
+            ->get()
+            ->map(function ($locality) {
+                $totalVotes = $locality->festivities->sum(function ($festivity) {
+                    return $festivity->votes()->count();
+                });
+                $locality->total_votes = $totalVotes;
+                $locality->priority = 1.1; // Highest priority - active with ads
+                return $locality;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Priority 1.2: Active festivities WITHOUT paid ads
+        $activeWithoutAds = Locality::with(['festivities' => function ($query) use ($today, $endOfWeek) {
                 $query->where('start_date', '<=', $endOfWeek)
                       ->where(function ($endQuery) use ($today) {
                           $endQuery->whereNull('end_date')
@@ -47,16 +82,20 @@ class LocalityController extends Controller
                                    ->orWhere('end_date', '>=', $today);
                       });
             })
+            ->whereNotIn('id', $activeWithAds->pluck('id'))
             ->get()
             ->map(function ($locality) {
                 $totalVotes = $locality->festivities->sum(function ($festivity) {
                     return $festivity->votes()->count();
                 });
                 $locality->total_votes = $totalVotes;
-                $locality->priority = 1; // Highest priority
+                $locality->priority = 1.2; // High priority - active without ads
                 return $locality;
             })
             ->sortByDesc('total_votes');
+        
+        // Combine active localities (with ads first, then without ads)
+        $activeLocalities = $activeWithAds->merge($activeWithoutAds);
         
         $neededCount = $perPage * $currentPage;
         $finalLocalities = collect($activeLocalities);
@@ -164,8 +203,41 @@ class LocalityController extends Controller
         $allMatchingIds = $baseQuery->pluck('id');
         
         // Step 1: Get localities with ACTIVE festivities from matching results
-        $activeLocalities = Locality::with(['festivities'])
+        // Priority 1.1: Active festivities WITH paid ads
+        $activeWithAds = Locality::with(['festivities'])
             ->whereIn('id', $allMatchingIds)
+            ->whereHas('festivities', function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      })
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)->where('active', true);
+                      });
+            })
+            ->get()
+            ->map(function ($locality) use ($today, $endOfWeek) {
+                $activeFestivities = $locality->festivities->filter(function ($festivity) use ($today, $endOfWeek) {
+                    return $festivity->start_date <= $endOfWeek &&
+                           ($festivity->end_date === null || $festivity->end_date >= $today);
+                });
+                
+                $totalVotes = $activeFestivities->sum(function ($festivity) {
+                    return $festivity->votes()->count();
+                });
+                
+                $locality->active_festivities = $activeFestivities;
+                $locality->total_votes = $totalVotes;
+                $locality->priority = 1.1; // Highest priority - active with ads
+                return $locality;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Priority 1.2: Active festivities WITHOUT paid ads
+        $activeWithoutAds = Locality::with(['festivities'])
+            ->whereIn('id', $allMatchingIds)
+            ->whereNotIn('id', $activeWithAds->pluck('id'))
             ->whereHas('festivities', function ($query) use ($today, $endOfWeek) {
                 $query->where('start_date', '<=', $endOfWeek)
                       ->where(function ($endQuery) use ($today) {
@@ -186,10 +258,13 @@ class LocalityController extends Controller
                 
                 $locality->active_festivities = $activeFestivities;
                 $locality->total_votes = $totalVotes;
-                $locality->priority = 1;
+                $locality->priority = 1.2; // High priority - active without ads
                 return $locality;
             })
             ->sortByDesc('total_votes');
+        
+        // Combine active localities (with ads first, then without ads)
+        $activeLocalities = $activeWithAds->merge($activeWithoutAds);
         
         $finalLocalities = collect($activeLocalities);
         $neededCount = $perPage * $page;
