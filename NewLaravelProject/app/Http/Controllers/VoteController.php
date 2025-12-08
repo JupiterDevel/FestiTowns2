@@ -7,6 +7,7 @@ use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class VoteController extends Controller
 {
@@ -17,6 +18,12 @@ class VoteController extends Controller
         // Validar que el usuario esté autenticado
         if (!$user) {
             return back()->with('error', 'Debes estar autenticado para votar.');
+        }
+        
+        // Verificar si las votaciones están habilitadas
+        $votingEnabled = Cache::get('voting_enabled', true); // Por defecto habilitado
+        if (!$votingEnabled) {
+            return back()->with('error', 'Las votaciones están deshabilitadas temporalmente. Por favor, inténtalo más tarde.');
         }
         
         try {
@@ -137,6 +144,9 @@ class VoteController extends Controller
                     ->exists();
             }
         }
+        
+        // Obtener el mensaje informativo desde la caché
+        $votingInfoMessage = Cache::get('voting_info_message', '');
             
         return view('festivities.most-voted', compact(
             'nationalFestivities',
@@ -146,7 +156,8 @@ class VoteController extends Controller
             'selectedProvince',
             'communities',
             'provinces',
-            'userVotedToday'
+            'userVotedToday',
+            'votingInfoMessage'
         ));
     }
 

@@ -27,6 +27,15 @@
             <strong>Regla de votación:</strong> Cada usuario puede votar una sola vez al día por cualquier festividad. Los administradores pueden votar múltiples veces al día.
         </div>
 
+        @if(!empty($votingInfoMessage ?? ''))
+            <div class="alert alert-primary mb-4" role="alert">
+                <i class="bi bi-megaphone me-2"></i>
+                <div>
+                    {!! $votingInfoMessage !!}
+                </div>
+            </div>
+        @endif
+
         <!-- Sección Nacional -->
         <div class="mb-5">
             <div class="d-flex justify-content-between align-items-center mb-3">

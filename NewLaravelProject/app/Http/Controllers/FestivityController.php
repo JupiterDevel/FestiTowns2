@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 class FestivityController extends Controller
 {
@@ -715,10 +716,14 @@ class FestivityController extends Controller
             'locality_id' => $festivity->locality_id,
         ];
         
+        // Verificar si las votaciones están habilitadas
+        $votingEnabled = Cache::get('voting_enabled', true);
+        
         return view('festivities.show', [
             'festivity' => $festivity,
             'userVotedToday' => $userVotedToday,
             'visitPointsEarned' => $visitPointsEarned,
+            'votingEnabled' => $votingEnabled,
             'meta' => $meta,
             'schema' => $schema,
             'mainAdvertisement' => $ads['main'],

@@ -159,7 +159,11 @@
                             </div>
                             
                             @auth
-                                @if($userVotedToday)
+                                @if(!($votingEnabled ?? true))
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                        <i class="bi bi-pause-circle me-1"></i>Votaciones pausadas
+                                    </button>
+                                @elseif($userVotedToday)
                                     <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
                                         <i class="bi bi-check-circle me-1"></i>Ya votaste hoy
                                     </button>

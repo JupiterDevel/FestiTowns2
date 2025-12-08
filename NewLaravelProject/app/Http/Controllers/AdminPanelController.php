@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\Advertisement;
+use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class AdminPanelController extends Controller
 {
@@ -147,6 +150,160 @@ class AdminPanelController extends Controller
         }
 
         return view('admin.panel', $data);
+    }
+
+    /**
+     * Enable voting for all users.
+     */
+    public function enableVoting()
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        Cache::forever('voting_enabled', true);
+
+        return redirect()->route('admin.panel', ['tab' => 'voting'])
+            ->with('success', 'Las votaciones han sido habilitadas. Todos los usuarios pueden votar ahora.');
+    }
+
+    /**
+     * Disable voting for all users.
+     */
+    public function disableVoting()
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        Cache::forever('voting_enabled', false);
+
+        return redirect()->route('admin.panel', ['tab' => 'voting'])
+            ->with('success', 'Las votaciones han sido deshabilitadas. Los usuarios no pueden votar ahora.');
+    }
+
+    /**
+     * Reset all votes (delete all votes from all festivities).
+     */
+    public function resetVotes()
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        try {
+            DB::transaction(function () {
+                Vote::truncate();
+            });
+
+            return redirect()->route('admin.panel', ['tab' => 'voting'])
+                ->with('success', 'Todas las votaciones han sido reiniciadas. Todas las festividades ahora tienen 0 votos.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.panel', ['tab' => 'voting'])
+                ->with('error', 'Ha ocurrido un error al reiniciar las votaciones. Por favor, inténtalo de nuevo.');
+        }
+    }
+
+    /**
+     * Update the informational message for the "Most Voted" page.
+     */
+    public function updateMessage(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $request->validate([
+            'message' => 'nullable|string|max:2000',
+        ]);
+
+        $message = $request->input('message', '');
+        
+        if (empty(trim($message))) {
+            Cache::forget('voting_info_message');
+            return redirect()->route('admin.panel', ['tab' => 'voting'])
+                ->with('success', 'El mensaje ha sido eliminado.');
+        }
+
+        Cache::forever('voting_info_message', $message);
+
+        return redirect()->route('admin.panel', ['tab' => 'voting'])
+            ->with('success', 'El mensaje ha sido guardado exitosamente.');
+    }
+
+    /**
+     * Clear the informational message for the "Most Voted" page.
+     */
+    public function clearMessage()
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        Cache::forget('voting_info_message');
+
+        return redirect()->route('admin.panel', ['tab' => 'voting'])
+            ->with('success', 'El mensaje ha sido eliminado.');
+    }
+
+    /**
+     * Update contact information (email, phone, social media).
+     */
+    public function updateContact(Request $request)
+    {
+        if (!auth()->check() || !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized access.');
+        }
+
+        $request->validate([
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
+            'facebook' => 'nullable|url|max:255',
+            'twitter' => 'nullable|url|max:255',
+            'instagram' => 'nullable|url|max:255',
+            'youtube' => 'nullable|url|max:255',
+        ]);
+
+        // Guardar información de contacto
+        if ($request->filled('email')) {
+            Cache::forever('contact_email', $request->input('email'));
+        } else {
+            Cache::forget('contact_email');
+        }
+
+        if ($request->filled('phone')) {
+            Cache::forever('contact_phone', $request->input('phone'));
+        } else {
+            Cache::forget('contact_phone');
+        }
+
+        // Guardar redes sociales
+        if ($request->filled('facebook')) {
+            Cache::forever('social_facebook', $request->input('facebook'));
+        } else {
+            Cache::forget('social_facebook');
+        }
+
+        if ($request->filled('twitter')) {
+            Cache::forever('social_twitter', $request->input('twitter'));
+        } else {
+            Cache::forget('social_twitter');
+        }
+
+        if ($request->filled('instagram')) {
+            Cache::forever('social_instagram', $request->input('instagram'));
+        } else {
+            Cache::forget('social_instagram');
+        }
+
+        if ($request->filled('youtube')) {
+            Cache::forever('social_youtube', $request->input('youtube'));
+        } else {
+            Cache::forget('social_youtube');
+        }
+
+        return redirect()->route('admin.panel', ['tab' => 'contact'])
+            ->with('success', 'La información de contacto ha sido actualizada exitosamente.');
     }
 }
 
