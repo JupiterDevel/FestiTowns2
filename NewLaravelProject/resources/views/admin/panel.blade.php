@@ -12,6 +12,8 @@
             $showComments = auth()->user()->isAdmin() || auth()->user()->isTownHall();
             $showUsers = auth()->user()->isAdmin();
             $showAdvertisements = auth()->user()->isAdmin();
+            $showVoting = auth()->user()->isAdmin();
+            $showContact = auth()->user()->isAdmin();
             
             // Set default tab if requested tab is not available
             if ($activeTab === 'users' && !$showUsers) {
@@ -20,8 +22,14 @@
             if ($activeTab === 'advertisements' && !$showAdvertisements) {
                 $activeTab = 'comments';
             }
+            if ($activeTab === 'voting' && !$showVoting) {
+                $activeTab = 'comments';
+            }
+            if ($activeTab === 'contact' && !$showContact) {
+                $activeTab = 'comments';
+            }
             if ($activeTab === 'comments' && !$showComments) {
-                $activeTab = $showUsers ? 'users' : ($showAdvertisements ? 'advertisements' : 'comments');
+                $activeTab = $showUsers ? 'users' : ($showAdvertisements ? 'advertisements' : ($showVoting ? 'voting' : ($showContact ? 'contact' : 'comments')));
             }
         @endphp
 
@@ -69,6 +77,34 @@
                     </button>
                 </li>
             @endif
+            @if($showVoting)
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ $activeTab === 'voting' ? 'active' : '' }}" 
+                            id="voting-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#voting" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="voting" 
+                            aria-selected="{{ $activeTab === 'voting' ? 'true' : 'false' }}">
+                        <i class="bi bi-heart me-1"></i>Votaciones
+                    </button>
+                </li>
+            @endif
+            @if($showContact)
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ $activeTab === 'contact' ? 'active' : '' }}" 
+                            id="contact-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#contact" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="contact" 
+                            aria-selected="{{ $activeTab === 'contact' ? 'true' : 'false' }}">
+                        <i class="bi bi-envelope me-1"></i>Contacto
+                    </button>
+                </li>
+            @endif
         </ul>
 
         <!-- Tab Content -->
@@ -97,6 +133,24 @@
                      role="tabpanel" 
                      aria-labelledby="advertisements-tab">
                     @include('admin.partials.advertisements')
+                </div>
+            @endif
+
+            @if($showVoting)
+                <div class="tab-pane fade {{ $activeTab === 'voting' ? 'show active' : '' }}" 
+                     id="voting" 
+                     role="tabpanel" 
+                     aria-labelledby="voting-tab">
+                    @include('admin.partials.voting')
+                </div>
+            @endif
+
+            @if($showContact)
+                <div class="tab-pane fade {{ $activeTab === 'contact' ? 'show active' : '' }}" 
+                     id="contact" 
+                     role="tabpanel" 
+                     aria-labelledby="contact-tab">
+                    @include('admin.partials.contact')
                 </div>
             @endif
         </div>
