@@ -26,9 +26,108 @@ class FestivityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $festivities = Festivity::with('locality')->orderBy('start_date')->get();
+        // If it's an AJAX request, return JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            return $this->search($request);
+        }
+        
+        $today = now();
+        $endOfWeek = now()->endOfWeek();
+        $perPage = 6;
+        $currentPage = $request->input('page', 1);
+        
+        // Step 1: Get festivities that are ACTIVE (today or this week)
+        // Priority 1.1: Active festivities WITH paid ads
+        $activeWithAds = Festivity::with(['locality', 'advertisements'])
+            ->where('start_date', '<=', $endOfWeek)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('end_date')
+                      ->orWhere('end_date', '>=', $today);
+            })
+            ->whereHas('advertisements', function ($adQuery) {
+                $adQuery->where('premium', true)
+                        ->where('active', true);
+            })
+            ->get()
+            ->map(function ($festivity) {
+                $totalVotes = $festivity->votes()->count();
+                $festivity->total_votes = $totalVotes;
+                $festivity->priority = 1.1; // Highest priority - active with ads
+                return $festivity;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Priority 1.2: Active festivities WITHOUT paid ads
+        $activeWithoutAds = Festivity::with('locality')
+            ->where('start_date', '<=', $endOfWeek)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('end_date')
+                      ->orWhere('end_date', '>=', $today);
+            })
+            ->whereNotIn('id', $activeWithAds->pluck('id'))
+            ->get()
+            ->map(function ($festivity) {
+                $totalVotes = $festivity->votes()->count();
+                $festivity->total_votes = $totalVotes;
+                $festivity->priority = 1.2; // High priority - active without ads
+                return $festivity;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Combine active festivities (with ads first, then without ads)
+        $activeFestivities = $activeWithAds->merge($activeWithoutAds);
+        
+        $neededCount = $perPage * $currentPage;
+        $finalFestivities = collect($activeFestivities);
+        
+        // Step 2: If we need more, get UPCOMING festivities with PAID ADS
+        if ($finalFestivities->count() < $neededCount) {
+            $upcomingWithAds = Festivity::with(['locality', 'advertisements'])
+                ->where('start_date', '>', $today)
+                ->whereHas('advertisements', function ($adQuery) {
+                    $adQuery->where('premium', true)
+                            ->where('active', true);
+                })
+                ->whereNotIn('id', $finalFestivities->pluck('id'))
+                ->get()
+                ->map(function ($festivity) {
+                    $festivity->total_votes = 0;
+                    $festivity->priority = 2; // Medium priority
+                    return $festivity;
+                })
+                ->sortBy('start_date'); // Sort by soonest festivity
+            
+            $finalFestivities = $finalFestivities->merge($upcomingWithAds);
+        }
+        
+        // Step 3: If we STILL need more, get random festivities
+        if ($finalFestivities->count() < $neededCount) {
+            $randomFestivities = Festivity::with('locality')
+                ->whereNotIn('id', $finalFestivities->pluck('id'))
+                ->inRandomOrder()
+                ->limit($neededCount - $finalFestivities->count())
+                ->get()
+                ->map(function ($festivity) {
+                    $festivity->total_votes = 0;
+                    $festivity->priority = 3; // Lowest priority
+                    return $festivity;
+                });
+            
+            $finalFestivities = $finalFestivities->merge($randomFestivities);
+        }
+        
+        // Paginate
+        $paginatedFestivities = new \Illuminate\Pagination\LengthAwarePaginator(
+            $finalFestivities->forPage($currentPage, $perPage),
+            $finalFestivities->count(),
+            $perPage,
+            $currentPage,
+            ['path' => route('festivities.index')]
+        );
+        
+        $provinces = config('provinces.provinces');
         
         // SEO Meta Tags
         $meta = SeoService::generateMetaTags([
@@ -38,7 +137,176 @@ class FestivityController extends Controller
             'url' => route('festivities.index'),
         ]);
         
-        return view('festivities.index', compact('festivities', 'meta'));
+        return view('festivities.index', [
+            'festivities' => $paginatedFestivities,
+            'meta' => $meta,
+            'provinces' => $provinces,
+            'isSearching' => false,
+        ]);
+    }
+
+    /**
+     * Search festivities via AJAX
+     */
+    public function search(Request $request)
+    {
+        $today = now();
+        $endOfWeek = now()->endOfWeek();
+        $perPage = 6;
+        $page = $request->input('page', 1);
+        
+        // Build base query with filters
+        $baseQuery = Festivity::query();
+        
+        // Search by name or description
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            $baseQuery->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
+            });
+        }
+        
+        // Filter by province
+        if ($request->filled('province')) {
+            $baseQuery->where('province', $request->input('province'));
+        }
+        
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $baseQuery->where('start_date', '>=', $request->input('date_from'));
+        }
+        if ($request->filled('date_to')) {
+            $baseQuery->where(function ($q) use ($request) {
+                $q->whereNull('end_date')
+                  ->orWhere('end_date', '<=', $request->input('date_to'));
+            });
+        }
+        
+        // Get all matching festivities
+        $allMatchingIds = $baseQuery->pluck('id');
+        
+        // Step 1: Get festivities that are ACTIVE from matching results
+        // Priority 1.1: Active festivities WITH paid ads
+        $activeWithAds = Festivity::with(['locality', 'advertisements'])
+            ->whereIn('id', $allMatchingIds)
+            ->where('start_date', '<=', $endOfWeek)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('end_date')
+                      ->orWhere('end_date', '>=', $today);
+            })
+            ->whereHas('advertisements', function ($adQuery) {
+                $adQuery->where('premium', true)->where('active', true);
+            })
+            ->get()
+            ->map(function ($festivity) {
+                $totalVotes = $festivity->votes()->count();
+                $festivity->total_votes = $totalVotes;
+                $festivity->priority = 1.1;
+                return $festivity;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Priority 1.2: Active festivities WITHOUT paid ads
+        $activeWithoutAds = Festivity::with('locality')
+            ->whereIn('id', $allMatchingIds)
+            ->whereNotIn('id', $activeWithAds->pluck('id'))
+            ->where('start_date', '<=', $endOfWeek)
+            ->where(function ($query) use ($today) {
+                $query->whereNull('end_date')
+                      ->orWhere('end_date', '>=', $today);
+            })
+            ->get()
+            ->map(function ($festivity) {
+                $totalVotes = $festivity->votes()->count();
+                $festivity->total_votes = $totalVotes;
+                $festivity->priority = 1.2;
+                return $festivity;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Combine active festivities
+        $activeFestivities = $activeWithAds->merge($activeWithoutAds);
+        
+        $finalFestivities = collect($activeFestivities);
+        $neededCount = $perPage * $page;
+        
+        // Step 2: Fill with upcoming festivities with paid ads
+        if ($finalFestivities->count() < $neededCount) {
+            $upcomingWithAds = Festivity::with(['locality', 'advertisements'])
+                ->whereIn('id', $allMatchingIds)
+                ->whereNotIn('id', $finalFestivities->pluck('id'))
+                ->where('start_date', '>', $today)
+                ->whereHas('advertisements', function ($adQuery) {
+                    $adQuery->where('premium', true)->where('active', true);
+                })
+                ->get()
+                ->map(function ($festivity) {
+                    $festivity->total_votes = 0;
+                    $festivity->priority = 2;
+                    return $festivity;
+                });
+            
+            $finalFestivities = $finalFestivities->merge($upcomingWithAds);
+        }
+        
+        // Step 3: Fill with random matching festivities
+        if ($finalFestivities->count() < $neededCount) {
+            $remainingFestivities = Festivity::with('locality')
+                ->whereIn('id', $allMatchingIds)
+                ->whereNotIn('id', $finalFestivities->pluck('id'))
+                ->limit($neededCount - $finalFestivities->count())
+                ->get()
+                ->map(function ($festivity) {
+                    $festivity->total_votes = 0;
+                    $festivity->priority = 3;
+                    return $festivity;
+                });
+            
+            $finalFestivities = $finalFestivities->merge($remainingFestivities);
+        }
+        
+        // Format for JSON response
+        $formattedFestivities = $finalFestivities->map(function ($festivity) use ($today, $endOfWeek) {
+            $isActive = $festivity->start_date <= $endOfWeek &&
+                       ($festivity->end_date === null || $festivity->end_date >= $today);
+            
+            return [
+                'id' => $festivity->id,
+                'name' => $festivity->name,
+                'slug' => $festivity->slug,
+                'description' => $festivity->description,
+                'start_date' => $festivity->start_date->format('Y-m-d'),
+                'end_date' => $festivity->end_date ? $festivity->end_date->format('Y-m-d') : null,
+                'start_date_formatted' => $festivity->start_date->format('d M Y'),
+                'end_date_formatted' => $festivity->end_date ? $festivity->end_date->format('d M Y') : null,
+                'province' => $festivity->province,
+                'photos' => $festivity->photos,
+                'votes_count' => $festivity->votes()->count(),
+                'is_active' => $isActive,
+                'locality' => [
+                    'name' => $festivity->locality->name ?? null,
+                    'slug' => $festivity->locality->slug ?? null,
+                ],
+                'show_url' => route('festivities.show', $festivity),
+                'edit_url' => route('festivities.edit', $festivity),
+                'delete_url' => route('festivities.destroy', $festivity),
+            ];
+        });
+        
+        // Paginate
+        $paginatedData = $formattedFestivities->forPage($page, $perPage)->values();
+        
+        return response()->json([
+            'success' => true,
+            'festivities' => $paginatedData,
+            'pagination' => [
+                'current_page' => $page,
+                'last_page' => ceil($formattedFestivities->count() / $perPage),
+                'total' => $formattedFestivities->count(),
+                'per_page' => $perPage,
+            ],
+        ]);
     }
 
     /**
