@@ -27,11 +27,33 @@ class Locality extends Model
             if (empty($locality->slug)) {
                 $locality->slug = static::generateUniqueSlug($locality->name);
             }
+            
+            // Validar que la provincia existe y no es nula
+            if (empty($locality->province)) {
+                throw new \Exception("La provincia es obligatoria para la localidad: {$locality->name}");
+            }
+            
+            $validProvinces = config('provinces.provinces', []);
+            if (!in_array($locality->province, $validProvinces)) {
+                throw new \Exception("Provincia inválida '{$locality->province}' para la localidad: {$locality->name}. Debe ser una de las provincias válidas de España.");
+            }
         });
 
         static::updating(function ($locality) {
             if ($locality->isDirty('name') && empty($locality->slug)) {
                 $locality->slug = static::generateUniqueSlug($locality->name, $locality->id);
+            }
+            
+            // Validar que la provincia existe y no es nula al actualizar
+            if ($locality->isDirty('province')) {
+                if (empty($locality->province)) {
+                    throw new \Exception("La provincia es obligatoria para la localidad: {$locality->name}");
+                }
+                
+                $validProvinces = config('provinces.provinces', []);
+                if (!in_array($locality->province, $validProvinces)) {
+                    throw new \Exception("Provincia inválida '{$locality->province}' para la localidad: {$locality->name}. Debe ser una de las provincias válidas de España.");
+                }
             }
         });
     }

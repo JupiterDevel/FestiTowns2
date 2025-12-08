@@ -62,16 +62,6 @@
                 </div>
             </div>
         </div>
-        
-        @auth
-            @can('create', App\Models\Festivity::class)
-                @if(!auth()->user()->isTownHall())
-                    <a href="{{ route('festivities.create') }}" class="btn-add-festivity" title="Añadir Festividad">
-                        <i class="bi bi-plus-lg"></i>
-                    </a>
-                @endif
-            @endcan
-        @endauth
     </div>
 
     <div class="container" style="padding-top: 2rem; padding-bottom: 0;">
