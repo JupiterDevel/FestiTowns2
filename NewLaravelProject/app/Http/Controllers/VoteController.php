@@ -67,12 +67,63 @@ class VoteController extends Controller
         }
     }
 
-    public function mostVoted()
+    public function mostVoted(Request $request)
     {
-        $mostVotedFestivities = Festivity::withCount('votes')
+        $provinceMapping = config('autonomous_communities.province_to_community');
+        $communities = config('autonomous_communities.communities');
+        $provinces = config('provinces.provinces');
+        
+        // Sección Nacional: Top 7 de todas las festividades
+        $nationalFestivities = Festivity::with('locality')
+            ->withCount('votes')
             ->orderBy('votes_count', 'desc')
             ->limit(7)
             ->get();
+        
+        // Sección Regional: Ranking según comunidad autónoma
+        $selectedCommunity = $request->input('community', '');
+        $regionalFestivities = collect();
+        
+        if ($selectedCommunity) {
+            // Obtener todas las provincias de la comunidad autónoma seleccionada
+            $provincesInCommunity = array_keys(
+                array_filter($provinceMapping, function($community) use ($selectedCommunity) {
+                    return $community === $selectedCommunity;
+                })
+            );
+            
+            if (!empty($provincesInCommunity)) {
+                $regionalFestivities = Festivity::with('locality')
+                    ->withCount('votes')
+                    ->where(function($query) use ($provincesInCommunity) {
+                        $query->whereIn('province', $provincesInCommunity)
+                              ->orWhereHas('locality', function($localityQuery) use ($provincesInCommunity) {
+                                  $localityQuery->whereIn('province', $provincesInCommunity);
+                              });
+                    })
+                    ->orderBy('votes_count', 'desc')
+                    ->limit(7)
+                    ->get();
+            }
+        }
+        
+        // Sección Provincial: Ranking según provincia
+        $selectedProvince = $request->input('province', '');
+        $provincialFestivities = collect();
+        
+        if ($selectedProvince && in_array($selectedProvince, $provinces)) {
+            $provincialFestivities = Festivity::with('locality')
+                ->withCount('votes')
+                ->where(function($query) use ($selectedProvince) {
+                    $query->where('province', $selectedProvince)
+                          ->orWhereHas('locality', function($localityQuery) use ($selectedProvince) {
+                              $localityQuery->where('province', $selectedProvince);
+                          });
+                })
+                ->orderBy('votes_count', 'desc')
+                ->limit(7)
+                ->get();
+        }
         
         // Verificar si el usuario ya votó hoy (los administradores siempre pueden votar)
         $userVotedToday = false;
@@ -87,7 +138,16 @@ class VoteController extends Controller
             }
         }
             
-        return view('festivities.most-voted', compact('mostVotedFestivities', 'userVotedToday'));
+        return view('festivities.most-voted', compact(
+            'nationalFestivities',
+            'regionalFestivities',
+            'provincialFestivities',
+            'selectedCommunity',
+            'selectedProvince',
+            'communities',
+            'provinces',
+            'userVotedToday'
+        ));
     }
 
     public static function userVotedToday()

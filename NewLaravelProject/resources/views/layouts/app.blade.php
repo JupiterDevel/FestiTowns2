@@ -57,7 +57,26 @@
         @endif
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @php
+            $manifestPath = public_path('build/manifest.json');
+            if (file_exists($manifestPath)) {
+                $manifest = json_decode(file_get_contents($manifestPath), true);
+                $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
+                $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
+            }
+        @endphp
+        
+        @if(isset($cssFile))
+            <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
+        @else
+            @vite(['resources/css/app.css'])
+        @endif
+        
+        @if(isset($jsFile))
+            <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
+        @else
+            @vite(['resources/js/app.js'])
+        @endif
         
         <!-- Google AdSense Script (GDPR-friendly: lazy loading) -->
         @if(config('services.google.adsense_client_id'))
