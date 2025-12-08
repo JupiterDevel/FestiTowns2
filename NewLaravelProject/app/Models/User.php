@@ -25,6 +25,8 @@ class User extends Authenticatable
         'password',
         'role',
         'locality_id',
+        'province',
+        'photo',
         'rank',
         'points',
         'last_login_at',
@@ -165,5 +167,74 @@ class User extends Authenticatable
         $today = now()->toDateString();
         $visitKey = "visit_{$festivity->id}_{$today}";
         session()->put($visitKey, true);
+    }
+
+    /**
+     * Get the user's photo URL or generate initials avatar
+     */
+    public function getPhotoUrl(): string
+    {
+        if ($this->photo) {
+            return filter_var($this->photo, FILTER_VALIDATE_URL) 
+                ? $this->photo 
+                : url($this->photo);
+        }
+        
+        // Return data URI for initials avatar
+        return $this->getInitialsAvatar();
+    }
+
+    /**
+     * Get user's initials (e.g., "JM" for "Juan Martinez")
+     */
+    public function getInitials(): string
+    {
+        $name = trim($this->name);
+        $parts = explode(' ', $name);
+        
+        if (count($parts) >= 2) {
+            // First letter of first name + first letter of last name
+            return strtoupper(substr($parts[0], 0, 1) . substr($parts[count($parts) - 1], 0, 1));
+        } elseif (count($parts) == 1 && strlen($parts[0]) >= 2) {
+            // If only one word, take first two letters
+            return strtoupper(substr($parts[0], 0, 2));
+        } else {
+            // Fallback: first letter only
+            return strtoupper(substr($name, 0, 1));
+        }
+    }
+
+    /**
+     * Generate a consistent color based on user's name (for avatar background)
+     */
+    public function getAvatarColor(): string
+    {
+        $colors = [
+            '#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe',
+            '#43e97b', '#fa709a', '#fee140', '#30cfd0', '#a8edea',
+            '#ff9a9e', '#fecfef', '#fecfef', '#ffecd2', '#fcb69f',
+            '#ff8a80', '#ea4c89', '#8e2de2', '#4a00e0', '#00d2ff'
+        ];
+        
+        $hash = crc32($this->name);
+        return $colors[abs($hash) % count($colors)];
+    }
+
+    /**
+     * Generate SVG data URI for initials avatar (Google style)
+     */
+    public function getInitialsAvatar(): string
+    {
+        $initials = $this->getInitials();
+        $color = $this->getAvatarColor();
+        
+        $svg = '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">';
+        $svg .= '<rect width="200" height="200" fill="' . htmlspecialchars($color) . '"/>';
+        $svg .= '<text x="50%" y="50%" font-family="Arial, sans-serif" font-size="80" font-weight="500" fill="white" text-anchor="middle" dominant-baseline="central">';
+        $svg .= htmlspecialchars($initials);
+        $svg .= '</text>';
+        $svg .= '</svg>';
+        
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 }

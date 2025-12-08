@@ -11,10 +11,10 @@
             <div class="card-body p-4">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" 
-                             style="width: 100px; height: 100px;">
-                            <i class="bi bi-person-fill" style="font-size: 3.5rem;"></i>
-                        </div>
+                        <img src="{{ auth()->user()->getPhotoUrl() }}" 
+                             alt="{{ auth()->user()->name }}" 
+                             class="rounded-circle border border-3 border-primary shadow"
+                             style="width: 100px; height: 100px; object-fit: cover;">
                     </div>
                     <div class="col">
                         <h2 class="fw-bold mb-1">{{ auth()->user()->name }}</h2>

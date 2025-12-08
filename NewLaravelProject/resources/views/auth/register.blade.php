@@ -65,6 +65,25 @@
                                 @enderror
                             </div>
 
+                            <!-- Province -->
+                            <div class="mb-3">
+                                <label for="province" class="form-label fw-bold">
+                                    <i class="bi bi-geo-alt me-1"></i>Provincia (opcional)
+                                </label>
+                                <select id="province" name="province" 
+                                        class="form-select @error('province') is-invalid @enderror">
+                                    <option value="">Seleccionar provincia</option>
+                                    @foreach(config('provinces.provinces') as $province)
+                                        <option value="{{ $province }}" {{ old('province') == $province ? 'selected' : '' }}>
+                                            {{ $province }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('province')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <!-- Legal Acceptance -->
                             <div class="mb-4">
                                 <div class="form-check">

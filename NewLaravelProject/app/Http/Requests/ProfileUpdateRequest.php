@@ -15,7 +15,7 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
@@ -25,6 +25,14 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
         ];
+
+        // Los usuarios con rol townhall no pueden cambiar su provincia
+        if (!$this->user()->isTownHall()) {
+            $rules['province'] = ['nullable', 'string', 'in:'.implode(',', config('provinces.provinces', []))];
+        }
+
+        return $rules;
     }
 }

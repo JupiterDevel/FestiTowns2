@@ -7,9 +7,55 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}">
+    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data">
         @csrf
         @method('patch')
+
+        <!-- Photo Upload -->
+        <div class="mb-4">
+            <label class="form-label fw-bold">
+                <i class="bi bi-camera me-1"></i>Foto de Perfil
+            </label>
+            <div class="d-flex align-items-center gap-4">
+                <div class="position-relative">
+                    @if($user->photo)
+                        <img src="{{ $user->getPhotoUrl() }}" 
+                             alt="{{ $user->name }}" 
+                             class="rounded-circle border border-3 border-primary"
+                             style="width: 120px; height: 120px; object-fit: cover;"
+                             id="photoPreview">
+                    @else
+                        <img src="{{ $user->getPhotoUrl() }}" 
+                             alt="{{ $user->name }}" 
+                             class="rounded-circle border border-3 border-primary"
+                             style="width: 120px; height: 120px; object-fit: cover;"
+                             id="photoPreview">
+                    @endif
+                </div>
+                <div class="flex-grow-1">
+                    <input type="file" 
+                           class="form-control @error('photo') is-invalid @enderror" 
+                           id="photo" 
+                           name="photo" 
+                           accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                           onchange="previewPhoto(this)">
+                    @error('photo')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                    <div class="form-text">
+                        Formatos permitidos: JPEG, PNG, GIF, WEBP. Tamaño máximo: 5MB
+                    </div>
+                    @if($user->photo)
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" name="remove_photo" id="remove_photo" value="1">
+                            <label class="form-check-label text-danger" for="remove_photo">
+                                <i class="bi bi-trash me-1"></i>Eliminar foto actual
+                            </label>
+                        </div>
+                    @endif
+                </div>
+            </div>
+        </div>
 
         <div class="mb-3">
             <label for="name" class="form-label fw-bold">
@@ -54,6 +100,47 @@
                 </div>
             @endif
         </div>
+
+        <div class="mb-3">
+            <label for="province" class="form-label fw-bold">
+                <i class="bi bi-geo-alt me-1"></i>Provincia (opcional)
+            </label>
+            @if($user->isTownHall())
+                <input type="text" 
+                       class="form-control" 
+                       value="{{ $user->province ?? 'No asignada' }}" 
+                       disabled
+                       readonly>
+                <div class="form-text">
+                    <i class="bi bi-info-circle me-1"></i>Los usuarios con rol de ayuntamiento no pueden modificar su provincia.
+                </div>
+            @else
+                <select id="province" name="province" 
+                        class="form-select @error('province') is-invalid @enderror">
+                    <option value="">Seleccionar provincia</option>
+                    @foreach(config('provinces.provinces') as $province)
+                        <option value="{{ $province }}" {{ old('province', $user->province) == $province ? 'selected' : '' }}>
+                            {{ $province }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('province')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            @endif
+        </div>
+
+        <script>
+        function previewPhoto(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('photoPreview').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        </script>
 
         <div class="d-flex align-items-center gap-3">
             <button type="submit" class="btn btn-primary">
