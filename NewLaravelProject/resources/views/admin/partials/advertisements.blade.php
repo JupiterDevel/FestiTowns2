@@ -36,18 +36,20 @@
             <thead class="table-light">
                 @php
                     $baseQuery = array_merge(request()->except(['page']), ['tab' => 'advertisements']);
-                    $sortLink = function (string $column) use ($baseQuery, $sort, $direction) {
-                        $nextDirection = ($sort === $column && $direction === 'asc') ? 'desc' : 'asc';
+                    $currentSort = $sort ?? 'created_at';
+                    $currentDirection = $direction ?? 'desc';
+                    $sortLink = function (string $column) use ($baseQuery, $currentSort, $currentDirection) {
+                        $nextDirection = ($currentSort === $column && $currentDirection === 'asc') ? 'desc' : 'asc';
                         return route('admin.panel', array_merge($baseQuery, [
                             'sort' => $column,
                             'direction' => $nextDirection,
                         ]));
                     };
-                    $sortIcon = function (string $column) use ($sort, $direction) {
-                        if ($sort !== $column) {
+                    $sortIcon = function (string $column) use ($currentSort, $currentDirection) {
+                        if ($currentSort !== $column) {
                             return '<i class="bi bi-arrow-down-up text-muted small"></i>';
                         }
-                        return $direction === 'asc'
+                        return $currentDirection === 'asc'
                             ? '<i class="bi bi-caret-up-fill text-primary small"></i>'
                             : '<i class="bi bi-caret-down-fill text-primary small"></i>';
                     };
@@ -105,12 +107,18 @@
                             @endif
                         </td>
                         <td>
-                            <div class="small text-muted">
+                            <div class="small">
                                 @if($ad->festivity)
-                                    <div><i class="bi bi-calendar-event me-1"></i>{{ $ad->festivity->name }}</div>
+                                    <div>
+                                        <a href="{{ route('festivities.show', $ad->festivity) }}" class="text-decoration-none text-primary">
+                                            <i class="bi bi-calendar-event me-1"></i>{{ $ad->festivity->name }}
+                                        </a>
+                                    </div>
                                 @endif
                                 @if($ad->locality)
-                                    <div><i class="bi bi-geo-alt me-1"></i>{{ $ad->locality->name }}</div>
+                                    <div class="text-muted">
+                                        <i class="bi bi-geo-alt me-1"></i>{{ $ad->locality->name }}
+                                    </div>
                                 @endif
                             </div>
                         </td>
@@ -169,7 +177,7 @@
         </table>
     </div>
 
-    @if(isset($advertisements) && $advertisements->hasPages())
+    @if(isset($advertisements) && $advertisements instanceof \Illuminate\Pagination\LengthAwarePaginator && $advertisements->hasPages())
         <div class="card-footer">
             {{ $advertisements->links('pagination::bootstrap-5') }}
         </div>
