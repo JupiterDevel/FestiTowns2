@@ -68,11 +68,19 @@ class DataSeeder extends Seeder
      */
     public function run(): void
     {
+        // Validar que todas las provincias existan en la configuración
+        $validProvinces = config('provinces.provinces', []);
+        
         // Crear localidades con provincias
         foreach ($this->localitiesData as $localityData) {
+            // Validar que la provincia existe y no es nula
+            if (empty($localityData['province']) || !in_array($localityData['province'], $validProvinces)) {
+                throw new \Exception("Provincia inválida o faltante para la localidad: {$localityData['name']}. Provincia: " . ($localityData['province'] ?? 'NULL'));
+            }
+            
             Locality::create([
                 'name' => $localityData['name'],
-                'address' => "Calle Principal, 1, {$localityData['name']}",
+                'address' => "{$localityData['name']}, {$localityData['province']}, Spain",
                 'province' => $localityData['province'],
                 'description' => "Descripción de la localidad de {$localityData['name']}. Una hermosa ciudad con rica historia y cultura.",
                 'places_of_interest' => "Plaza Mayor, Catedral, Museo Municipal, Parque Central, Mercado de Abastos",
@@ -131,10 +139,21 @@ class DataSeeder extends Seeder
                 $festivityName .= ' ' . rand(2024, 2026);
             }
             
+            // Asegurar que la provincia esté asignada
+            $festivityProvince = $coords['province'] ?? $locality->province;
+            if (empty($festivityProvince)) {
+                throw new \Exception("No se pudo determinar la provincia para la festividad en la localidad: {$locality->name}");
+            }
+            
+            // Validar que la provincia sea válida
+            if (!in_array($festivityProvince, $validProvinces)) {
+                throw new \Exception("Provincia inválida '{$festivityProvince}' para la festividad en la localidad: {$locality->name}");
+            }
+            
             try {
                 Festivity::create([
                     'locality_id' => $locality->id,
-                    'province' => $coords['province'] ?? $locality->province,
+                    'province' => $festivityProvince,
                     'name' => $festivityName,
                     'start_date' => $startDate,
                     'end_date' => $endDate,
@@ -150,7 +169,7 @@ class DataSeeder extends Seeder
                     $festivityName .= ' ' . uniqid();
                     Festivity::create([
                         'locality_id' => $locality->id,
-                        'province' => $coords['province'] ?? $locality->province,
+                        'province' => $festivityProvince,
                         'name' => $festivityName,
                         'start_date' => $startDate,
                         'end_date' => $endDate,

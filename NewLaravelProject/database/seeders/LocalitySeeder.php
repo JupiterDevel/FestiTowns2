@@ -13,10 +13,13 @@ class LocalitySeeder extends Seeder
      */
     public function run(): void
     {
+        // Validar que todas las provincias existan en la configuración
+        $validProvinces = config('provinces.provinces', []);
+        
         $localities = [
             [
                 'name' => 'Pamplona',
-                'address' => 'Navarra, Spain',
+                'address' => 'Pamplona, Navarra, Spain',
                 'province' => 'Navarra',
                 'description' => 'Pamplona is the capital city of Navarra, famous for the Running of the Bulls during the San Fermín festival.',
                 'places_of_interest' => 'Plaza del Castillo, Ciudadela, Catedral de Pamplona, Museo de Navarra, Parque de la Taconera',
@@ -28,7 +31,7 @@ class LocalitySeeder extends Seeder
             ],
             [
                 'name' => 'Valencia',
-                'address' => 'Valencia, Spain',
+                'address' => 'Valencia, Valencia, Spain',
                 'province' => 'Valencia',
                 'description' => 'Valencia is a vibrant city on Spain\'s southeastern coast, famous for its Fallas festival and modern architecture.',
                 'places_of_interest' => 'Ciudad de las Artes y las Ciencias, Mercado Central, Barrio del Carmen, Playa de la Malvarrosa, Jardín del Turia',
@@ -39,10 +42,10 @@ class LocalitySeeder extends Seeder
                 ]
             ],
             [
-                'name' => 'Seville',
-                'address' => 'Andalusia, Spain',
+                'name' => 'Sevilla',
+                'address' => 'Sevilla, Sevilla, Spain',
                 'province' => 'Sevilla',
-                'description' => 'Seville is the capital of Andalusia, known for its flamenco, Moorish architecture, and the famous Feria de Abril.',
+                'description' => 'Sevilla is the capital of Andalusia, known for its flamenco, Moorish architecture, and the famous Feria de Abril.',
                 'places_of_interest' => 'Real Alcázar, Catedral de Sevilla, Barrio de Santa Cruz, Plaza de España, Parque de María Luisa',
                 'monuments' => 'Catedral de Sevilla, Real Alcázar, Torre del Oro, Archivo de Indias, Iglesia del Salvador',
                 'photos' => [
@@ -53,6 +56,11 @@ class LocalitySeeder extends Seeder
         ];
 
         foreach ($localities as $locality) {
+            // Validar que la provincia existe y no es nula
+            if (empty($locality['province']) || !in_array($locality['province'], $validProvinces)) {
+                throw new \Exception("Provincia inválida o faltante para la localidad: {$locality['name']}. Provincia: " . ($locality['province'] ?? 'NULL'));
+            }
+            
             Locality::create($locality);
         }
     }
