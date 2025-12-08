@@ -23,10 +23,10 @@
                     <div class="card-body p-4">
                         <div class="row align-items-center">
                             <div class="col-md-3 text-center mb-3 mb-md-0">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 shadow-sm" 
-                                     style="width: 120px; height: 120px;">
-                                    <i class="bi bi-person-fill" style="font-size: 4rem;"></i>
-                                </div>
+                                <img src="{{ $user->getPhotoUrl() }}" 
+                                     alt="{{ $user->name }}" 
+                                     class="rounded-circle border border-3 border-primary mx-auto mb-3 shadow-sm d-block"
+                                     style="width: 120px; height: 120px; object-fit: cover;">
                                 <h3 class="fw-bold mb-1">{{ $user->name }}</h3>
                                 <p class="text-muted mb-0">
                                     <i class="bi bi-envelope me-1"></i>{{ $user->email }}
@@ -84,6 +84,20 @@
                                                        class="text-decoration-none fw-bold">
                                                         {{ $user->locality->name }}
                                                     </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    @if($user->province)
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center p-3 bg-light rounded">
+                                                <div class="bg-info bg-opacity-10 rounded-circle p-3 me-3">
+                                                    <i class="bi bi-map text-info" style="font-size: 1.5rem;"></i>
+                                                </div>
+                                                <div>
+                                                    <small class="text-muted d-block">Provincia</small>
+                                                    <span class="fw-bold">{{ $user->province }}</span>
                                                 </div>
                                             </div>
                                         </div>

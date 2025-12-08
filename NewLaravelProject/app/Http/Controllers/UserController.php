@@ -47,7 +47,17 @@ class UserController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:admin,townhall,visitor',
             'locality_id' => 'nullable|exists:localities,id',
+            'province' => 'nullable|string|in:'.implode(',', config('provinces.provinces', [])),
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+            $path = $photo->storeAs('users', $filename, 'public');
+            $validated['photo'] = '/storage/users/' . $filename;
+        }
 
         $validated['password'] = Hash::make($validated['password']);
 
@@ -92,12 +102,42 @@ class UserController extends Controller
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|in:admin,townhall,visitor',
             'locality_id' => 'nullable|exists:localities,id',
+            'province' => 'nullable|string|in:'.implode(',', config('provinces.provinces', [])),
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
         if (isset($validated['password'])) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
+        }
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($user->photo && !filter_var($user->photo, FILTER_VALIDATE_URL)) {
+                $oldPhotoPath = public_path(str_replace('/storage/', 'storage/', $user->photo));
+                if (file_exists($oldPhotoPath)) {
+                    unlink($oldPhotoPath);
+                }
+            }
+            
+            $photo = $request->file('photo');
+            $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+            $path = $photo->storeAs('users', $filename, 'public');
+            $validated['photo'] = '/storage/users/' . $filename;
+        } elseif ($request->has('remove_photo')) {
+            // Delete photo if user wants to remove it
+            if ($user->photo && !filter_var($user->photo, FILTER_VALIDATE_URL)) {
+                $oldPhotoPath = public_path(str_replace('/storage/', 'storage/', $user->photo));
+                if (file_exists($oldPhotoPath)) {
+                    unlink($oldPhotoPath);
+                }
+            }
+            $validated['photo'] = null;
+        } else {
+            // Don't update photo if not provided
+            unset($validated['photo']);
         }
 
         $user->update($validated);
