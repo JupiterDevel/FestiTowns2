@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('localidades', [LocalityController::class, 'index'])->name('localities.index');
+Route::get('localidades/search', [LocalityController::class, 'search'])->name('localities.search');
 Route::get('festividades', [FestivityController::class, 'index'])->name('festivities.index');
+Route::get('festividades/search', [FestivityController::class, 'search'])->name('festivities.search');
 Route::get('mas-votadas', [VoteController::class, 'mostVoted'])->name('festivities.most-voted');
 Route::get('festividades/cercanas', [FestivityController::class, 'nearby'])->name('festivities.nearby');
 Route::get('festividades/mapa', [FestivityController::class, 'forMap'])->name('festivities.map');

@@ -1,32 +1,72 @@
 <x-app-layout>
-    <x-slot name="header">
-        <div class="d-flex justify-content-between align-items-center">
-            <h1 class="display-6 fw-bold text-primary mb-0">
-                <i class="bi bi-calendar-event me-2" aria-hidden="true"></i>{{ $festivity->name }}
-            </h1>
-            @auth
-                <div class="d-flex gap-2">
-                    @can('update', $festivity)
-                        <a href="{{ route('festivities.edit', $festivity) }}" class="btn btn-warning btn-custom">
-                            <i class="bi bi-pencil me-1"></i>Edit
-                        </a>
-                    @endcan
-                    @can('delete', $festivity)
-                        <form method="POST" action="{{ route('festivities.destroy', $festivity) }}" class="d-inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-custom" 
-                                    onclick="return confirm('Are you sure you want to delete this festivity?')">
-                                <i class="bi bi-trash me-1"></i>Delete
-                            </button>
-                        </form>
-                    @endcan
+    <!-- Hero Header with Festivity Info -->
+    <div class="festivity-hero">
+        @if(!empty($festivity->photos) && is_array($festivity->photos) && count($festivity->photos) > 0)
+            <div class="hero-image" style="background-image: url('{{ $festivity->photos[0] }}');"></div>
+            <div class="hero-overlay"></div>
+        @else
+            <div class="hero-gradient"></div>
+        @endif
+        
+        <div class="hero-content-wrapper">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="festivity-header-content">
+                            @if($festivity->province)
+                                <span class="province-badge">{{ $festivity->province }}</span>
+                            @endif
+                            <h1 class="festivity-title">{{ $festivity->name }}</h1>
+                            <div class="festivity-meta">
+                                @if($festivity->locality)
+                                    <span class="meta-item">
+                                        <i class="bi bi-geo-alt me-1"></i>
+                                        <a href="{{ route('localities.show', $festivity->locality) }}" class="text-white text-decoration-none">
+                                            {{ $festivity->locality->name }}
+                                        </a>
+                                    </span>
+                                @endif
+                                <span class="meta-item">
+                                    <i class="bi bi-calendar me-1"></i>
+                                    {{ $festivity->start_date->format('d M Y') }}
+                                    @if($festivity->end_date && $festivity->end_date != $festivity->start_date)
+                                        - {{ $festivity->end_date->format('d M Y') }}
+                                    @endif
+                                </span>
+                                <span class="meta-item">
+                                    <i class="bi bi-heart me-1"></i>
+                                    {{ $festivity->votes_count }} {{ $festivity->votes_count === 1 ? 'voto' : 'votos' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        @auth
+                            <div class="action-buttons">
+                                @can('update', $festivity)
+                                    <a href="{{ route('festivities.edit', $festivity) }}" class="btn btn-light btn-sm">
+                                        <i class="bi bi-pencil me-1"></i>Editar
+                                    </a>
+                                @endcan
+                                @can('delete', $festivity)
+                                    <form method="POST" action="{{ route('festivities.destroy', $festivity) }}" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger btn-sm" 
+                                                onclick="return confirm('¿Eliminar esta festividad?')">
+                                            <i class="bi bi-trash me-1"></i>Eliminar
+                                        </button>
+                                    </form>
+                                @endcan
+                            </div>
+                        @endauth
+                    </div>
                 </div>
-            @endauth
+            </div>
         </div>
-    </x-slot>
+    </div>
 
-    <div class="container">
+    <div class="container mt-4 mb-5">
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
@@ -48,119 +88,105 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         @endif
+
         @include('ads.main_banner', ['ad' => $mainAdvertisement, 'newAdParams' => $adCreationParams])
 
         <div class="row g-4">
+            <!-- Main Content -->
             <div class="col-lg-8">
-                <!-- Photos Carousel -->
-                @if($festivity->photos && count($festivity->photos) > 0)
-                    <div class="mb-4">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-10">
-                                <div id="festivityCarousel" class="carousel slide shadow-lg rounded-3" data-bs-ride="carousel">
-                                    <div class="carousel-indicators">
-                                        @foreach($festivity->photos as $index => $photo)
-                                            <button type="button" data-bs-target="#festivityCarousel" data-bs-slide-to="{{ $index }}" 
-                                                    class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}"
-                                                    aria-label="Slide {{ $index + 1 }}"></button>
-                                        @endforeach
-                                    </div>
-                                    
-                                    <div class="carousel-inner">
-                                        @foreach($festivity->photos as $index => $photo)
-                                            <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
-                                                <img src="{{ $photo }}" 
-                                                     class="d-block w-100" 
-                                                     alt="{{ $festivity->name }} - Imagen {{ $index + 1 }}" 
-                                                     loading="{{ $index === 0 ? 'eager' : 'lazy' }}"
-                                                     style="height: 400px; object-fit: cover;"
-                                                     width="1200"
-                                                     height="400">
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    
-                                    @if(count($festivity->photos) > 1)
-                                        <button class="carousel-control-prev" type="button" data-bs-target="#festivityCarousel" data-bs-slide="prev">
-                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Previous</span>
-                                        </button>
-                                        <button class="carousel-control-next" type="button" data-bs-target="#festivityCarousel" data-bs-slide="next">
-                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                            <span class="visually-hidden">Next</span>
-                                        </button>
-                                    @endif
+                <!-- Description Card -->
+                <div class="content-card mb-4">
+                    <div class="card-header-custom">
+                        <h2><i class="bi bi-info-circle me-2"></i>Sobre {{ $festivity->name }}</h2>
+                    </div>
+                    <div class="card-body-custom">
+                        <p class="lead-text">{{ $festivity->description }}</p>
+                    </div>
+                </div>
+
+                <!-- Photo Gallery -->
+                @if(!empty($festivity->photos) && is_array($festivity->photos) && count($festivity->photos) > 0)
+                    <div class="content-card mb-4">
+                        <div class="card-header-custom">
+                            <h2><i class="bi bi-images me-2"></i>Galería</h2>
+                        </div>
+                        <div class="card-body-custom">
+                            <div id="festivityCarousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-indicators">
+                                    @foreach($festivity->photos as $index => $photo)
+                                        <button type="button" data-bs-target="#festivityCarousel" data-bs-slide-to="{{ $index }}" 
+                                                class="{{ $index === 0 ? 'active' : '' }}"></button>
+                                    @endforeach
                                 </div>
+                                
+                                <div class="carousel-inner rounded">
+                                    @foreach($festivity->photos as $index => $photo)
+                                        <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                            <img src="{{ $photo }}" 
+                                                 class="d-block w-100" 
+                                                 alt="{{ $festivity->name }}"
+                                                 style="height: 450px; object-fit: cover;">
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
+                                @if(count($festivity->photos) > 1)
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#festivityCarousel" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon"></span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#festivityCarousel" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon"></span>
+                                    </button>
+                                @endif
                             </div>
                         </div>
                     </div>
                 @endif
 
-                <!-- Basic Information -->
-                <article class="card mb-4">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h2 class="card-title h4 fw-bold mb-3">{{ $festivity->name }}</h2>
-                                <p class="text-muted mb-3">
-                                    <i class="bi bi-geo-alt me-2"></i><strong>Location:</strong> 
-                                    <a href="{{ route('localities.show', $festivity->locality) }}" class="btn btn-outline-primary btn-sm ms-2">
-                                        <i class="bi bi-eye me-1"></i>{{ $festivity->locality->name }}
-                                    </a>
-                                </p>
-                                <p class="text-muted mb-3">
-                                    <i class="bi bi-calendar me-2"></i><strong>Date:</strong> 
-                                    {{ $festivity->start_date->format('F j, Y') }}
-                                    @if($festivity->end_date && $festivity->end_date != $festivity->start_date)
-                                        - {{ $festivity->end_date->format('F j, Y') }}
-                                    @endif
-                                </p>
-                            </div>
-                            <div class="col-md-6">
-                                <h3 class="h5 fw-bold mb-3">Sobre esta Festividad</h3>
-                                <p class="card-text">{{ $festivity->description }}</p>
-                                
-                                <!-- Vote Section -->
-                                <div class="mt-4 p-3 bg-light rounded">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <div class="d-flex align-items-center">
-                                            <i class="bi bi-star-fill text-warning me-2"></i>
-                                            <span class="fw-bold text-primary">{{ $festivity->votes_count }}</span>
-                                            <span class="text-muted ms-1">{{ Str::plural('vote', $festivity->votes_count) }}</span>
-                                        </div>
-                                        
-                                        @auth
-                                            @if($userVotedToday)
-                                                <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
-                                                    <i class="bi bi-check-circle me-1"></i>Ya votaste hoy
-                                                </button>
-                                            @else
-                                                <form action="{{ route('votes.store', $festivity) }}" method="POST" class="d-inline">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-outline-primary btn-sm">
-                                                        <i class="bi bi-heart me-1"></i>Votar
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        @else
-                                            <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">
-                                                <i class="bi bi-heart me-1"></i>Inicia sesión para votar
-                                            </a>
-                                        @endauth
-                                    </div>
+                <!-- Vote Section -->
+                <div class="content-card mb-4">
+                    <div class="card-header-custom">
+                        <h2><i class="bi bi-heart me-2"></i>Votar</h2>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-heart-fill text-danger me-2" style="font-size: 1.5rem;"></i>
+                                <div>
+                                    <div class="fw-bold text-primary" style="font-size: 1.25rem;">{{ $festivity->votes_count }}</div>
+                                    <small class="text-muted">{{ Str::plural('voto', $festivity->votes_count) }}</small>
                                 </div>
                             </div>
+                            
+                            @auth
+                                @if($userVotedToday)
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                                        <i class="bi bi-check-circle me-1"></i>Ya votaste hoy
+                                    </button>
+                                @else
+                                    <form action="{{ route('votes.store', $festivity) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            <i class="bi bi-heart me-1"></i>Votar
+                                        </button>
+                                    </form>
+                                @endif
+                            @else
+                                <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-heart me-1"></i>Inicia sesión para votar
+                                </a>
+                            @endauth
                         </div>
                     </div>
-                </article>
+                </div>
 
                 <!-- Google Maps Section -->
                 @if($festivity->latitude && $festivity->longitude)
-                    <section class="card mb-4" aria-label="Ubicación en el mapa">
-                        <div class="card-body">
-                            <h2 class="card-title h4 fw-bold mb-3">
-                                <i class="bi bi-geo-alt-fill me-2"></i>Ubicación
-                            </h2>
+                    <div class="content-card mb-4">
+                        <div class="card-header-custom">
+                            <h2><i class="bi bi-geo-alt-fill me-2"></i>Ubicación</h2>
+                        </div>
+                        <div class="card-body-custom">
                             <x-google-map 
                                 :latitude="$festivity->latitude" 
                                 :longitude="$festivity->longitude"
@@ -175,60 +201,48 @@
                                 </div>
                             @endif
                         </div>
-                    </section>
+                    </div>
                 @endif
 
                 <!-- Events Section -->
-                <section class="card mb-4" aria-label="Eventos programados">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="card-title h4 fw-bold mb-0">
-                                <i class="bi bi-calendar-event me-2" aria-hidden="true"></i>Eventos Programados
-                            </h2>
-                            <a href="{{ route('events.index', $festivity) }}" class="btn btn-outline-primary btn-custom">
-                                <i class="bi bi-eye me-1"></i>Ver Todos los Eventos
-                            </a>
-                        </div>
-
+                <div class="content-card mb-4">
+                    <div class="card-header-custom d-flex justify-content-between align-items-center">
+                        <h2><i class="bi bi-calendar-event me-2"></i>Eventos Programados</h2>
+                        <a href="{{ route('events.index', $festivity) }}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-eye me-1"></i>Ver Todos
+                        </a>
+                    </div>
+                    <div class="card-body-custom">
                         @if($festivity->events->count() > 0)
-                            <div class="row">
+                            <div class="row g-3">
                                 @foreach($festivity->events->take(6) as $event)
-                                    <div class="col-md-6 col-lg-4 mb-3">
-                                        <div class="card h-100 border-0 bg-light">
-                                            <div class="card-body p-3">
-                                                <h6 class="card-title fw-bold mb-2">
-                                                    <i class="bi bi-calendar-check me-1"></i>{{ $event->name }}
-                                                </h6>
-                                                
-                                                @if($event->start_time || $event->end_time)
+                                    <div class="col-md-6">
+                                        <div class="event-mini-card">
+                                            <h6 class="event-mini-title">
+                                                <i class="bi bi-calendar-check me-1"></i>{{ $event->name }}
+                                            </h6>
+                                            
+                                            @if($event->start_time || $event->end_time)
+                                                <p class="event-mini-time text-muted small mb-2">
                                                     @if($event->start_time)
-                                                        <p class="text-muted small mb-1">
-                                                            <i class="bi bi-clock me-1"></i>
-                                                            <strong>Inicio:</strong> {{ $event->start_time->format('d/m H:i') }}
-                                                        </p>
+                                                        <i class="bi bi-clock me-1"></i>
+                                                        {{ $event->start_time->format('d/m H:i') }}
+                                                        @if($event->end_time)
+                                                            - {{ $event->end_time->format('H:i') }}
+                                                        @endif
                                                     @endif
-                                                    @if($event->end_time)
-                                                        <p class="text-muted small mb-1">
-                                                            <i class="bi bi-clock-fill me-1"></i>
-                                                            <strong>Fin:</strong> {{ $event->end_time->format('d/m H:i') }}
-                                                        </p>
-                                                    @endif
-                                                @else
-                                                    <span class="badge bg-secondary small">
-                                                        <i class="bi bi-question-circle me-1"></i>Sin horario
-                                                    </span>
-                                                @endif
+                                                </p>
+                                            @endif
 
-                                                @if($event->location)
-                                                    <p class="text-muted small mb-2">
-                                                        <i class="bi bi-geo-alt me-1"></i>{{ $event->location }}
-                                                    </p>
-                                                @endif
+                                            @if($event->location)
+                                                <p class="event-mini-location text-muted small mb-2">
+                                                    <i class="bi bi-geo-alt me-1"></i>{{ $event->location }}
+                                                </p>
+                                            @endif
 
-                                                @if($event->description)
-                                                    <p class="card-text small text-muted">{{ Str::limit($event->description, 60) }}</p>
-                                                @endif
-                                            </div>
+                                            @if($event->description)
+                                                <p class="event-mini-desc text-muted small">{{ Str::limit($event->description, 80) }}</p>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
@@ -237,14 +251,14 @@
                             @if($festivity->events->count() > 6)
                                 <div class="text-center mt-3">
                                     <a href="{{ route('events.index', $festivity) }}" class="btn btn-outline-primary btn-sm">
-                                        <i class="bi bi-arrow-right me-1"></i>Ver {{ $festivity->events->count() - 6 }} eventos más
+                                        Ver {{ $festivity->events->count() - 6 }} eventos más
                                     </a>
                                 </div>
                             @endif
                         @else
-                            <div class="text-center py-4">
-                                <i class="bi bi-calendar-x display-4 text-muted"></i>
-                                <p class="text-muted mt-3">No hay eventos programados para esta festividad.</p>
+                            <div class="empty-state">
+                                <i class="bi bi-calendar-x"></i>
+                                <p>No hay eventos programados para esta festividad</p>
                                 @auth
                                     @php
                                         $user = auth()->user();
@@ -256,7 +270,7 @@
                                         }
                                     @endphp
                                     @if($canCreate)
-                                        <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-custom">
+                                        <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-sm mt-2">
                                             <i class="bi bi-plus-circle me-1"></i>Crear Primer Evento
                                         </a>
                                     @endif
@@ -264,26 +278,26 @@
                             </div>
                         @endif
                     </div>
-                </section>
+                </div>
 
-                <div class="d-lg-none">
+                <!-- Mobile Ads -->
+                <div class="d-lg-none mb-4">
                     @include('ads.secondary_banner', ['ads' => $secondaryAdvertisements, 'orientation' => 'inline', 'newAdParams' => $adCreationParams])
                 </div>
 
                 <!-- Comments Section -->
-                <section class="card" aria-label="Comentarios">
-                    <div class="card-body">
-                        <h2 class="card-title h4 fw-bold mb-4">
-                            <i class="bi bi-chat-dots me-2" aria-hidden="true"></i>Comentarios
-                        </h2>
-
+                <div class="content-card">
+                    <div class="card-header-custom">
+                        <h2><i class="bi bi-chat-dots me-2"></i>Comentarios</h2>
+                    </div>
+                    <div class="card-body-custom">
                         <!-- Comment Form -->
                         @auth
                             <div class="mb-4">
                                 <form method="POST" action="{{ route('comments.store', $festivity) }}" enctype="multipart/form-data">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="content" class="form-label fw-bold">
+                                        <label for="content" class="form-label fw-semibold">
                                             <i class="bi bi-chat-quote me-1"></i>Comparte tu experiencia
                                         </label>
                                         <textarea name="content" id="content" rows="4" 
@@ -294,7 +308,7 @@
                                         @enderror
                                     </div>
                                     <div class="mb-3">
-                                        <label for="photo" class="form-label fw-bold">
+                                        <label for="photo" class="form-label fw-semibold">
                                             <i class="bi bi-image me-1"></i>Foto (opcional)
                                         </label>
                                         <input type="file" 
@@ -315,7 +329,7 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary btn-custom">
+                                    <button type="submit" class="btn btn-primary btn-sm">
                                         <i class="bi bi-send me-1"></i>Publicar Comentario
                                     </button>
                                 </form>
@@ -346,7 +360,7 @@
                         @else
                             <div class="alert alert-warning mb-4" role="alert">
                                 <i class="bi bi-exclamation-triangle me-2"></i>
-                                Please <a href="{{ route('login') }}" class="alert-link">login</a> to share your comments about this festivity.
+                                Por favor <a href="{{ route('login') }}" class="alert-link">inicia sesión</a> para compartir tus comentarios sobre esta festividad.
                             </div>
                         @endauth
 
@@ -355,32 +369,31 @@
                             <div class="mt-4">
                                 <h4 class="h5 fw-bold mb-3">
                                     <i class="bi bi-chat-square-text me-2"></i>
-                                    {{ $festivity->approvedComments->count() }} {{ Str::plural('Comment', $festivity->approvedComments->count()) }}
+                                    {{ $festivity->approvedComments->count() }} {{ Str::plural('Comentario', $festivity->approvedComments->count()) }}
                                 </h4>
                                 @foreach($festivity->approvedComments as $comment)
-                                    <div class="card mb-3">
-                                        <div class="card-body">
+                                    <div class="comment-card mb-3">
+                                        <div class="comment-body">
                                             <div class="row g-3">
                                                 @if($comment->photo)
                                                     <div class="col-auto">
                                                         <img src="{{ asset($comment->photo) }}" 
                                                              alt="Foto del comentario de {{ $comment->user->name }}" 
-                                                             class="rounded shadow-sm"
-                                                             style="width: 120px; height: 120px; object-fit: cover; cursor: pointer;"
+                                                             class="comment-photo rounded shadow-sm"
                                                              onclick="openImageModal('{{ asset($comment->photo) }}')"
                                                              onerror="this.style.display='none';">
                                                     </div>
                                                 @endif
                                                 <div class="col">
                                                     <div class="d-flex justify-content-between align-items-start mb-2">
-                                                        <h6 class="card-subtitle mb-1">
+                                                        <h6 class="comment-author mb-1">
                                                             <i class="bi bi-person-circle me-1"></i>{{ $comment->user->name }}
                                                         </h6>
                                                         <small class="text-muted">
-                                                            <i class="bi bi-clock me-1"></i>{{ $comment->created_at->format('M j, Y') }}
+                                                            <i class="bi bi-clock me-1"></i>{{ $comment->created_at->format('d M Y') }}
                                                         </small>
                                                     </div>
-                                                    <p class="card-text mb-0">{{ $comment->content }}</p>
+                                                    <p class="comment-text mb-0">{{ $comment->content }}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -411,19 +424,303 @@
                                 </script>
                             </div>
                         @else
-                            <div class="text-center py-4">
-                                <i class="bi bi-chat-square-text display-4 text-muted"></i>
-                                <p class="text-muted mt-3">No comments yet. Be the first to share your experience!</p>
+                            <div class="empty-state">
+                                <i class="bi bi-chat-square-text"></i>
+                                <p>No hay comentarios aún. ¡Sé el primero en compartir tu experiencia!</p>
                             </div>
                         @endif
                     </div>
-                </section>
+                </div>
             </div>
 
+            <!-- Sidebar -->
             <div class="col-lg-4 d-none d-lg-block">
                 @include('ads.secondary_banner', ['ads' => $secondaryAdvertisements, 'orientation' => 'sidebar', 'newAdParams' => $adCreationParams])
             </div>
         </div>
     </div>
 
+    <style>
+        /* Hero Section */
+        .festivity-hero {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            margin-top: -1.5rem;
+        }
+        
+        .hero-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.7);
+        }
+        
+        .hero-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+        }
+        
+        .hero-content-wrapper {
+            position: relative;
+            z-index: 10;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            padding-bottom: 3rem;
+        }
+        
+        .festivity-header-content {
+            color: white;
+        }
+        
+        .province-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .festivity-title {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .festivity-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .meta-item {
+            font-size: 1rem;
+            opacity: 0.95;
+        }
+        
+        .meta-item a:hover {
+            text-decoration: underline !important;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        
+        /* Content Cards */
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .card-header-custom {
+            background: linear-gradient(to right, #f8f9fa, #ffffff);
+            padding: 1.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .card-header-custom h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+        
+        .card-body-custom {
+            padding: 1.5rem;
+        }
+        
+        .lead-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #4a5568;
+            margin: 0;
+        }
+        
+        /* Event Mini Cards */
+        .event-mini-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1rem;
+            height: 100%;
+        }
+        
+        .event-mini-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #2d3748;
+        }
+        
+        .event-mini-time,
+        .event-mini-location {
+            margin-bottom: 0.5rem;
+        }
+        
+        .event-mini-desc {
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+        
+        /* Comment Cards */
+        .comment-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .comment-body {
+            padding: 1rem;
+        }
+        
+        .comment-photo {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        
+        .comment-photo:hover {
+            transform: scale(1.05);
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: #2d3748;
+        }
+        
+        .comment-text {
+            color: #4a5568;
+            line-height: 1.6;
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #9ca3af;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state p {
+            margin-top: 1rem;
+            font-size: 1.1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 991px) {
+            .festivity-hero {
+                height: 300px;
+            }
+            
+            .festivity-title {
+                font-size: 2rem;
+            }
+            
+            .hero-content-wrapper {
+                padding-bottom: 2rem;
+            }
+            
+            .action-buttons {
+                margin-top: 1rem;
+                justify-content: flex-start;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            .festivity-hero {
+                height: 250px;
+                margin-top: 0;
+            }
+            
+            .festivity-title {
+                font-size: 1.75rem;
+            }
+            
+            .hero-content-wrapper {
+                padding-bottom: 1.5rem;
+            }
+            
+            .festivity-meta {
+                gap: 1rem;
+                flex-direction: column;
+            }
+            
+            .meta-item {
+                font-size: 0.9rem;
+            }
+            
+            .province-badge {
+                font-size: 0.8rem;
+                padding: 0.3rem 0.8rem;
+            }
+            
+            .card-header-custom h2 {
+                font-size: 1.25rem;
+            }
+            
+            .card-header-custom {
+                padding: 1rem;
+            }
+            
+            .card-body-custom {
+                padding: 1rem;
+            }
+            
+            .lead-text {
+                font-size: 1rem;
+            }
+            
+            .content-card {
+                border-radius: 12px;
+            }
+        }
+        
+        @media (max-width: 575px) {
+            .festivity-hero {
+                height: 220px;
+            }
+            
+            .festivity-title {
+                font-size: 1.5rem;
+            }
+            
+            .container {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+    </style>
 </x-app-layout>

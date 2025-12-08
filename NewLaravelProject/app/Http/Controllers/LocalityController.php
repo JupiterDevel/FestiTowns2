@@ -20,9 +20,140 @@ class LocalityController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $localities = Locality::with('festivities')->get();
+        // If it's an AJAX request, return JSON
+        if ($request->ajax() || $request->wantsJson()) {
+            return $this->search($request);
+        }
+        
+        $today = now();
+        $endOfWeek = now()->endOfWeek();
+        $perPage = 6;
+        $currentPage = $request->input('page', 1);
+        
+        // Step 1: Get localities with ACTIVE festivities (today or this week)
+        // Priority 1.1: Active festivities WITH paid ads
+        $activeWithAds = Locality::with(['festivities' => function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      })
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)
+                                  ->where('active', true);
+                      });
+            }])
+            ->whereHas('festivities', function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      })
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)
+                                  ->where('active', true);
+                      });
+            })
+            ->get()
+            ->map(function ($locality) {
+                $totalVotes = $locality->festivities->sum(function ($festivity) {
+                    return $festivity->votes()->count();
+                });
+                $locality->total_votes = $totalVotes;
+                $locality->priority = 1.1; // Highest priority - active with ads
+                return $locality;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Priority 1.2: Active festivities WITHOUT paid ads
+        $activeWithoutAds = Locality::with(['festivities' => function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      });
+            }])
+            ->whereHas('festivities', function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      });
+            })
+            ->whereNotIn('id', $activeWithAds->pluck('id'))
+            ->get()
+            ->map(function ($locality) {
+                $totalVotes = $locality->festivities->sum(function ($festivity) {
+                    return $festivity->votes()->count();
+                });
+                $locality->total_votes = $totalVotes;
+                $locality->priority = 1.2; // High priority - active without ads
+                return $locality;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Combine active localities (with ads first, then without ads)
+        $activeLocalities = $activeWithAds->merge($activeWithoutAds);
+        
+        $neededCount = $perPage * $currentPage;
+        $finalLocalities = collect($activeLocalities);
+        
+        // Step 2: If we need more localities, get those with UPCOMING festivities with PAID ADS
+        if ($finalLocalities->count() < $neededCount) {
+            $upcomingWithAds = Locality::with(['festivities' => function ($query) use ($today) {
+                    $query->where('start_date', '>', $today)
+                          ->whereHas('advertisements', function ($adQuery) {
+                              $adQuery->where('premium', true)
+                                      ->where('active', true);
+                          });
+                }])
+                ->whereHas('festivities', function ($query) use ($today) {
+                    $query->where('start_date', '>', $today)
+                          ->whereHas('advertisements', function ($adQuery) {
+                              $adQuery->where('premium', true)
+                                      ->where('active', true);
+                          });
+                })
+                ->whereNotIn('id', $finalLocalities->pluck('id'))
+                ->get()
+                ->map(function ($locality) {
+                    $locality->total_votes = 0;
+                    $locality->priority = 2; // Medium priority
+                    return $locality;
+                })
+                ->sortBy('festivities.0.start_date'); // Sort by soonest festivity
+            
+            $finalLocalities = $finalLocalities->merge($upcomingWithAds);
+        }
+        
+        // Step 3: If we STILL need more, get random localities
+        if ($finalLocalities->count() < $neededCount) {
+            $randomLocalities = Locality::with('festivities')
+                ->whereNotIn('id', $finalLocalities->pluck('id'))
+                ->inRandomOrder()
+                ->limit($neededCount - $finalLocalities->count())
+                ->get()
+                ->map(function ($locality) {
+                    $locality->total_votes = 0;
+                    $locality->priority = 3; // Lowest priority
+                    return $locality;
+                });
+            
+            $finalLocalities = $finalLocalities->merge($randomLocalities);
+        }
+        
+        // Paginate
+        $paginatedLocalities = new \Illuminate\Pagination\LengthAwarePaginator(
+            $finalLocalities->forPage($currentPage, $perPage),
+            $finalLocalities->count(),
+            $perPage,
+            $currentPage,
+            ['path' => route('localities.index')]
+        );
+        
+        $provinces = config('provinces.provinces');
         
         // SEO Meta Tags
         $meta = SeoService::generateMetaTags([
@@ -32,7 +163,197 @@ class LocalityController extends Controller
             'url' => route('localities.index'),
         ]);
         
-        return view('localities.index', compact('localities', 'meta'));
+        return view('localities.index', [
+            'localities' => $paginatedLocalities,
+            'meta' => $meta,
+            'provinces' => $provinces,
+            'isSearching' => false,
+        ]);
+    }
+
+    /**
+     * Search localities via AJAX
+     */
+    public function search(Request $request)
+    {
+        $today = now();
+        $endOfWeek = now()->endOfWeek();
+        $perPage = 6;
+        $page = $request->input('page', 1);
+        
+        // Build base query with filters
+        $baseQuery = Locality::query();
+        
+        // Search by name or description
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            $baseQuery->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                  ->orWhere('address', 'like', '%' . $searchTerm . '%');
+            });
+        }
+        
+        // Filter by province
+        if ($request->filled('province')) {
+            $baseQuery->where('province', $request->input('province'));
+        }
+        
+        // Get all matching localities
+        $allMatchingIds = $baseQuery->pluck('id');
+        
+        // Step 1: Get localities with ACTIVE festivities from matching results
+        // Priority 1.1: Active festivities WITH paid ads
+        $activeWithAds = Locality::with(['festivities'])
+            ->whereIn('id', $allMatchingIds)
+            ->whereHas('festivities', function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      })
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)->where('active', true);
+                      });
+            })
+            ->get()
+            ->map(function ($locality) use ($today, $endOfWeek) {
+                $activeFestivities = $locality->festivities->filter(function ($festivity) use ($today, $endOfWeek) {
+                    return $festivity->start_date <= $endOfWeek &&
+                           ($festivity->end_date === null || $festivity->end_date >= $today);
+                });
+                
+                $totalVotes = $activeFestivities->sum(function ($festivity) {
+                    return $festivity->votes()->count();
+                });
+                
+                $locality->active_festivities = $activeFestivities;
+                $locality->total_votes = $totalVotes;
+                $locality->priority = 1.1; // Highest priority - active with ads
+                return $locality;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Priority 1.2: Active festivities WITHOUT paid ads
+        $activeWithoutAds = Locality::with(['festivities'])
+            ->whereIn('id', $allMatchingIds)
+            ->whereNotIn('id', $activeWithAds->pluck('id'))
+            ->whereHas('festivities', function ($query) use ($today, $endOfWeek) {
+                $query->where('start_date', '<=', $endOfWeek)
+                      ->where(function ($endQuery) use ($today) {
+                          $endQuery->whereNull('end_date')
+                                   ->orWhere('end_date', '>=', $today);
+                      });
+            })
+            ->get()
+            ->map(function ($locality) use ($today, $endOfWeek) {
+                $activeFestivities = $locality->festivities->filter(function ($festivity) use ($today, $endOfWeek) {
+                    return $festivity->start_date <= $endOfWeek &&
+                           ($festivity->end_date === null || $festivity->end_date >= $today);
+                });
+                
+                $totalVotes = $activeFestivities->sum(function ($festivity) {
+                    return $festivity->votes()->count();
+                });
+                
+                $locality->active_festivities = $activeFestivities;
+                $locality->total_votes = $totalVotes;
+                $locality->priority = 1.2; // High priority - active without ads
+                return $locality;
+            })
+            ->sortByDesc('total_votes');
+        
+        // Combine active localities (with ads first, then without ads)
+        $activeLocalities = $activeWithAds->merge($activeWithoutAds);
+        
+        $finalLocalities = collect($activeLocalities);
+        $neededCount = $perPage * $page;
+        
+        // Step 2: Fill with upcoming festivities with paid ads
+        if ($finalLocalities->count() < $neededCount) {
+            $upcomingWithAds = Locality::with(['festivities'])
+                ->whereIn('id', $allMatchingIds)
+                ->whereNotIn('id', $finalLocalities->pluck('id'))
+                ->whereHas('festivities', function ($query) use ($today) {
+                    $query->where('start_date', '>', $today)
+                          ->whereHas('advertisements', function ($adQuery) {
+                              $adQuery->where('premium', true)->where('active', true);
+                          });
+                })
+                ->get()
+                ->map(function ($locality) use ($today) {
+                    $locality->active_festivities = collect();
+                    $locality->total_votes = 0;
+                    $locality->priority = 2;
+                    return $locality;
+                });
+            
+            $finalLocalities = $finalLocalities->merge($upcomingWithAds);
+        }
+        
+        // Step 3: Fill with random matching localities
+        if ($finalLocalities->count() < $neededCount) {
+            $remainingLocalities = Locality::with(['festivities'])
+                ->whereIn('id', $allMatchingIds)
+                ->whereNotIn('id', $finalLocalities->pluck('id'))
+                ->limit($neededCount - $finalLocalities->count())
+                ->get()
+                ->map(function ($locality) {
+                    $locality->active_festivities = collect();
+                    $locality->total_votes = 0;
+                    $locality->priority = 3;
+                    return $locality;
+                });
+            
+            $finalLocalities = $finalLocalities->merge($remainingLocalities);
+        }
+        
+        // Format for JSON response
+        $formattedLocalities = $finalLocalities->map(function ($locality) use ($today) {
+            $activeFestivitiesCount = $locality->active_festivities->count();
+            
+            $nextFestivity = null;
+            if ($activeFestivitiesCount === 0) {
+                $nextFestivity = $locality->festivities()
+                    ->where('start_date', '>', $today)
+                    ->orderBy('start_date', 'asc')
+                    ->first();
+            }
+            
+            return [
+                'id' => $locality->id,
+                'name' => $locality->name,
+                'slug' => $locality->slug,
+                'address' => $locality->address,
+                'province' => $locality->province,
+                'description' => $locality->description,
+                'photos' => $locality->photos,
+                'active_festivities_count' => $activeFestivitiesCount,
+                'total_votes' => $locality->total_votes,
+                'next_festivity' => $nextFestivity ? [
+                    'name' => $nextFestivity->name,
+                    'start_date' => $nextFestivity->start_date->format('d M Y'),
+                ] : null,
+                'show_url' => route('localities.show', $locality),
+                'festivities_url' => route('festivities.index') . '?locality=' . $locality->slug,
+                'edit_url' => route('localities.edit', $locality),
+                'delete_url' => route('localities.destroy', $locality),
+            ];
+        });
+        
+        // Paginate
+        $paginatedData = $formattedLocalities->forPage($page, $perPage)->values();
+        
+        return response()->json([
+            'success' => true,
+            'localities' => $paginatedData,
+            'pagination' => [
+                'current_page' => $page,
+                'last_page' => ceil($formattedLocalities->count() / $perPage),
+                'total' => $formattedLocalities->count(),
+                'per_page' => $perPage,
+            ],
+        ]);
     }
 
     /**
