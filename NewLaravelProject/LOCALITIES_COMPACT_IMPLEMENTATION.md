@@ -454,3 +454,6 @@ GET  /localidades/search       → search() - AJAX search endpoint (JSON)
 **Breaking Changes**: None  
 **New Dependencies**: None
 
+
+
+

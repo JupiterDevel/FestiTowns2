@@ -88,7 +88,28 @@ class VoteController extends Controller
             ->get();
         
         // Sección Regional: Ranking según comunidad autónoma
+        // Si el usuario está logueado y tiene provincia, usar su comunidad autónoma automáticamente
+        // Si no, usar "Comunidad de Madrid" como fallback
         $selectedCommunity = $request->input('community', '');
+        $userProvince = null;
+        $userCommunity = null;
+        $defaultCommunity = 'Comunidad de Madrid';
+        
+        if (Auth::check() && Auth::user()->province) {
+            $userProvince = Auth::user()->province;
+            $userCommunity = $provinceMapping[$userProvince] ?? null;
+            
+            // Si no hay comunidad seleccionada manualmente, usar la del usuario
+            if (empty($selectedCommunity) && $userCommunity) {
+                $selectedCommunity = $userCommunity;
+            }
+        }
+        
+        // Fallback: si no hay selección manual ni del usuario, usar Comunidad de Madrid
+        if (empty($selectedCommunity)) {
+            $selectedCommunity = $defaultCommunity;
+        }
+        
         $regionalFestivities = collect();
         
         if ($selectedCommunity) {
@@ -115,7 +136,21 @@ class VoteController extends Controller
         }
         
         // Sección Provincial: Ranking según provincia
+        // Si el usuario está logueado y tiene provincia, usar su provincia automáticamente
+        // Si no, usar "Madrid" como fallback
         $selectedProvince = $request->input('province', '');
+        $defaultProvince = 'Madrid';
+        
+        // Si no hay provincia seleccionada manualmente y el usuario tiene provincia, usar la del usuario
+        if (empty($selectedProvince) && $userProvince && in_array($userProvince, $provinces)) {
+            $selectedProvince = $userProvince;
+        }
+        
+        // Fallback: si no hay selección manual ni del usuario, usar Madrid
+        if (empty($selectedProvince)) {
+            $selectedProvince = $defaultProvince;
+        }
+        
         $provincialFestivities = collect();
         
         if ($selectedProvince && in_array($selectedProvince, $provinces)) {
