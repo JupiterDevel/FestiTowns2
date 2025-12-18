@@ -6,7 +6,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">User Management</h5>
+    <h5 class="mb-0">Gestión de usuarios</h5>
     <a href="{{ route('users.create') }}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-circle me-1"></i>Crear Usuario
     </a>

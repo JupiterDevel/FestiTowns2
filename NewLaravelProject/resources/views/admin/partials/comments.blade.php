@@ -6,7 +6,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">Moderate Comments</h5>
+    <h5 class="mb-0">Moderación de comentarios</h5>
 </div>
 
 @if(isset($comments))

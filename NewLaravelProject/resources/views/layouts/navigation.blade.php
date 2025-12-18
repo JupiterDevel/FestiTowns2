@@ -1,8 +1,9 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #FEB101;">
     <div class="container">
         <!-- Brand -->
-        <a class="navbar-brand fw-bold text-primary" href="{{ route('home') }}">
-            🎉 FestiTowns
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('home') }}" aria-label="Elalmadelafiesta">
+            <img src="{{ asset('storage/fiesta-logo.png') }}" alt="Elalmadelafiesta" style="height: 40px; width: auto; display: block;">
+            <span class="brand-text" style="font-size: 1.5rem; color: #E5483B;">Elalmadelafiesta</span>
         </a>
 
         <!-- Toggler -->
@@ -14,13 +15,10 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                    <a class="nav-link {{ request()->routeIs('localities.*') ? 'active' : '' }}" href="{{ route('localities.index') }}">Localidades</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('localities.*') ? 'active' : '' }}" href="{{ route('localities.index') }}">Localities</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('festivities.*') ? 'active' : '' }}" href="{{ route('festivities.index') }}">Festivities</a>
+                    <a class="nav-link {{ request()->routeIs('festivities.*') ? 'active' : '' }}" href="{{ route('festivities.index') }}">Festividades</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('festivities.most-voted') ? 'active' : '' }}" href="{{ route('festivities.most-voted') }}">Las Más Votadas</a>
@@ -38,32 +36,44 @@
             <ul class="navbar-nav">
                 @auth
                     <li class="nav-item dropdown">
+                        @php($user = Auth::user())
                         <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle me-2"></i>
-                            {{ Auth::user()->name }}
-                            <span class="badge bg-secondary ms-2">{{ ucfirst(Auth::user()->role) }}</span>
-                            @if(Auth::user()->isVisitor())
-                                <span class="badge bg-warning ms-1">{{ Auth::user()->getRankIcon() }} {{ Auth::user()->getRankDisplayName() }}</span>
-                                <span class="badge bg-info ms-1">{{ Auth::user()->points }} pts</span>
+                            {{ $user->name }}
+                            @if($user->isAdmin() || $user->isTownHall())
+                                <span class="badge ms-2 text-uppercase" style="background-color: #111827; color: #F9FAFB; font-size: 0.68rem;">
+                                    {{ $user->isAdmin() ? 'Admin' : 'Town Hall' }}
+                                </span>
+                            @endif
+                            @if($user->isVisitor())
+                                <span class="badge ms-2" style="background-color: #1FA4A9; color: #FFFFFF; font-size: 0.7rem;">
+                                    {{ $user->getRankIcon() }} {{ $user->points }} pts
+                                </span>
                             @endif
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                               <ul class="dropdown-menu dropdown-menu-end">
+                                   <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Perfil</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">Logout</button>
-                                </form>
-                            </li>
+                                   <li>
+                                       <form method="POST" action="{{ route('logout') }}">
+                                           @csrf
+                                           <button type="submit" class="dropdown-item">Cerrar Sesión</button>
+                                       </form>
+                                   </li>
                         </ul>
                     </li>
                 @else
-                    <li class="nav-item">
-                        <a class="btn btn-outline-primary btn-sm me-2" href="{{ route('login') }}">Login</a>
+                    <li class="nav-item me-2">
+                        <a class="btn btn-sm" href="{{ route('login') }}"
+                           style="border-radius: 999px; border: 1px solid #FFFFFF; color: #FFFFFF; background: transparent; padding: 0.35rem 1rem; font-weight: 500;">
+                            Iniciar Sesión
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary btn-sm" href="{{ route('register') }}">Register</a>
+                        <a class="btn btn-sm" href="{{ route('register') }}"
+                           style="border-radius: 999px; background-color: #FFFFFF; color: #E5483B; padding: 0.35rem 1rem; font-weight: 600; border: none;">
+                            Registrarse
+                        </a>
                     </li>
                 @endauth
             </ul>

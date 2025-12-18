@@ -1,11 +1,12 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="display-6 fw-bold text-primary mb-0">
-            <i class="bi bi-shield-check me-2"></i>Admin Panel
+        <h1 class="h2 mb-0 fw-bold" style="color:#1F2937;">
+            <i class="bi bi-shield-check me-2"></i>Panel de administración
         </h1>
     </x-slot>
 
-    <div class="container">
+    <div style="background: radial-gradient(circle at top, rgba(254,177,1,0.12), #F3F4F6); margin: -1.5rem 0 -3rem 0; padding: 2rem 0 3rem 0;">
+        <div class="container">
         @php
             $activeTab = request()->get('tab', 'comments');
             // Determine which tabs to show based on user role
@@ -33,8 +34,9 @@
             }
         @endphp
 
-        <!-- Bootstrap Tabs -->
-        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+        <!-- Bootstrap Tabs + Content Panel -->
+        <div class="bg-white rounded-3 shadow-sm p-3 p-md-4">
+        <ul class="nav nav-tabs profile-tabs mb-4" id="adminTabs" role="tablist">
             @if($showComments)
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {{ $activeTab === 'comments' ? 'active' : '' }}" 
@@ -45,7 +47,7 @@
                             role="tab" 
                             aria-controls="comments" 
                             aria-selected="{{ $activeTab === 'comments' ? 'true' : 'false' }}">
-                        <i class="bi bi-chat-dots me-1"></i>Moderate Comments
+                        <i class="bi bi-chat-dots me-1"></i>Comentarios
                     </button>
                 </li>
             @endif
@@ -59,7 +61,7 @@
                             role="tab" 
                             aria-controls="users" 
                             aria-selected="{{ $activeTab === 'users' ? 'true' : 'false' }}">
-                        <i class="bi bi-people me-1"></i>Users
+                        <i class="bi bi-people me-1"></i>Usuarios
                     </button>
                 </li>
             @endif
@@ -73,7 +75,7 @@
                             role="tab" 
                             aria-controls="advertisements" 
                             aria-selected="{{ $activeTab === 'advertisements' ? 'true' : 'false' }}">
-                        <i class="bi bi-badge-ad me-1"></i>Advertisements
+                        <i class="bi bi-badge-ad me-1"></i>Anuncios
                     </button>
                 </li>
             @endif
@@ -154,6 +156,9 @@
                 </div>
             @endif
         </div>
+        </div>
+    </div>
+        </div>
+        </div>
     </div>
 </x-app-layout>
-
