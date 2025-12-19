@@ -79,12 +79,7 @@
         @endif
         
         <!-- Google AdSense Script -->
-        @php
-            $adsenseClientId = config('services.google.adsense_client_id', 'ca-pub-5837712015612104');
-        @endphp
-        @if($adsenseClientId)
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $adsenseClientId }}" crossorigin="anonymous"></script>
-        @endif
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5837712015612104" crossorigin="anonymous"></script>
     </head>
     <body>
         @include('layouts.navigation')
