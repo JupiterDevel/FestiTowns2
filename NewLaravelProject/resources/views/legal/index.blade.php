@@ -13,6 +13,11 @@
                             <h2 class="h4 mb-3">Índice</h2>
                             <ul class="list-unstyled">
                                 <li class="mb-2">
+                                    <a href="#privacy" class="text-decoration-none">
+                                        <i class="bi bi-arrow-right me-2"></i>Política de Privacidad
+                                    </a>
+                                </li>
+                                <li class="mb-2">
                                     <a href="#terms" class="text-decoration-none">
                                         <i class="bi bi-arrow-right me-2"></i>Términos y Condiciones
                                     </a>
@@ -29,6 +34,127 @@
                                 </li>
                             </ul>
                         </div>
+
+                        <hr class="my-5">
+
+                        <!-- Privacy Policy -->
+                        <section id="privacy" class="mb-5">
+                            <h2 class="h3 mb-4 fw-bold">
+                                <i class="bi bi-shield-lock me-2"></i>Política de Privacidad
+                            </h2>
+                            
+                            <div class="alert alert-warning" role="alert">
+                                <i class="bi bi-exclamation-triangle me-2"></i>
+                                <strong>Nota Legal:</strong> Este texto es una plantilla genérica y debe ser revisado por un profesional legal antes de su uso en producción.
+                            </div>
+
+                            <h3 class="h5 mt-4 mb-3">1. Información que Recopilamos</h3>
+                            <p>
+                                En El Alma de las Fiestas, recopilamos información que usted nos proporciona directamente y 
+                                información que recopilamos automáticamente cuando utiliza nuestro servicio.
+                            </p>
+                            
+                            <h4 class="h6 mt-3 mb-2">Información que Usted Nos Proporciona</h4>
+                            <ul>
+                                <li><strong>Información de Cuenta:</strong> Nombre, dirección de correo electrónico, y otra información que proporcione al crear una cuenta</li>
+                                <li><strong>Contenido:</strong> Información sobre festividades, comentarios, votaciones y otro contenido que publique</li>
+                                <li><strong>Información de Contacto:</strong> Si nos contacta, guardamos su mensaje y datos de contacto</li>
+                            </ul>
+
+                            <h4 class="h6 mt-3 mb-2">Información que Recopilamos Automáticamente</h4>
+                            <ul>
+                                <li><strong>Datos de Uso:</strong> Cómo interactúa con nuestro sitio web, páginas visitadas, tiempo de permanencia</li>
+                                <li><strong>Información del Dispositivo:</strong> Tipo de dispositivo, sistema operativo, navegador</li>
+                                <li><strong>Dirección IP:</strong> Para seguridad y análisis</li>
+                                <li><strong>Cookies y Tecnologías Similares:</strong> Como se describe en nuestra Política de Cookies</li>
+                            </ul>
+
+                            <h3 class="h5 mt-4 mb-3">2. Cómo Utilizamos su Información</h3>
+                            <p>Utilizamos la información recopilada para:</p>
+                            <ul>
+                                <li>Proporcionar, mantener y mejorar nuestros servicios</li>
+                                <li>Procesar transacciones y enviar notificaciones relacionadas</li>
+                                <li>Enviar comunicaciones técnicas, actualizaciones y mensajes de soporte</li>
+                                <li>Responder a sus comentarios y preguntas</li>
+                                <li>Detectar, prevenir y abordar problemas técnicos y de seguridad</li>
+                                <li>Cumplir con obligaciones legales</li>
+                            </ul>
+
+                            <h3 class="h5 mt-4 mb-3">3. Compartir su Información</h3>
+                            <p>No vendemos su información personal. Podemos compartir su información en las siguientes circunstancias:</p>
+                            
+                            <h4 class="h6 mt-3 mb-2">Proveedores de Servicios</h4>
+                            <p>
+                                Compartimos información con proveedores de servicios que nos ayudan a operar nuestro sitio, 
+                                incluyendo:
+                            </p>
+                            <ul>
+                                <li><strong>Google AdSense:</strong> Para mostrar publicidad personalizada (consulte nuestra Política de Cookies)</li>
+                                <li><strong>Google Maps:</strong> Para proporcionar funcionalidad de mapas</li>
+                                <li><strong>Servicios de Alojamiento:</strong> Para alojar y mantener nuestro sitio web</li>
+                            </ul>
+
+                            <h4 class="h6 mt-3 mb-2">Cumplimiento Legal</h4>
+                            <p>
+                                Podemos divulgar información si es requerido por ley, orden judicial, o proceso legal, 
+                                o para proteger nuestros derechos, propiedad o seguridad.
+                            </p>
+
+                            <h3 class="h5 mt-4 mb-3">4. Seguridad de la Información</h3>
+                            <p>
+                                Implementamos medidas de seguridad técnicas y organizativas apropiadas para proteger su información 
+                                personal contra acceso no autorizado, alteración, divulgación o destrucción. Sin embargo, ningún 
+                                método de transmisión por Internet o almacenamiento electrónico es 100% seguro.
+                            </p>
+
+                            <h3 class="h5 mt-4 mb-3">5. Sus Derechos</h3>
+                            <p>Usted tiene derecho a:</p>
+                            <ul>
+                                <li><strong>Acceso:</strong> Solicitar una copia de la información personal que tenemos sobre usted</li>
+                                <li><strong>Rectificación:</strong> Corregir información inexacta o incompleta</li>
+                                <li><strong>Eliminación:</strong> Solicitar la eliminación de su información personal</li>
+                                <li><strong>Oposición:</strong> Oponerse al procesamiento de su información personal</li>
+                                <li><strong>Portabilidad:</strong> Recibir su información en un formato estructurado</li>
+                            </ul>
+                            <p class="mt-3">
+                                Para ejercer estos derechos, contáctenos en 
+                                <a href="mailto:almadelasfiestas2000@gmail.com">almadelasfiestas2000@gmail.com</a>.
+                            </p>
+
+                            <h3 class="h5 mt-4 mb-3">6. Retención de Datos</h3>
+                            <p>
+                                Conservamos su información personal durante el tiempo necesario para cumplir con los propósitos 
+                                descritos en esta política, a menos que la ley requiera o permita un período de retención más largo.
+                            </p>
+
+                            <h3 class="h5 mt-4 mb-3">7. Privacidad de Menores</h3>
+                            <p>
+                                Nuestro servicio no está dirigido a menores de 18 años. No recopilamos conscientemente información 
+                                personal de menores. Si descubrimos que hemos recopilado información de un menor, la eliminaremos 
+                                inmediatamente.
+                            </p>
+
+                            <h3 class="h5 mt-4 mb-3">8. Cambios a esta Política</h3>
+                            <p>
+                                Podemos actualizar esta Política de Privacidad ocasionalmente. Le notificaremos cualquier cambio 
+                                publicando la nueva política en esta página y actualizando la fecha de "Última actualización".
+                            </p>
+
+                            <h3 class="h5 mt-4 mb-3">9. Contacto</h3>
+                            <p>
+                                Si tiene preguntas sobre esta Política de Privacidad, puede contactarnos en:
+                            </p>
+                            <p class="mb-0">
+                                <strong>Email:</strong> 
+                                <a href="mailto:almadelasfiestas2000@gmail.com" class="text-decoration-none">
+                                    almadelasfiestas2000@gmail.com
+                                </a>
+                            </p>
+
+                            <p class="mt-4 text-muted">
+                                <small>Última actualización: {{ date('d/m/Y') }}</small>
+                            </p>
+                        </section>
 
                         <hr class="my-5">
 

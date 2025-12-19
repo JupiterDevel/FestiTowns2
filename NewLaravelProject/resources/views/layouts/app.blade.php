@@ -78,9 +78,12 @@
             @vite(['resources/js/app.js'])
         @endif
         
-        <!-- Google AdSense Script (GDPR-friendly: lazy loading) -->
-        @if(config('services.google.adsense_client_id'))
-            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config('services.google.adsense_client_id') }}" crossorigin="anonymous"></script>
+        <!-- Google AdSense Script -->
+        @php
+            $adsenseClientId = config('services.google.adsense_client_id', 'ca-pub-5837712015612104');
+        @endphp
+        @if($adsenseClientId)
+            <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ $adsenseClientId }}" crossorigin="anonymous"></script>
         @endif
     </head>
     <body>

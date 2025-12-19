@@ -24,8 +24,8 @@
 
                         <div class="alert alert-info" role="alert">
                             <i class="bi bi-info-circle me-2"></i>
-                            <strong>Importante:</strong> Para continuar utilizando El Alma de las Fiestas, debe aceptar nuestros 
-                            Términos y Condiciones y nuestra Política de Cookies.
+                            <strong>Importante:</strong> Para continuar utilizando El Alma de las Fiestas, debe aceptar nuestra 
+                            Política de Privacidad, Términos y Condiciones y Política de Cookies.
                         </div>
 
                         <p class="mb-4">
@@ -35,6 +35,11 @@
 
                         <div class="mb-4">
                             <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <a href="{{ route('legal.index') }}#privacy" target="_blank" class="text-decoration-none">
+                                        <i class="bi bi-shield-lock me-2"></i>Política de Privacidad
+                                    </a>
+                                </li>
                                 <li class="mb-2">
                                     <a href="{{ route('legal.index') }}#terms" target="_blank" class="text-decoration-none">
                                         <i class="bi bi-file-earmark-text me-2"></i>Términos y Condiciones
@@ -62,7 +67,8 @@
                                            type="checkbox" name="accepted_legal" id="accepted_legal" 
                                            value="1" required>
                                     <label class="form-check-label" for="accepted_legal">
-                                        He leído y acepto los <a href="{{ route('legal.index') }}#terms" target="_blank" class="text-decoration-none">Términos y Condiciones</a> 
+                                        He leído y acepto la <a href="{{ route('legal.index') }}#privacy" target="_blank" class="text-decoration-none">Política de Privacidad</a>, 
+                                        los <a href="{{ route('legal.index') }}#terms" target="_blank" class="text-decoration-none">Términos y Condiciones</a> 
                                         y la <a href="{{ route('legal.index') }}#cookies" target="_blank" class="text-decoration-none">Política de Cookies</a> de El Alma de las Fiestas.
                                     </label>
                                     @error('accepted_legal')

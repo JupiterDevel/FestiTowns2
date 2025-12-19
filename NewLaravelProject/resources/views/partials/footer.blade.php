@@ -64,6 +64,14 @@
             <div class="col-12 text-center text-md-end">
                 <ul class="list-inline mb-0">
                     <li class="list-inline-item">
+                        <a href="{{ route('legal.index') }}#privacy" class="text-decoration-none" style="color: #F9FAFB; font-weight: 500; transition: color 0.2s ease;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#F9FAFB'">
+                            <i class="bi bi-shield-lock me-1"></i>Privacidad
+                        </a>
+                    </li>
+                    <li class="list-inline-item">
+                        <span style="color: #E5E7EB;">|</span>
+                    </li>
+                    <li class="list-inline-item">
                         <a href="{{ route('legal.index') }}#terms" class="text-decoration-none" style="color: #F9FAFB; font-weight: 500; transition: color 0.2s ease;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#F9FAFB'">
                             <i class="bi bi-file-earmark-text me-1"></i>Términos
                         </a>
