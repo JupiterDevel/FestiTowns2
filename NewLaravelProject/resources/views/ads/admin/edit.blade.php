@@ -15,7 +15,7 @@
             <div class="card-body">
                 <form method="POST" action="{{ route('advertisements.update', $advertisement) }}" enctype="multipart/form-data">
                     @method('PUT')
-                    @include('ads.admin._form', ['advertisement' => $advertisement, 'festivities' => $festivities, 'localities' => $localities])
+                    @include('ads.admin._form', ['advertisement' => $advertisement, 'festivities' => $festivities, 'localities' => $localities, 'preselectedFestivityId' => null])
                     <div class="mt-4 d-flex justify-content-end gap-2">
                         <a href="{{ route('advertisements.index') }}" class="btn btn-outline-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">

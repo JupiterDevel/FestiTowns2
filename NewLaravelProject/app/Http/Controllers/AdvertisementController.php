@@ -44,14 +44,17 @@ class AdvertisementController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
         $this->authorize('create', Advertisement::class);
 
         $festivities = Festivity::with('locality')->orderBy('name')->get();
         $localities = Locality::orderBy('name')->get();
+        
+        // Obtener festivity_id de los parámetros de la query string si existe
+        $preselectedFestivityId = $request->query('festivity_id');
 
-        return view('ads.admin.create', compact('festivities', 'localities'));
+        return view('ads.admin.create', compact('festivities', 'localities', 'preselectedFestivityId'));
     }
 
     /**
