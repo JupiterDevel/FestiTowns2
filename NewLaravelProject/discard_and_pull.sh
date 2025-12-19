@@ -25,3 +25,4 @@ rm -f resources/views/festivities/partials/festivity-card.blade.php
 echo "Ejecutando git pull..."
 git pull
 
+

@@ -14,7 +14,7 @@
         <div class="card">
             <div class="card-body">
                 <form method="POST" action="{{ route('advertisements.store') }}" enctype="multipart/form-data">
-                    @include('ads.admin._form', ['advertisement' => new \App\Models\Advertisement(['active' => true]), 'festivities' => $festivities, 'localities' => $localities])
+                    @include('ads.admin._form', ['advertisement' => new \App\Models\Advertisement(['active' => true]), 'festivities' => $festivities, 'localities' => $localities, 'preselectedFestivityId' => $preselectedFestivityId ?? null])
                     <div class="mt-4 d-flex justify-content-end gap-2">
                         <a href="{{ route('advertisements.index') }}" class="btn btn-outline-secondary">Cancelar</a>
                         <button type="submit" class="btn btn-primary">
