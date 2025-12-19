@@ -104,6 +104,19 @@
                     </div>
                 </div>
 
+                <!-- AdSense Advertisement -->
+                <div class="mb-4">
+                    <ins class="adsbygoogle"
+                         style="display:block"
+                         data-ad-client="ca-pub-5837712015612104"
+                         data-ad-slot="6300978111"
+                         data-ad-format="auto"
+                         data-full-width-responsive="true"></ins>
+                    <script>
+                        (adsbygoogle = window.adsbygoogle || []).push({});
+                    </script>
+                </div>
+
                 <!-- Photo Gallery -->
                 @if(!empty($festivity->photos) && is_array($festivity->photos) && count($festivity->photos) > 0)
                     <div class="content-card mb-4">
