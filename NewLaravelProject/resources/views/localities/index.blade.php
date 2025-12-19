@@ -194,54 +194,74 @@
                     
                     const localityDetailUrl = `{{ url('localidades') }}/${locality.slug}`;
                     
+                    const provinceBadge = locality.province 
+                        ? `<span class="badge compact-badge"
+                                 style="background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%); color: #FFFFFF; font-weight: 600; padding: 0.5rem 0.75rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(254, 177, 1, 0.4);">
+                                 ${locality.province}
+                           </span>`
+                        : '';
+                    
+                    const statusBadge = locality.active_festivities_count > 0
+                        ? `<span class="badge bg-success compact-badge"
+                                 style="font-weight: 600; padding: 0.4rem 0.75rem; border-radius: 999px;">
+                                 ¡De Fiesta!
+                           </span>`
+                        : locality.next_festivity 
+                            ? `<span class="badge compact-badge fw-semibold"
+                                       style="background-color: #1FA4A9; color: #FFFFFF; max-width: 70%; overflow: hidden; text-overflow: ellipsis; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap;">
+                                       ▶▶ ${locality.next_festivity.name}
+                               </span>`
+                            : '';
+                    
+                    const overlayBadges = `
+                        ${statusBadge ? `<span class="position-absolute top-0 start-0 m-3">${statusBadge}</span>` : ''}
+                        ${provinceBadge ? `<span class="position-absolute top-0 end-0 m-3">${provinceBadge}</span>` : ''}
+                    `;
+                    
                     const photoHtml = locality.photos && locality.photos.length > 0
                         ? `<a href="${localityDetailUrl}" class="text-decoration-none">
-                               <img src="${locality.photos[0]}" class="card-img-top compact-card-img" alt="${locality.name}">
+                               <div style="position: relative;">
+                                   <img src="${locality.photos[0]}" class="card-img-top compact-card-img" alt="${locality.name}">
+                                   ${overlayBadges}
+                               </div>
                            </a>`
                         : `<a href="${localityDetailUrl}" class="text-decoration-none">
-                               <div class="card-img-top compact-card-img bg-gradient d-flex align-items-center justify-content-center">
-                                   <i class="bi bi-geo-alt text-white display-4"></i>
+                               <div style="position: relative;">
+                                   <div class="card-img-top compact-card-img bg-gradient d-flex align-items-center justify-content-center">
+                                       <i class="bi bi-geo-alt text-white display-4"></i>
+                                   </div>
+                                   ${overlayBadges}
                                </div>
                            </a>`;
                     
-                    const provinceBadge = locality.province 
-                        ? `<span class="badge bg-secondary compact-badge">${locality.province}</span>`
-                        : '';
-                    
-                    const activeInfo = locality.active_festivities_count > 0
-                        ? `<div class="mb-2">
-                               <span class="badge bg-success compact-badge me-1">¡De Fiesta!</span>
-                               <small class="text-muted">${locality.active_festivities_count} ${locality.active_festivities_count === 1 ? 'festividad' : 'festividades'}</small>
-                           </div>`
-                        : locality.next_festivity 
-                            ? `<div class="mb-2">
-                                   <small class="text-muted">Próxima: ${locality.next_festivity.name} - ${locality.next_festivity.start_date}</small>
-                               </div>`
-                            : '';
-                    
                     const description = locality.description 
-                        ? `<p class="card-text text-muted small mb-3" style="line-height: 1.4;">
+                        ? `<p class="card-text text-muted mb3" style="font-size: 0.9rem; line-height: 1.55;">
                                ${locality.description.length > 160 ? locality.description.substring(0, 160) + '...' : locality.description}
                            </p>`
                         : '';
                     
-                    const statusInfo = locality.active_festivities_count > 0
-                        ? `<div class="mt-auto mb-2">
-                               <div>
-                                   <span class="badge bg-success compact-badge me-1">¡De Fiesta!</span>
-                                   <small class="text-muted">${locality.active_festivities_count} ${locality.active_festivities_count === 1 ? 'festividad' : 'festividades'}</small>
-                               </div>
-                           </div>`
+                    const statusLeft = locality.active_festivities_count > 0
+                        ? ''
                         : locality.next_festivity 
-                            ? `<div class="mt-auto mb-2">
-                                   <div>
-                                       <small class="text-muted">Próxima: ${locality.next_festivity.name} - ${locality.next_festivity.start_date}</small>
-                                   </div>
-                               </div>`
+                            ? `<span class="badge compact-badge fw-semibold"
+                                       style="background-color: #1FA4A9; color: #FFFFFF; max-width: 100%; overflow: hidden; text-overflow: ellipsis; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap;">
+                                       ▶▶ ${locality.next_festivity.name}
+                               </span>`
                             : '';
                     
+                    const statusInfo = statusLeft
+                        ? `<div class="mt-auto d-flex align-items-center justify-content-between" style="padding-top: 0.85rem; border-top: 1px solid #F3F4F6;">
+                               <div class="d-flex align-items-center gap-2">
+                                   ${statusLeft}
+                               </div>
+                               <a href="${localityDetailUrl}" class="text-decoration-none" style="color: #FEB101; font-size: 0.83rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1;">
+                                   Ver más →
+                               </a>
+                           </div>`
+                        : '';
+                    
                     const adminButtons = (canUpdate || canDelete) 
-                        ? `<div>
+                        ? `<div class="mt-3 pt-3" style="border-top: 1px solid #E5E7EB;">
                                <div class="d-flex gap-1">
                                    ${canUpdate ? `<a href="${locality.edit_url}" class="btn btn-sm btn-outline-secondary flex-fill" title="Editar">
                                        <i class="bi bi-pencil"></i>
@@ -338,25 +358,32 @@
             padding-top: 0 !important;
         }
         
-        /* Compact Header Section */
+        /* Header Localities - Hero with Image */
         .header-localities {
             position: relative;
-            background: linear-gradient(to right, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%),
-                        url('/storage/hero-localities.jpg') center/cover;
-            background-blend-mode: overlay;
-            padding: 2rem 0 1.5rem;
             margin: 0;
+            padding: 3rem 0 2rem;
+            overflow: hidden;
+            background-color: #0f172a; /* fallback */
         }
         
         .header-localities::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(102, 126, 234, 0.4);
-            backdrop-filter: blur(2px);
+            inset: 0;
+            background-image: url('/storage/hero-3.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.9;
+            z-index: 0;
+        }
+        
+        .header-localities::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.82) 65%, rgba(15,23,42,0.95) 100%);
             z-index: 0;
         }
         
@@ -382,7 +409,7 @@
         .search-icon {
             display: flex;
             align-items: center;
-            color: #667eea;
+            color: #FEB101;
             font-size: 1.2rem;
             padding: 0 0.25rem;
         }
@@ -406,18 +433,19 @@
         }
         
         .btn-filter-toggle {
-            background: #f3f4f6;
+            background: #F8F9FA;
             border: none;
             border-radius: 8px;
             padding: 0.4rem 0.9rem;
-            color: #667eea;
+            color: #FEB101;
             transition: all 0.2s ease;
             cursor: pointer;
             font-size: 1.1rem;
         }
         
         .btn-filter-toggle:hover {
-            background: #e5e7eb;
+            background: #FEB101;
+            color: white;
         }
         
         .filter-content {
@@ -431,8 +459,8 @@
         }
         
         .filter-content .form-select:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #FEB101;
+            box-shadow: 0 0 0 3px rgba(254, 177, 1, 0.15);
         }
         
         /* Context Text */
@@ -451,8 +479,8 @@
             width: 42px;
             height: 42px;
             border-radius: 50%;
-            background: white;
-            color: #667eea;
+            background: #FFFFFF;
+            color: #1FA4A9;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -464,30 +492,30 @@
         }
         
         .btn-add-locality:hover {
-            background: #667eea;
-            color: white;
+            background: #1FA4A9;
+            color: #FFFFFF;
             transform: rotate(90deg);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(31, 164, 169, 0.35);
         }
         
-        /* Compact Cards */
+        /* Compact Cards - aligned with Festivities style but slightly lighter */
         .compact-locality-card {
             border: none;
-            border-radius: 12px;
+            border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
         }
         
         .compact-locality-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
         }
         
         .compact-card-img {
-            height: 180px;
+            height: 220px;
             object-fit: cover;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%);
             cursor: pointer;
             transition: opacity 0.2s ease;
         }
@@ -497,7 +525,7 @@
         }
         
         .compact-card-body {
-            padding: 1rem;
+            padding: 1.1rem;
             display: flex;
             flex-direction: column;
         }
@@ -505,18 +533,20 @@
         .compact-title {
             font-size: 1.1rem;
             font-weight: 600;
-            color: #2d3748;
+            color: #1F2937;
+            line-height: 1.3;
             transition: color 0.2s ease;
         }
         
         a:hover .compact-title {
-            color: #667eea;
+            color: #FEB101;
         }
         
         .compact-badge {
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
+            font-size: 0.78rem;
+            padding: 0.4rem 0.65rem;
+            border-radius: 8px;
+            font-weight: 600;
         }
         
         .locality-fade-in {
@@ -552,11 +582,11 @@
         }
         
         #paginationContainer .page-link {
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            color: #667eea;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            color: #FEB101;
             padding: 0.375rem 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.875rem;
             line-height: 1.25;
             transition: all 0.2s ease;
@@ -569,18 +599,18 @@
         }
         
         #paginationContainer .page-link:hover {
-            background: #667eea;
+            background: #FEB101;
             color: white;
-            border-color: #667eea;
+            border-color: #FEB101;
             transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.25);
+            box-shadow: 0 2px 8px rgba(254, 177, 1, 0.3);
         }
         
         #paginationContainer .page-item.active .page-link {
-            background: #667eea;
-            border-color: #667eea;
+            background: #FEB101;
+            border-color: #FEB101;
             color: white;
-            font-weight: 600;
+            font-weight: 700;
         }
         
         #paginationContainer .page-item.disabled .page-link {

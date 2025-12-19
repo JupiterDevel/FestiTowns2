@@ -6,7 +6,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">Premium Advertisements</h5>
+    <h5 class="mb-0">Anuncios premium</h5>
     <a href="{{ route('advertisements.create') }}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-circle me-1"></i>Nuevo Anuncio
     </a>

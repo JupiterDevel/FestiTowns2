@@ -170,14 +170,14 @@
                                 @else
                                     <form action="{{ route('votes.store', $festivity) }}" method="POST" class="d-inline">
                                         @csrf
-                                        <button type="submit" class="btn btn-primary btn-sm">
-                                            <i class="bi bi-heart me-1"></i>Votar
+                                        <button type="submit" class="btn btn-primary btn-lg" style="background-color: #FEB101; border: none; padding: 0.75rem 2rem;">
+                                            <i class="bi bi-heart-fill me-2"></i>Votar
                                         </button>
                                     </form>
                                 @endif
                             @else
-                                <a href="{{ route('login') }}" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-heart me-1"></i>Inicia sesión para votar
+                                <a href="{{ route('login') }}" class="btn btn-outline-primary btn-lg" style="border-color: #FEB101; color: #FEB101; padding: 0.75rem 2rem;">
+                                    <i class="bi bi-heart me-2"></i>Inicia sesión para votar
                                 </a>
                             @endauth
                         </div>
@@ -199,8 +199,8 @@
                             />
                             @if($festivity->google_maps_url)
                                 <div class="mt-3">
-                                    <a href="{{ $festivity->google_maps_url }}" target="_blank" rel="noopener" class="btn btn-outline-primary">
-                                        <i class="bi bi-box-arrow-up-right me-1"></i>Abrir en Google Maps
+                                    <a href="{{ $festivity->google_maps_url }}" target="_blank" rel="noopener" class="btn btn-outline-primary" style="border-color: #1FA4A9; color: #1FA4A9;">
+                                        <i class="bi bi-box-arrow-up-right me-2"></i>Abrir en Google Maps
                                     </a>
                                 </div>
                             @endif
@@ -212,8 +212,8 @@
                 <div class="content-card mb-4">
                     <div class="card-header-custom d-flex justify-content-between align-items-center">
                         <h2><i class="bi bi-calendar-event me-2"></i>Eventos Programados</h2>
-                        <a href="{{ route('events.index', $festivity) }}" class="btn btn-primary btn-sm">
-                            <i class="bi bi-eye me-1"></i>Ver Todos
+                        <a href="{{ route('events.index', $festivity) }}" class="btn btn-primary btn-sm" style="background-color: #FEB101; border: none;">
+                            <i class="bi bi-eye me-2"></i>Ver Todos
                         </a>
                     </div>
                     <div class="card-body-custom">
@@ -254,7 +254,7 @@
 
                             @if($festivity->events->count() > 6)
                                 <div class="text-center mt-3">
-                                    <a href="{{ route('events.index', $festivity) }}" class="btn btn-outline-primary btn-sm">
+                                    <a href="{{ route('events.index', $festivity) }}" class="btn btn-outline-primary btn-sm" style="border-color: #FEB101; color: #FEB101;">
                                         Ver {{ $festivity->events->count() - 6 }} eventos más
                                     </a>
                                 </div>
@@ -274,8 +274,8 @@
                                         }
                                     @endphp
                                     @if($canCreate)
-                                        <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-sm mt-2">
-                                            <i class="bi bi-plus-circle me-1"></i>Crear Primer Evento
+                                        <a href="{{ route('events.create', $festivity) }}" class="btn btn-primary btn-sm mt-2" style="background-color: #FEB101; border: none;">
+                                            <i class="bi bi-plus-circle me-2"></i>Crear Primer Evento
                                         </a>
                                     @endif
                                 @endauth
@@ -333,8 +333,8 @@
                                             </button>
                                         </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary btn-sm">
-                                        <i class="bi bi-send me-1"></i>Publicar Comentario
+                                    <button type="submit" class="btn btn-primary" style="background-color: #FEB101; border: none; padding: 0.75rem 1.5rem;">
+                                        <i class="bi bi-send me-2"></i>Publicar Comentario
                                     </button>
                                 </form>
                                 <div class="alert alert-info mt-3" role="alert">
@@ -448,7 +448,7 @@
         /* Hero Section */
         .festivity-hero {
             position: relative;
-            height: 400px;
+            height: 450px;
             overflow: hidden;
             margin-top: -1.5rem;
         }
@@ -461,7 +461,7 @@
             bottom: 0;
             background-size: cover;
             background-position: center;
-            filter: brightness(0.7);
+            filter: brightness(0.8);
         }
         
         .hero-gradient {
@@ -470,7 +470,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FEB101 0%, #F59E0B 50%, #D97706 100%);
         }
         
         .hero-overlay {
@@ -479,7 +479,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+            background: linear-gradient(to bottom, rgba(254, 177, 1, 0.7), rgba(254, 177, 1, 0.95));
         }
         
         .hero-content-wrapper {
@@ -497,20 +497,22 @@
         
         .province-badge {
             display: inline-block;
-            background: rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.25);
             backdrop-filter: blur(10px);
-            padding: 0.4rem 1rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
+            padding: 0.5rem 1.25rem;
+            border-radius: 25px;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.3);
         }
         
         .festivity-title {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: 700;
             margin: 0.5rem 0;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            line-height: 1.2;
         }
         
         .festivity-meta {
@@ -539,22 +541,34 @@
         /* Content Cards */
         .content-card {
             background: white;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-radius: 20px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
             overflow: hidden;
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .content-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         }
         
         .card-header-custom {
-            background: linear-gradient(to right, #f8f9fa, #ffffff);
-            padding: 1.5rem;
-            border-bottom: 1px solid #e9ecef;
+            background: linear-gradient(to right, #F8F9FA, #FFFFFF);
+            padding: 1.75rem;
+            border-bottom: 2px solid #F3F4F6;
         }
         
         .card-header-custom h2 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #2d3748;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1F2937;
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .card-header-custom h2 i {
+            color: #F2B705;
         }
         
         .card-body-custom {
@@ -562,9 +576,9 @@
         }
         
         .lead-text {
-            font-size: 1.1rem;
-            line-height: 1.7;
-            color: #4a5568;
+            font-size: 1.125rem;
+            line-height: 1.8;
+            color: #4B5563;
             margin: 0;
         }
         
@@ -646,11 +660,11 @@
         /* Responsive */
         @media (max-width: 991px) {
             .festivity-hero {
-                height: 300px;
+                height: 350px;
             }
             
             .festivity-title {
-                font-size: 2rem;
+                font-size: 2.5rem;
             }
             
             .hero-content-wrapper {
@@ -665,12 +679,12 @@
         
         @media (max-width: 767px) {
             .festivity-hero {
-                height: 250px;
+                height: 300px;
                 margin-top: 0;
             }
             
             .festivity-title {
-                font-size: 1.75rem;
+                font-size: 2rem;
             }
             
             .hero-content-wrapper {

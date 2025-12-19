@@ -64,14 +64,14 @@
     
     <!-- Hero Section with Integrated Search -->
         <div class="hero-banner">
-            <div class="hero-background" style="background-image: url('/storage/hero-localities.jpg');"></div>
+            <div class="hero-background" style="background-image: url('/storage/hero-1.png');"></div>
             <div class="hero-overlay"></div>
             <div class="hero-content">
     <div class="container">
                     <!-- Hero Tagline -->
                     <div class="hero-tagline text-center mb-4">
-                        <h2 class="text-white fw-light mb-2 hero-title">Descubre la magia de las festividades españolas</h2>
-                        <p class="text-white-50 mb-0 hero-subtitle">Encuentra las mejores celebraciones y tradiciones en toda España</p>
+                        <h1 class="text-white fw-bold mb-3 hero-title brand-text" style="font-size: 2.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">Descubre la magia de las festividades españolas</h1>
+                        <p class="text-white mb-0 hero-subtitle" style="font-size: 1.125rem; opacity: 0.95;">Encuentra las mejores celebraciones y tradiciones en toda España</p>
         </div>
 
                     <div class="hero-search-container">
@@ -99,7 +99,7 @@
                     </div>
                     
                             <!-- Location Button -->
-                            <button id="map-near-me-btn" class="btn btn-light rounded-pill px-3 py-1 shadow-sm fw-semibold text-nowrap hero-location-btn" type="button">
+                            <button id="map-near-me-btn" class="btn btn-secondary rounded-pill px-4 py-2 shadow-sm fw-semibold text-nowrap hero-location-btn" type="button" style="background-color: #1FA4A9; color: white;">
                         <i class="bi bi-geo-alt me-2"></i>Cerca de mí
                     </button>
                 </div>
@@ -170,10 +170,11 @@
         /* Hero Banner with Background Image */
         .hero-banner {
             position: relative;
-            height: 260px;
+            height: 320px;
             overflow: hidden;
             margin: 0;
             padding: 0;
+            background-color: #111827;
         }
         
         .hero-background {
@@ -185,6 +186,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            opacity: 0.9;
         }
         
         .hero-overlay {
@@ -193,7 +195,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.85) 65%, rgba(17, 24, 39, 0.95) 100%);
         }
         
         .hero-content {
@@ -211,10 +213,12 @@
         
         .hero-search-bar {
             backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95) !important;
+            background: rgba(255, 255, 255, 0.98) !important;
             min-width: 300px;
             max-width: 900px;
-            padding: 0.375rem 0.5rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 50px !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
         
         @media (max-width: 576px) {
@@ -224,12 +228,14 @@
         }
         
         .hero-title {
-            font-size: 1.5rem;
+            font-size: 2.5rem;
             letter-spacing: 0.5px;
+            font-weight: 700;
         }
         
         .hero-subtitle {
-            font-size: 1rem;
+            font-size: 1.125rem;
+            font-weight: 400;
         }
         
         .hero-search-input {
@@ -459,10 +465,10 @@
         }
         
         .scroll-nav-btn:hover:not(:disabled) {
-            background: #007bff;
-            border-color: #007bff;
+            background: #FEB101;
+            border-color: #FEB101;
             color: white;
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(254, 177, 1, 0.4);
             transform: translateY(-50%) scale(1.05);
         }
         
@@ -580,7 +586,7 @@
         }
         
         .festivity-card-title {
-            font-size: 1rem;
+            font-size: 0.98rem;
             font-weight: 700;
             color: #1a1a1a;
             margin: 0 0 0.75rem 0;
@@ -602,18 +608,18 @@
         .festivity-card-province-badge {
             display: inline-block;
             padding: 0.25rem 0.625rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #F2B705 0%, #E5A805 100%);
             color: white;
             border-radius: 6px;
             font-size: 0.75rem;
             font-weight: 600;
             letter-spacing: 0.02em;
             width: fit-content;
-            box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 4px rgba(242, 183, 5, 0.3);
         }
         
         .festivity-card-date {
-            font-size: 0.8125rem;
+            font-size: 0.8rem;
             color: #666;
             margin: 0;
             line-height: 1.4;
@@ -640,19 +646,19 @@
             display: flex;
             align-items: center;
             gap: 0.375rem;
-            font-size: 0.8125rem;
+            font-size: 0.78rem;
             color: #1a1a1a;
             font-weight: 600;
         }
         
         .festivity-card-rating i {
-            color: #ff385c;
+            color: #F59E0B;
             font-size: 0.875rem;
-            filter: drop-shadow(0 1px 2px rgba(255, 56, 92, 0.3));
+            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.3));
         }
         
         .festivity-card-action {
-            color: #667eea;
+            color: #F2B705;
             font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -668,7 +674,7 @@
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .hero-banner {
-                height: 240px;
+                height: 280px;
             }
             
             .hero-content {
@@ -744,7 +750,7 @@
         
         @media (max-width: 576px) {
             .hero-banner {
-                height: 220px;
+                height: 260px;
             }
             
             .hero-content {

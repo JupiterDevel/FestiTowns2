@@ -1,9 +1,5 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
-
-/* Custom styles */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+@import '../scss/brand-system.scss';
 
 .hero-section {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

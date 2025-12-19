@@ -94,9 +94,11 @@
         @endif
 
         @if(!empty($votingInfoMessage ?? ''))
-            <div class="alert alert-primary mb-4" role="alert">
-                <i class="bi bi-megaphone me-2"></i>
-                <div>
+            <div class="alert alert-primary mb-4 d-flex align-items-start" role="alert" style="background: linear-gradient(120deg, rgba(31,164,169,0.06), #EFF6FF); border-color: #BFDBFE; color:#1F2937;">
+                <div class="me-3 flex-shrink-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; border-radius: 999px; background-color: #1FA4A9;">
+                    <i class="bi bi-megaphone" style="color:#FFFFFF; font-size:1.2rem;"></i>
+                </div>
+                <div class="flex-grow-1" style="font-size:0.92rem; line-height:1.5;">
                     {!! $votingInfoMessage !!}
                 </div>
             </div>
@@ -114,9 +116,9 @@
                         </div>
                         
                         @if($nationalFestivities->count() > 0)
-                            <div class="row g-3">
+                            <div class="row g-3 justify-content-center">
                                 @foreach($nationalFestivities as $festivity)
-                                    <div class="col-lg-3 col-md-4 col-sm-6">
+                                    <div class="col-12 col-md-6 col-lg-3 d-flex">
                                         @include('festivities.partials.festivity-card', ['festivity' => $festivity])
                                     </div>
                                 @endforeach
@@ -163,9 +165,9 @@
                         </div>
 
                         @if($regionalFestivities->count() > 0)
-                            <div class="row g-3">
+                            <div class="row g-3 justify-content-center">
                                 @foreach($regionalFestivities as $festivity)
-                                    <div class="col-lg-3 col-md-4 col-sm-6">
+                                    <div class="col-12 col-md-6 col-lg-3 d-flex">
                                         @include('festivities.partials.festivity-card', ['festivity' => $festivity])
                                     </div>
                                 @endforeach
@@ -213,9 +215,9 @@
                         </div>
 
                         @if($provincialFestivities->count() > 0)
-                            <div class="row g-3">
+                            <div class="row g-3 justify-content-center">
                                 @foreach($provincialFestivities as $festivity)
-                                    <div class="col-lg-3 col-md-4 col-sm-6">
+                                    <div class="col-12 col-md-6 col-lg-3 d-flex">
                                         @include('festivities.partials.festivity-card', ['festivity' => $festivity])
                                     </div>
                                 @endforeach
@@ -238,12 +240,33 @@
             padding-top: 0 !important;
         }
         
-        /* Compact Header Section */
+        /* Compact Header Section with Background Image */
         .header-most-voted {
             position: relative;
-            background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
-            padding: 2rem 0 1.5rem;
+            padding: 3rem 0 2rem;
             margin: 0;
+            overflow: hidden;
+            background-color: #0f172a;
+        }
+        
+        .header-most-voted::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('/storage/hero-4.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.9;
+            z-index: 0;
+        }
+        
+        .header-most-voted::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.82) 65%, rgba(15,23,42,0.95) 100%);
+            z-index: 0;
         }
         
         .header-content {

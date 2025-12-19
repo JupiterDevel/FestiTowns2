@@ -227,8 +227,11 @@
                     
                     const statusInfo = festivity.is_active
                         ? `<div class="mt-auto mb-2">
-                               <div>
-                                   <span class="badge bg-success compact-badge me-1">¡Activa ahora!</span>
+                               <div class="d-flex align-items-center justify-content-between">
+                                   <span class="badge compact-badge fw-semibold"
+                                         style="background-color: #198754; color: #FFFFFF; font-size: 0.78rem; padding: 0.35rem 0.9rem; border-radius: 999px;">
+                                         Activa ahora
+                                   </span>
                                    <small class="text-muted">
                                        <i class="bi bi-heart me-1"></i>${festivity.votes_count} ${festivity.votes_count === 1 ? 'voto' : 'votos'}
                                    </small>
@@ -361,12 +364,33 @@
             padding-top: 0 !important;
         }
         
-        /* Compact Header Section */
+        /* Compact Header Section with Background Image */
         .header-festivities {
             position: relative;
-            background: linear-gradient(to right, #667eea 0%, #764ba2 100%);
-            padding: 2rem 0 1.5rem;
+            padding: 3rem 0 2rem;
             margin: 0;
+            overflow: hidden;
+            background-color: #0f172a;
+        }
+        
+        .header-festivities::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: url('/storage/hero-2.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.9;
+            z-index: 0;
+        }
+        
+        .header-festivities::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, rgba(15,23,42,0.15) 0%, rgba(15,23,42,0.82) 65%, rgba(15,23,42,0.95) 100%);
+            z-index: 0;
         }
         
         .header-content {
@@ -377,11 +401,13 @@
         /* Search Box */
         .search-box-main {
             background: white;
-            border-radius: 12px;
-            padding: 0.65rem 1rem;
-            max-width: 650px;
+            border-radius: 16px;
+            padding: 0.75rem 1.25rem;
+            max-width: 700px;
             margin: 0 auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            position: relative;
+            z-index: 1;
         }
         
         .search-box-main .d-flex {
@@ -391,7 +417,7 @@
         .search-icon {
             display: flex;
             align-items: center;
-            color: #667eea;
+            color: #FEB101;
             font-size: 1.2rem;
             padding: 0 0.25rem;
         }
@@ -415,18 +441,19 @@
         }
         
         .btn-filter-toggle {
-            background: #f3f4f6;
+            background: #F8F9FA;
             border: none;
             border-radius: 8px;
             padding: 0.4rem 0.9rem;
-            color: #667eea;
+            color: #FEB101;
             transition: all 0.2s ease;
             cursor: pointer;
             font-size: 1.1rem;
         }
         
         .btn-filter-toggle:hover {
-            background: #e5e7eb;
+            background: #FEB101;
+            color: white;
         }
         
         .filter-content {
@@ -442,16 +469,18 @@
         
         .filter-content .form-select:focus,
         .filter-content input[type="date"]:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #FEB101;
+            box-shadow: 0 0 0 3px rgba(254, 177, 1, 0.15);
         }
         
         /* Context Text */
         .context-info {
             text-align: center;
             color: rgba(255,255,255,0.95);
-            font-size: 0.85rem;
-            font-weight: 400;
+            font-size: 0.9375rem;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
         }
         
         /* Add Button */
@@ -484,44 +513,44 @@
         /* Compact Festivity Cards */
         .compact-festivity-card {
             border: none;
-            border-radius: 12px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .compact-festivity-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
         }
         
         .compact-card-img {
-            height: 180px;
+            height: 240px;
             object-fit: cover;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%);
             cursor: pointer;
-            transition: opacity 0.2s ease;
+            transition: transform 0.4s ease;
         }
         
-        a:hover .compact-card-img {
-            opacity: 0.95;
+        .compact-festivity-card:hover .compact-card-img {
+            transform: scale(1.1);
         }
         
         .compact-card-body {
-            padding: 1rem;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
         }
         
         .compact-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #2d3748;
+            font-size: 1.375rem;
+            font-weight: 700;
+            color: #1F2937;
             transition: color 0.2s ease;
         }
         
         a:hover .compact-title {
-            color: #667eea;
+            color: #FEB101;
         }
         
         .compact-badge {
@@ -557,11 +586,11 @@
         }
         
         #paginationContainer .page-link {
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            color: #667eea;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            color: #FEB101;
             padding: 0.375rem 0.75rem;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.875rem;
             line-height: 1.25;
             transition: all 0.2s ease;
@@ -574,18 +603,18 @@
         }
         
         #paginationContainer .page-link:hover {
-            background: #667eea;
+            background: #FEB101;
             color: white;
-            border-color: #667eea;
+            border-color: #FEB101;
             transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.25);
+            box-shadow: 0 2px 8px rgba(254, 177, 1, 0.3);
         }
         
         #paginationContainer .page-item.active .page-link {
-            background: #667eea;
-            border-color: #667eea;
+            background: #FEB101;
+            border-color: #FEB101;
             color: white;
-            font-weight: 600;
+            font-weight: 700;
         }
         
         #paginationContainer .page-item.disabled .page-link {
