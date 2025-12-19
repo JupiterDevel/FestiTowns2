@@ -105,7 +105,7 @@
                 </div>
 
                 <!-- AdSense Advertisement -->
-                <div class="mb-4">
+                <div class="mb-4 adsense-wrapper" style="text-align: center; overflow: hidden;">
                     <ins class="adsbygoogle"
                          style="display:block"
                          data-ad-client="ca-pub-5837712015612104"
@@ -114,6 +114,15 @@
                          data-full-width-responsive="true"></ins>
                     <script>
                         (adsbygoogle = window.adsbygoogle || []).push({});
+                        
+                        // Hide container if ad doesn't load after 5 seconds
+                        setTimeout(function() {
+                            var adContainer = document.querySelector('.adsense-wrapper');
+                            var adElement = adContainer ? adContainer.querySelector('ins.adsbygoogle') : null;
+                            if (adContainer && adElement && adElement.offsetHeight === 0) {
+                                adContainer.style.display = 'none';
+                            }
+                        }, 5000);
                     </script>
                 </div>
 
@@ -752,6 +761,18 @@
                 padding-left: 1rem;
                 padding-right: 1rem;
             }
+        }
+        
+        /* AdSense Wrapper - Hide if empty */
+        .adsense-wrapper {
+            min-height: 0;
+        }
+        
+        /* Hide wrapper if AdSense doesn't load content */
+        .adsense-wrapper:has(ins:empty) {
+            display: none;
+            margin: 0;
+            padding: 0;
         }
     </style>
 </x-app-layout>
