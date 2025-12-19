@@ -38,6 +38,9 @@
         <!-- Canonical URL -->
         <link rel="canonical" href="{{ $meta['url'] ?? url()->current() }}">
 
+        <!-- Google AdSense Script (Must be in <head> for verification) -->
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5837712015612104" crossorigin="anonymous"></script>
+
         <!-- Favicon -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
@@ -77,9 +80,6 @@
         @else
             @vite(['resources/js/app.js'])
         @endif
-        
-        <!-- Google AdSense Script -->
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5837712015612104" crossorigin="anonymous"></script>
     </head>
     <body>
         @include('layouts.navigation')
