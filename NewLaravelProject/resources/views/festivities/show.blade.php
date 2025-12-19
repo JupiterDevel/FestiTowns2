@@ -105,25 +105,14 @@
                 </div>
 
                 <!-- AdSense Advertisement -->
-                <div class="mb-4 adsense-wrapper" style="text-align: center; overflow: hidden;">
-                    <ins class="adsbygoogle"
-                         style="display:block"
-                         data-ad-client="ca-pub-5837712015612104"
-                         data-ad-slot="6300978111"
-                         data-ad-format="auto"
-                         data-full-width-responsive="true"></ins>
-                    <script>
-                        (adsbygoogle = window.adsbygoogle || []).push({});
-                        
-                        // Hide container if ad doesn't load after 5 seconds
-                        setTimeout(function() {
-                            var adContainer = document.querySelector('.adsense-wrapper');
-                            var adElement = adContainer ? adContainer.querySelector('ins.adsbygoogle') : null;
-                            if (adContainer && adElement && adElement.offsetHeight === 0) {
-                                adContainer.style.display = 'none';
-                            }
-                        }, 5000);
-                    </script>
+                <div class="mb-4">
+                    <x-adsense-ad 
+                        clientId="ca-pub-3940256099942544" 
+                        type="display"
+                        style="display:block; min-height: 250px; width: 100%;"
+                        format="auto"
+                        testMode="true"
+                    />
                 </div>
 
                 <!-- Photo Gallery -->
@@ -775,4 +764,5 @@
             padding: 0;
         }
     </style>
+    
 </x-app-layout>
