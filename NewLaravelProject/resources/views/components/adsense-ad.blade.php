@@ -76,22 +76,40 @@
                 // Get container width - try multiple methods
                 var containerWidth = getElementWidth(container);
                 
-                // If container has no width, get from parent
-                if (containerWidth === 0) {
+                // If container has no width or width is too small, get from parent
+                if (containerWidth === 0 || containerWidth < 300) {
                     var parent = container.parentElement;
-                    var maxDepth = 5;
+                    var maxDepth = 10; // Increased depth
                     var depth = 0;
-                    while (parent && containerWidth === 0 && depth < maxDepth) {
-                        containerWidth = getElementWidth(parent);
-                        if (containerWidth > 0) {
-                            // Set explicit width on container
-                            container.style.width = containerWidth + 'px';
-                            container.style.maxWidth = containerWidth + 'px';
-                            container.offsetHeight; // Force reflow
-                            break;
+                    while (parent && (containerWidth === 0 || containerWidth < 300) && depth < maxDepth) {
+                        var parentWidth = getElementWidth(parent);
+                        if (parentWidth > containerWidth) {
+                            containerWidth = parentWidth;
+                            if (containerWidth >= 300) {
+                                // Set explicit width on container
+                                container.style.width = containerWidth + 'px';
+                                container.style.maxWidth = containerWidth + 'px';
+                                container.style.minWidth = containerWidth + 'px';
+                                container.offsetHeight; // Force reflow
+                                break;
+                            }
                         }
                         parent = parent.parentElement;
                         depth++;
+                    }
+                }
+                
+                // If still too small, try window width
+                if (containerWidth < 300) {
+                    var windowWidth = window.innerWidth || document.documentElement.clientWidth;
+                    if (windowWidth >= 300) {
+                        // Use a reasonable width based on viewport
+                        var targetWidth = Math.min(windowWidth - 40, 800); // Leave some margin
+                        container.style.width = targetWidth + 'px';
+                        container.style.maxWidth = targetWidth + 'px';
+                        container.style.minWidth = targetWidth + 'px';
+                        container.offsetHeight; // Force reflow
+                        containerWidth = getElementWidth(container);
                     }
                 }
                 
@@ -156,20 +174,27 @@
                                             timeoutId = null;
                                         }
                                         
-                                        // Monitor if ad loads - if not, hide container after timeout
-                                        setTimeout(function() {
+                                        // Monitor if ad loads - check multiple times
+                                        var checkCount = 0;
+                                        var maxChecks = 10; // Check for 10 seconds (10 * 1000ms)
+                                        var checkInterval = setInterval(function() {
+                                            checkCount++;
                                             var adContent = adElement.querySelector('iframe');
                                             var hasContent = adElement.innerHTML.trim().length > 0;
                                             var hasHeight = adElement.offsetHeight >= 50;
                                             
-                                            console.log('AdSense check - Has iframe:', !!adContent, 'Has content:', hasContent, 'Has height:', hasHeight, 'Height:', adElement.offsetHeight);
+                                            console.log('AdSense check #' + checkCount + ' - Has iframe:', !!adContent, 'Has content:', hasContent, 'Has height:', hasHeight, 'Height:', adElement.offsetHeight);
                                             
-                                            if (!adContent && (!hasContent || !hasHeight)) {
-                                                console.warn('AdSense: Ad did not load after 5 seconds, hiding container');
+                                            if (adContent || (hasContent && hasHeight)) {
+                                                console.log('AdSense: Ad loaded successfully!');
+                                                clearInterval(checkInterval);
+                                            } else if (checkCount >= maxChecks) {
+                                                console.warn('AdSense: Ad did not load after ' + (maxChecks) + ' seconds, hiding container');
                                                 container.style.display = 'none';
                                                 container.style.visibility = 'hidden';
+                                                clearInterval(checkInterval);
                                             }
-                                        }, 5000);
+                                        }, 1000);
                                     } else {
                                         console.warn('AdSense: Width too small after setup. Container:', finalContainerWidth, 'px, Ad:', finalAdWidth, 'px');
                                         // Reset initialized flag to try again
