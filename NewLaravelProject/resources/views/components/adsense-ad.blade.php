@@ -4,7 +4,7 @@
     @php
         $uniqueId = 'adsense-' . uniqid();
     @endphp
-    <div class="adsense-container" id="container-{{ $uniqueId }}" style="min-height: 100px; width: 100%; display: none; position: relative; box-sizing: border-box;">
+    <div class="adsense-container" id="container-{{ $uniqueId }}" style="min-height: 100px; width: 100%; display: block; position: relative; box-sizing: border-box; visibility: visible; opacity: 1;">
         <ins class="adsbygoogle"
              id="ad-{{ $uniqueId }}"
              style="display:block; width: 100%; min-width: 300px; box-sizing: border-box;"
@@ -159,6 +159,7 @@
                                         // Make container visible before initializing
                                         container.style.display = 'block';
                                         container.style.visibility = 'visible';
+                                        container.style.opacity = '1';
                                         
                                         (adsbygoogle = window.adsbygoogle || []).push({});
                                         initialized = true;
@@ -176,20 +177,51 @@
                                         
                                         // Monitor if ad loads - check multiple times
                                         var checkCount = 0;
-                                        var maxChecks = 10; // Check for 10 seconds (10 * 1000ms)
+                                        var maxChecks = 15; // Check for 15 seconds
+                                        var adLoaded = false;
                                         var checkInterval = setInterval(function() {
                                             checkCount++;
                                             var adContent = adElement.querySelector('iframe');
+                                            var adStatus = adElement.getAttribute('data-ad-status');
                                             var hasContent = adElement.innerHTML.trim().length > 0;
                                             var hasHeight = adElement.offsetHeight >= 50;
                                             
-                                            console.log('AdSense check #' + checkCount + ' - Has iframe:', !!adContent, 'Has content:', hasContent, 'Has height:', hasHeight, 'Height:', adElement.offsetHeight);
+                                            console.log('AdSense check #' + checkCount + ' - Has iframe:', !!adContent, 'Ad status:', adStatus, 'Has content:', hasContent, 'Has height:', hasHeight, 'Height:', adElement.offsetHeight);
                                             
-                                            if (adContent || (hasContent && hasHeight)) {
-                                                console.log('AdSense: Ad loaded successfully!');
-                                                clearInterval(checkInterval);
-                                            } else if (checkCount >= maxChecks) {
-                                                console.warn('AdSense: Ad did not load after ' + (maxChecks) + ' seconds, hiding container');
+                                            // Check if ad has loaded (iframe exists and status is not 'unfilled')
+                                            if (adContent && adStatus && adStatus !== 'unfilled') {
+                                                if (!adLoaded) {
+                                                    console.log('AdSense: Ad loaded successfully with status:', adStatus);
+                                                    adLoaded = true;
+                                                    // Ensure container is visible
+                                                    container.style.display = 'block';
+                                                    container.style.visibility = 'visible';
+                                                    container.style.opacity = '1';
+                                                }
+                                                // Stop checking after ad is confirmed loaded
+                                                if (checkCount >= 3) {
+                                                    clearInterval(checkInterval);
+                                                }
+                                            } else if (adContent && adStatus === 'unfilled' && checkCount >= 5) {
+                                                // If status is 'unfilled' after 5 checks, it likely won't fill
+                                                console.warn('AdSense: Ad status is "unfilled" - no ads available to show. This is normal if:');
+                                                console.warn('1. Account is not approved yet');
+                                                console.warn('2. No valid Slot ID provided');
+                                                console.warn('3. Ad blocker is active');
+                                                console.warn('4. Test mode without Slot ID may not show content');
+                                                
+                                                // Keep container visible but log the issue
+                                                container.style.display = 'block';
+                                                container.style.visibility = 'visible';
+                                                container.style.opacity = '1';
+                                                
+                                                // Optionally hide after more time if still unfilled
+                                                if (checkCount >= maxChecks) {
+                                                    console.warn('AdSense: Still unfilled after ' + maxChecks + ' seconds. Container will remain visible but empty.');
+                                                    clearInterval(checkInterval);
+                                                }
+                                            } else if (checkCount >= maxChecks && !adContent) {
+                                                console.warn('AdSense: No iframe found after ' + (maxChecks) + ' seconds, hiding container');
                                                 container.style.display = 'none';
                                                 container.style.visibility = 'hidden';
                                                 clearInterval(checkInterval);

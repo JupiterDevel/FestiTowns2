@@ -107,11 +107,10 @@
                 <!-- AdSense Advertisement -->
                 <div class="mb-4">
                     <x-adsense-ad 
-                        clientId="ca-pub-5837712015612104" 
-                        slotId="6300978111"
+                        clientId="ca-pub-3940256099942544" 
                         type="display"
                         style="display:block; min-height: 250px; width: 100%;"
-                        format="horizontal"
+                        format="auto"
                         testMode="true"
                     />
                 </div>
