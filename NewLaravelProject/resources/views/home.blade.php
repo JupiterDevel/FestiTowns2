@@ -13,6 +13,16 @@
             margin-top: 0 !important;
         }
         
+        /* Remove all spacing from main to footer on home page */
+        main {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        main > * {
+            margin-bottom: 0 !important;
+        }
+        
         /* Hero banner - no margin, adheres to navbar */
         .hero-banner {
             margin: 0 !important;
@@ -26,6 +36,9 @@
             padding: 0 !important;
             margin-top: 0 !important;
             margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+            background: transparent;
+            position: relative;
         }
         
         /* Results map section - no spacing */
@@ -34,6 +47,16 @@
             padding: 0 !important;
             margin-top: 0 !important;
             margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Ensure no spacing from any wrapper to footer */
+        main .container-fluid,
+        main .container-fluid.px-0,
+        main #map-search-section,
+        main .results-map-section {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
         }
         
         /* Map section - no spacing */
@@ -44,16 +67,51 @@
             margin-bottom: 0 !important;
         }
         
-        /* Footer - remove top margin on home page (override Bootstrap mt-5) but add padding-top for spacing */
+        /* Footer - remove all spacing on home page */
         body > footer.mt-5,
         body > footer {
             margin-top: 0 !important;
-            padding-top: 1rem !important;
+            padding-top: 0 !important;
         }
         
         /* Ensure no gap between main and footer */
         main + footer {
             margin-top: 0 !important;
+        }
+        
+        /* Remove any spacing from results-map-section to footer */
+        .results-map-section + footer,
+        #map-search-section + footer,
+        .container-fluid + footer,
+        .container-fluid.px-0 + footer,
+        main + footer,
+        body > footer {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        
+        /* Remove all spacing from container-fluid */
+        .container-fluid.px-0 {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        /* Ensure results-map-section has no bottom spacing */
+        #map-search-section {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+            background: transparent !important;
+        }
+        
+        /* Remove spacing from results-map-container */
+        .results-map-container {
+            margin-bottom: 0 !important;
+        }
+        
+        /* Ensure footer has no top spacing */
+        footer {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
         }
         
         /* Remove any whitespace/spacing from navbar */
@@ -62,119 +120,174 @@
         }
     </style>
     
-    <!-- Hero Section with Integrated Search -->
-        <div class="hero-banner">
-            <div class="hero-background" style="background-image: url('/storage/hero-1.png');"></div>
-            <div class="hero-overlay"></div>
-            <div class="hero-content">
-    <div class="container">
-                    <!-- Hero Tagline -->
-                    <div class="hero-tagline text-center mb-4">
-                        <h1 class="text-white fw-bold mb-3 hero-title brand-text" style="font-size: 2.5rem; text-shadow: 0 2px 10px rgba(0,0,0,0.3);">Descubre la magia de las festividades españolas</h1>
-                        <p class="text-white mb-0 hero-subtitle" style="font-size: 1.125rem; opacity: 0.95;">Encuentra las mejores celebraciones y tradiciones en toda España</p>
-        </div>
+    <!-- Hero Section with Integrated Search - Premium Redesign -->
+    <div class="hero-banner">
+        <div class="hero-background" style="background-image: url('/storage/hero-1.png');"></div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="container">
+                <!-- Hero Tagline - Enhanced Typography & Hierarchy -->
+                <div class="hero-tagline text-center">
+                    <h1 class="hero-title brand-text">Descubre la magia de las festividades españolas</h1>
+                    <p class="hero-subtitle">Encuentra las mejores celebraciones y tradiciones en toda España</p>
+                </div>
 
-                    <div class="hero-search-container">
-                        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
-                            <div class="d-flex align-items-center bg-white rounded-pill shadow-lg flex-grow-1 hero-search-bar">
-                        <!-- Search Text Field -->
-                                <input type="text" id="map-search-query" class="form-control border-0 shadow-none flex-grow-1 hero-search-input" 
-                                       placeholder="Nombre de la festividad">
-                                
-                                <!-- Province Dropdown -->
-                                <select id="map-province-filter" class="form-select border-0 shadow-none hero-search-select">
+                <!-- Premium Search Interface -->
+                <div class="hero-search-container">
+                    <div class="hero-search-wrapper">
+                        <!-- Main Search Bar -->
+                        <div class="hero-search-bar">
+                            <!-- Search Text Field -->
+                            <div class="search-input-group">
+                                <i class="bi bi-search search-icon"></i>
+                                <input type="text" id="map-search-query" class="search-input" 
+                                       placeholder="Busca por nombre, lugar o provincia">
+                            </div>
+                            
+                            <!-- Vertical Divider -->
+                            <div class="search-divider"></div>
+                            
+                            <!-- Province Dropdown -->
+                            <div class="search-select-group">
+                                <i class="bi bi-geo-alt-fill select-icon"></i>
+                                <select id="map-province-filter" class="search-select">
                                     <option value="">Todas las provincias</option>
-                            @foreach(config('provinces.provinces') as $province)
-                                <option value="{{ $province }}">{{ $province }}</option>
-                            @endforeach
-                        </select>
+                                    @foreach(config('provinces.provinces') as $province)
+                                        <option value="{{ $province }}">{{ $province }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+                            <!-- Search Button -->
+                            <button id="map-search-btn" class="search-btn" type="button">
+                                <span class="search-btn-text">Buscar</span>
+                                <i class="bi bi-arrow-right search-btn-icon"></i>
+                            </button>
+                        </div>
                         
-                        <!-- Divider -->
-                                <div class="vr mx-1 hero-search-divider"></div>
-                        
-                        <!-- Search Button -->
-                                <button id="map-search-btn" class="btn btn-primary rounded-pill px-3 py-1 fw-semibold hero-search-btn" type="button">
-                            <i class="bi bi-search"></i>
+                        <!-- Location Button -->
+                        <button id="map-near-me-btn" class="near-me-btn" type="button">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span>Cerca de mí</span>
                         </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results and Map Section - Polished Professional Design -->
+        <div id="map-search-section" class="results-map-section">
+            <!-- Main Content: Results + Map Side-by-Side -->
+            <div class="results-map-container" id="results-map-container">
+                <!-- Results Grid Section -->
+                <div class="results-grid-section">
+                    <div id="map-results-container" class="results-grid-wrapper d-none">
+                        <!-- Professional Results Grid -->
+                        <div id="map-results-grid" class="festivities-grid">
+                            <!-- Festivities cards will be loaded here -->
+                        </div>
+                        
+                        <!-- Loading More Indicator -->
+                        <div id="map-loading-more" class="loading-more-indicator d-none">
+                            <div class="loading-skeleton-grid">
+                                <div class="skeleton-card"></div>
+                                <div class="skeleton-card"></div>
+                                <div class="skeleton-card"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- View All Link -->
+                        <div id="map-view-all" class="view-all-container d-none">
+                            <div class="view-all-wrapper">
+                                <a id="map-view-all-link" href="#" class="view-all-link">
+                                    <span>Ver todas las festividades</span>
+                                    <span class="view-all-count" id="map-total-count">0</span>
+                                    <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
                     </div>
                     
-                            <!-- Location Button -->
-                            <button id="map-near-me-btn" class="btn btn-secondary rounded-pill px-4 py-2 shadow-sm fw-semibold text-nowrap hero-location-btn" type="button" style="background-color: #1FA4A9; color: white;">
-                        <i class="bi bi-geo-alt me-2"></i>Cerca de mí
-                    </button>
-                </div>
-            </div>
-                </div>
-                </div>
-            </div>
-            
-        <div class="container-fluid px-0">
-        <!-- Results and Map Section - Unified Layout -->
-        <div id="map-search-section" class="results-map-section">
-            <!-- Results Header Bar (Fixed at top) -->
-            <div class="results-header-bar">
-                <h6 class="text-center">
-                    Próximas festividades: <span id="map-results-count">0</span>
-                </h6>
-            </div>
-            
-            <!-- Map Section (Full height) -->
-            <div class="map-section">
-                <div id="festivities-map"></div>
-                
-                <!-- Results Section (Overlay on map) -->
-                <div id="map-results-container" class="results-section d-none">
-                    <div class="results-scroll-area">
-                        <div id="map-results-scroll-container" class="position-relative">
-                        <!-- Left scroll button -->
-                        <button id="scroll-left-btn" class="scroll-nav-btn scroll-nav-btn-left d-none d-md-block" type="button" aria-label="Scroll izquierda">
-                            <i class="bi bi-chevron-left"></i>
-                        </button>
-                        <!-- Right scroll button -->
-                        <button id="scroll-right-btn" class="scroll-nav-btn scroll-nav-btn-right d-none d-md-block" type="button" aria-label="Scroll derecha">
-                            <i class="bi bi-chevron-right"></i>
-                        </button>
-                            <!-- Scrollable container -->
-                            <div id="map-results-scroll" class="horizontal-scroll-wrapper">
-                        <!-- Festivities cards will be loaded here -->
-                    </div>
-                    </div>
-                </div>
-                
-                <div id="map-no-results" class="results-footer d-none">
-                    <div class="d-flex align-items-center justify-content-center py-2 px-3">
-                        <i class="bi bi-info-circle me-2 text-muted"></i>
-                        <small class="text-muted">No se encontraron festividades. Intenta cambiar la provincia o mover el mapa.</small>
-                    </div>
-                </div>
-                <div id="map-loading-more" class="results-footer text-center d-none">
-                    <div class="py-2">
-                        <div class="spinner-border spinner-border-sm text-primary" role="status">
-                            <span class="visually-hidden">Cargando más...</span>
+                    <!-- Professional No Results State -->
+                    <div id="map-no-results" class="no-results-message d-none">
+                        <div class="no-results-content">
+                            <div class="no-results-illustration">
+                                <div class="no-results-icon">
+                                    <i class="bi bi-compass"></i>
+                                </div>
+                                <div class="no-results-shape"></div>
+                            </div>
+                            <h3 class="no-results-title">No encontramos festividades</h3>
+                            <p class="no-results-text">Intenta ajustar tus filtros, mover el mapa o cambiar la búsqueda para ver más resultados.</p>
+                            <div class="no-results-suggestions">
+                                <button class="suggestion-btn" onclick="document.getElementById('map-province-filter').value = ''; document.getElementById('map-province-filter').dispatchEvent(new Event('change'));">
+                                    <i class="bi bi-x-circle"></i>
+                                    <span>Limpiar filtros</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div id="map-view-all" class="results-footer text-center d-none">
-                    <div class="py-2 px-3">
-                        <a id="map-view-all-link" href="#" class="text-decoration-none text-primary fw-semibold view-all-link">
-                            Ver todas las festividades (<span id="map-total-count">0</span>) →
-                        </a>
+                
+                <!-- Polished Map Section -->
+                <div class="map-section" id="map-section">
+                    <div class="map-header">
+                        <button class="map-close-btn" id="map-close-btn" type="button" aria-label="Cerrar mapa">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                    <div id="festivities-map" class="festivities-map-container">
+                        <div class="map-loading-overlay">
+                            <div class="map-loading-spinner"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-            </div>
     </div>
 
     <style>
-        /* Hero Banner with Background Image */
+        /* ============================================
+           PREMIUM HOME PAGE REDESIGN
+           Design System: Trustworthy, Editorial, Discoverable, Scalable
+           ============================================ */
+        
+        /* Design Tokens */
+        :root {
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 1rem;
+            --spacing-lg: 1.5rem;
+            --spacing-xl: 2rem;
+            --spacing-2xl: 3rem;
+            --spacing-3xl: 4rem;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 24px;
+            --radius-full: 9999px;
+            
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+            --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* ============================================
+           HERO SECTION - Premium Redesign
+           ============================================ */
         .hero-banner {
             position: relative;
-            height: 320px;
-            overflow: hidden;
+            min-height: 100vh;
+            height: auto;
+            overflow: visible;
             margin: 0;
             padding: 0;
-            background-color: #111827;
+            margin-bottom: -20px;
+            background-color: #0F172A;
+            z-index: 2;
         }
         
         .hero-background {
@@ -186,7 +299,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.9;
+            opacity: 0.75;
         }
         
         .hero-overlay {
@@ -195,150 +308,847 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.85) 65%, rgba(17, 24, 39, 0.95) 100%);
+            background: linear-gradient(
+                180deg,
+                rgba(15, 23, 42, 0.4) 0%,
+                rgba(15, 23, 42, 0.6) 40%,
+                rgba(15, 23, 42, 0.85) 70%,
+                rgba(15, 23, 42, 0.95) 100%
+            );
         }
         
         .hero-content {
             position: relative;
-            height: 100%;
+            flex: 0 0 auto;
             display: flex;
-            align-items: flex-end;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
             z-index: 1;
+            padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-2xl);
         }
         
-        .hero-search-container {
-            width: 100%;
-            padding: 0 1.5rem 2rem;
-        }
-        
-        .hero-search-bar {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.98) !important;
-            min-width: 300px;
+        .hero-tagline {
+            text-align: center;
+            margin: 0 auto var(--spacing-2xl) auto;
             max-width: 900px;
-            padding: 0.5rem 0.75rem;
-            border-radius: 50px !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-        }
-        
-        @media (max-width: 576px) {
-            .hero-search-bar {
-                min-width: auto;
-            }
         }
         
         .hero-title {
-            font-size: 2.5rem;
-            letter-spacing: 0.5px;
-            font-weight: 700;
+            font-size: 3.5rem;
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            color: #FFFFFF;
+            margin: 0 0 var(--spacing-md) 0;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3), 0 4px 40px rgba(0, 0, 0, 0.2);
         }
         
         .hero-subtitle {
+            font-size: 1.25rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 0;
+            text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Premium Search Interface */
+        .hero-search-container {
+            width: 100%;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .hero-search-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-md);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .hero-search-bar {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-radius: var(--radius-full);
+            box-shadow: var(--shadow-2xl), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            padding: var(--spacing-xs);
+            flex: 1;
+            min-width: 320px;
+            max-width: 800px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .hero-search-bar:focus-within {
+            box-shadow: var(--shadow-2xl), 0 0 0 3px rgba(254, 177, 1, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .search-input-group {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            padding: 0 var(--spacing-md);
+        }
+        
+        .search-icon {
             font-size: 1.125rem;
+            color: #6B7280;
+            margin-right: var(--spacing-sm);
+            flex-shrink: 0;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            font-weight: 400;
+            color: #1F2937;
+            padding: var(--spacing-md) 0;
+            outline: none;
+            min-width: 0;
+        }
+        
+        .search-input::placeholder {
+            color: #9CA3AF;
             font-weight: 400;
         }
         
-        .hero-search-input {
+        .search-divider {
+            width: 1px;
+            height: 32px;
+            background: linear-gradient(to bottom, transparent, #E5E7EB, transparent);
+            flex-shrink: 0;
+        }
+        
+        .search-select-group {
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-md);
+            position: relative;
+            min-width: 180px;
+        }
+        
+        .select-icon {
+            font-size: 1rem;
+            color: #1FA4A9;
+            margin-right: var(--spacing-sm);
+            flex-shrink: 0;
+        }
+        
+        .search-select {
+            flex: 1;
+            border: none;
             background: transparent;
-            font-size: 0.875rem;
-            padding: 0.25rem 0.75rem;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1F2937;
+            padding: var(--spacing-md) 0;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236B7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right center;
+            padding-right: var(--spacing-xl);
         }
         
-        .hero-search-select {
-            background: transparent;
-            width: auto;
-            min-width: 140px;
-            font-size: 0.875rem;
-            padding: 0.25rem 0.5rem;
+        .search-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%);
+            color: #FFFFFF;
+            border: none;
+            border-radius: var(--radius-full);
+            padding: var(--spacing-md) var(--spacing-xl);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(254, 177, 1, 0.3);
         }
         
-        .hero-search-divider {
-            height: 20px;
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(254, 177, 1, 0.4);
+            background: linear-gradient(135deg, #F59E0B 0%, #FEB101 100%);
         }
         
-        .hero-search-btn,
-        .hero-location-btn {
-            font-size: 0.875rem;
+        .search-btn:active {
+            transform: translateY(0);
         }
         
-        .view-all-link {
-            font-size: 0.8125rem;
+        .search-btn-icon {
+            font-size: 1.125rem;
         }
         
-        /* Results and Map Section - Unified Layout */
+        .near-me-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            color: #FFFFFF;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: var(--radius-full);
+            padding: var(--spacing-md) var(--spacing-xl);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+        }
+        
+        .near-me-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-1px);
+        }
+        
+        /* ============================================
+           RESULTS SECTION - Complete Professional Redesign
+           ============================================ */
         .results-map-section {
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 260px - 56px + 60px); /* Full height minus hero (260px), navbar (56px), plus extra space (60px) */
-            min-height: 500px;
-            background: #ffffff;
+            height: auto;
+            position: relative;
+            z-index: 1;
+            min-height: auto;
+            max-height: none;
+            background: transparent !important;
             margin: 0;
             padding: 0;
+            margin-top: calc(var(--spacing-3xl) + var(--spacing-2xl) - 20px);
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
             position: relative;
+            z-index: 2;
+            width: 100%;
         }
         
-        /* Results Header Bar - Fixed at top */
-        .results-header-bar {
+        #map-search-section {
+            background: transparent !important;
+        }
+        
+        
+        .results-map-container {
             flex: 0 0 auto;
-            padding: 0.5rem 1.25rem;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(235, 235, 235, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 5;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        
-        .results-header-bar h6 {
-            color: #222 !important;
-            font-weight: 600 !important;
-            font-size: 0.8125rem;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            margin: 0;
-            text-align: center;
-        }
-        
-        /* Map Section - Full height */
-        .map-section {
-            flex: 1 1 auto;
-            position: relative;
+            display: flex !important;
+            flex-direction: row;
             min-height: 0;
-            background: #ffffff;
-            overflow: hidden;
-            margin: 0;
-            padding: 0;
+            overflow: visible;
+            gap: 0;
+            position: relative;
+            height: calc((min(1200px, 100vw - 4rem) - 450px - 2rem) / 3 * 1.2 + 4rem);
+            width: auto;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #0F172A;
+            border-bottom: 1px solid #1E293B;
+            border-radius: 16px;
+            border-bottom-left-radius: 16px;
+            padding-bottom: 1rem;
+        }
+
+        @media (min-width: 1401px) {
+            .results-map-container {
+                height: calc((1200px - 450px - 2rem) / 3 * 1.2 + 4rem);
+            }
+        }
+
+        .results-map-container.map-visible {
+            height: calc((min(1200px, 100vw - 4rem) - 450px - 2rem) / 3 * 1.2 + 4rem);
+        }
+
+        @media (min-width: 1401px) {
+            .results-map-container.map-visible {
+                height: calc((1200px - 450px - 2rem) / 3 * 1.2 + 4rem);
+            }
         }
         
-        /* Results Section - Overlay on map */
-        .results-section {
+        .results-grid-section {
+            flex: 0 0 auto;
+            display: block;
+            background: #FAFAFA;
+            overflow-x: auto;
+            overflow-y: hidden;
+            transition: margin-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            height: calc((min(1200px, 100vw - 4rem) - 450px - 2rem) / 3 * 1.2 + 4rem);
+            max-height: calc((min(1200px, 100vw - 4rem) - 450px - 2rem) / 3 * 1.2 + 4rem);
+            min-width: 0;
+            border-top-left-radius: 16px;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 0;
+            width: auto;
+            min-width: calc(min(1200px, 100vw - 4rem) - 450px);
+            position: relative;
+            padding-bottom: 0;
+            /* Clip scrollbar buttons to respect border-radius - bottom-left corner */
+            clip-path: inset(0 round 16px 0 0 16px);
+        }
+        
+        .results-grid-section::-webkit-scrollbar {
+            height: 12px;
+        }
+        
+        .results-grid-section::-webkit-scrollbar-track {
+            background: #FAFAFA;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 0;
+            /* Ensure track respects border-radius */
+            margin-left: 0;
+            margin-right: 0;
+            margin-bottom: 0;
+            /* Clip the track to respect border-radius */
+            border-bottom-left-radius: 16px;
+        }
+        
+        .results-grid-section::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+        
+        .results-grid-section::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Hide and clip default scrollbar buttons */
+        .results-grid-section::-webkit-scrollbar-button {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+        
+        /* Clip scrollbar buttons if they appear */
+        .results-grid-section::-webkit-scrollbar-button:single-button:horizontal:decrement {
+            clip-path: inset(0 0 0 16px round 0 0 0 16px);
+        }
+        
+        .results-grid-section::-webkit-scrollbar-button:single-button:horizontal:increment {
+            clip-path: none;
+        }
+        
+        /* Firefox scrollbar */
+        .results-grid-section {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.2) #FAFAFA;
+        }
+        
+        @media (min-width: 1401px) {
+            .results-grid-section {
+                height: calc((1200px - 450px - 2rem) / 3 * 1.2 + 4rem);
+                max-height: calc((1200px - 450px - 2rem) / 3 * 1.2 + 4rem);
+                width: calc(1200px - 450px);
+            }
+        }
+
+        .results-map-container.map-visible .results-grid-section {
+            margin-right: 0;
+            height: calc((min(1200px, 100vw - 4rem) - 450px - 2rem) / 3 * 1.2 + 4rem);
+            max-height: calc((min(1200px, 100vw - 4rem) - 450px - 2rem) / 3 * 1.2 + 4rem);
+        }
+
+        @media (min-width: 1401px) {
+            .results-map-container.map-visible .results-grid-section {
+                height: calc((1200px - 450px - 2rem) / 3 * 1.2 + 4rem);
+                max-height: calc((1200px - 450px - 2rem) / 3 * 1.2 + 4rem);
+            }
+        }
+        
+        .results-grid-wrapper {
+            padding: 0.5rem;
+            padding-bottom: 0.25rem;
+            display: block;
+            height: 100%;
+            width: 100%;
+            background: #FAFAFA;
+        }
+        
+        .results-grid-wrapper.scrollable {
+            width: max-content;
+            min-width: 100%;
+        }
+        
+        .festivities-grid {
+            display: grid;
+            grid-template-rows: 1fr;
+            grid-auto-rows: 1fr;
+            gap: 0.75rem;
+            margin-bottom: var(--spacing-md);
+            align-content: stretch;
+            align-items: stretch;
+            width: 100%;
+            height: 100%;
+            padding: 0.25rem;
+        }
+        
+        /* Premium Card Design - Polished */
+        .festivity-grid-card {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .festivity-grid-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15), 0 6px 12px rgba(0, 0, 0, 0.1);
+            border-color: #D1D5DB;
+            text-decoration: none;
+            color: inherit;
+            z-index: 10;
+        }
+        
+        .festivity-grid-card:active {
+            transform: translateY(-3px);
+        }
+        
+        .festivity-grid-card-background {
+            width: 100%;
+            flex: 0 0 68%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%);
+        }
+        
+        .festivity-grid-card:hover .festivity-grid-card-background {
+            transform: scale(1.08);
+        }
+        
+        .festivity-grid-card-overlay {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
+            height: 68%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 0%,
+                rgba(0, 0, 0, 0.05) 60%,
+                rgba(0, 0, 0, 0.2) 80%,
+                rgba(0, 0, 0, 0.4) 100%
+            );
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        /* Polished Card Content */
+        .festivity-grid-card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0.875rem;
+            background: #FFFFFF;
+            z-index: 2;
+            position: relative;
+        }
+        
+        .festivity-grid-card-title {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            color: #111827;
+            margin: 0 0 0.625rem 0;
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            letter-spacing: -0.01em;
+        }
+        
+        .festivity-grid-card-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 0.375rem;
+            margin-top: auto;
+        }
+        
+        .festivity-grid-card-location {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            font-size: 0.8125rem;
+            font-weight: 400;
+            color: #6B7280;
+        }
+        
+        .festivity-grid-card-location i {
+            font-size: 0.8125rem;
+            color: #1FA4A9;
+        }
+        
+        .festivity-grid-card-votes {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            z-index: 10;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 0.375rem 0.625rem;
+            border-radius: 20px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            color: #92400E;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .festivity-grid-card-votes i {
+            color: #F59E0B;
+            font-size: 0.875rem;
+            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.4));
+        }
+        
+        .festivity-grid-card-votes span {
+            color: #92400E;
+            font-weight: 600;
+        }
+        
+        .festivity-grid-card-badge {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            z-index: 3;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            padding: 0.375rem 0.625rem;
+            border-radius: 8px;
+            font-size: 0.6875rem;
+            font-weight: 600;
+            color: #1F2937;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Compact Loading States */
+        .loading-more-indicator {
+            padding: 1.5rem 0;
+        }
+        
+        .loading-skeleton-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+        
+        .skeleton-card {
+            aspect-ratio: 0.75;
+            background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s ease-in-out infinite;
+            border-radius: 12px;
+            border: 1px solid #F3F4F6;
+        }
+        
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* Polished View All Section */
+        .view-all-container {
+            padding: 1.25rem 0;
+            border-top: 1px solid #E5E7EB;
+            margin-top: 0.5rem;
+        }
+        
+        .view-all-wrapper {
+            text-align: center;
+        }
+        
+        .view-all-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.625rem 1.25rem;
+            background: #FFFFFF;
+            border: 1.5px solid #E5E7EB;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        }
+        
+        .view-all-link:hover {
+            border-color: #1FA4A9;
+            background: #F0FDFF;
+            color: #1FA4A9;
+            gap: 0.625rem;
+            box-shadow: 0 2px 4px rgba(31, 164, 169, 0.1);
+            transform: translateY(-1px);
+        }
+        
+        .view-all-count {
+            font-weight: 600;
+            color: #6B7280;
+        }
+        
+        .view-all-link i {
+            font-size: 0.875rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .view-all-link:hover i {
+            transform: translateX(3px);
+        }
+        
+        /* Professional No Results State */
+        .no-results-message {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-3xl);
+            min-height: 500px;
+            min-width: 100%;
+            width: 100%;
+        }
+        
+        .no-results-content {
+            text-align: center;
+            max-width: 480px;
+        }
+        
+        .no-results-illustration {
+            position: relative;
+            width: 160px;
+            height: 160px;
+            margin: 0 auto var(--spacing-2xl);
+        }
+        
+        .no-results-icon {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 8px 24px rgba(254, 177, 1, 0.2);
+        }
+        
+        .no-results-icon i {
+            font-size: 4rem;
+            color: #F59E0B;
+        }
+        
+        .no-results-shape {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            border: 2px dashed #FDE68A;
+            border-radius: 50%;
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0%, 100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+        }
+        
+        .no-results-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #111827;
+            margin: 0 0 var(--spacing-md) 0;
+            letter-spacing: -0.02em;
+        }
+        
+        .no-results-text {
+            font-size: 1rem;
+            color: #6B7280;
+            margin: 0 0 var(--spacing-xl) 0;
+            line-height: 1.6;
+        }
+        
+        .no-results-suggestions {
+            display: flex;
+            justify-content: center;
+            gap: var(--spacing-md);
+        }
+        
+        .suggestion-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-lg);
+            background: #FFFFFF;
+            border: 2px solid #E5E7EB;
+            border-radius: var(--radius-lg);
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .suggestion-btn:hover {
+            border-color: #FEB101;
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .suggestion-btn i {
+            font-size: 1rem;
+        }
+        
+        /* ============================================
+           MAP SECTION - Professional Design
+           ============================================ */
+        .map-section {
+            flex: 0 0 450px !important;
+            position: relative;
+            background: #FFFFFF;
+            border-left: 2px solid #F3F4F6;
+            display: flex !important;
+            flex-direction: column;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            height: calc((min(1200px, 100vw - 4rem) - 450px - 2rem) / 3 * 1.2 + 4rem);
+            opacity: 1 !important;
+            visibility: visible !important;
+            min-width: 450px;
+            width: 450px;
+            box-shadow: -2px 0 8px rgba(0, 0, 0, 0.04);
+            border-top-left-radius: 0;
+            border-top-right-radius: 16px;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 16px;
+        }
+        
+        @media (min-width: 1401px) {
+            .map-section {
+                height: calc((1200px - 450px - 2rem) / 3 * 1.2 + 4rem);
+            }
+        }
+        
+        /* Hide map on mobile by default, show on desktop */
+        @media (max-width: 991px) {
+            .results-map-container:not(.map-visible) .map-section {
+                flex: 0 0 0 !important;
+                border-left: none;
+                overflow: hidden;
+                min-width: 0 !important;
+                width: 0 !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                display: none !important;
+            }
+        }
+        
+        .map-header {
+            flex: 0 0 auto;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: flex-end;
+            align-items: flex-start;
             background: transparent;
-            padding: 0;
-            max-height: 160px;
-            overflow: visible;
+            position: absolute;
+            top: 0;
+            right: 0;
             z-index: 10;
             pointer-events: none;
         }
         
-        .results-section.active {
-            pointer-events: auto;
+        .map-close-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            pointer-events: all;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
         
-        .results-scroll-area {
-            padding: 0.75rem 0;
-            background: transparent;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            pointer-events: auto;
+        .map-close-btn:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #111827;
+            transform: rotate(90deg) scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
+        
+        .festivities-map-container {
+            flex: 1 1 auto;
+            width: 100%;
+            min-height: 0;
+            position: relative;
+            background: #F9FAFB;
+            border-radius: 0;
+        }
+        
+        .map-loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #F3F4F6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--spacing-md);
+            z-index: 1;
+        }
+        
+        .map-loading-overlay.hidden {
+            display: none;
+        }
+        
+        .map-loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #E5E7EB;
+            border-top-color: #1FA4A9;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
         
         #festivities-map {
             width: 100%;
@@ -348,451 +1158,244 @@
             padding: 0;
         }
         
-        /* Ensure body doesn't add extra scroll */
-        body {
-            overflow-x: hidden;
+        /* Polished Card Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
-        .results-footer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            border-top: 1px solid rgba(235, 235, 235, 0.8);
-            background: rgba(250, 250, 250, 0.9);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
-            z-index: 10;
-            pointer-events: auto;
+        .festivity-grid-card {
+            animation: fadeInUp 0.5s cubic-bezier(0.4, 0, 0.2, 1) backwards;
         }
         
-        .results-footer .py-3 {
-            padding-top: 0.5rem !important;
-            padding-bottom: 0.5rem !important;
-        }
+        .festivity-grid-card:nth-child(1) { animation-delay: 0.05s; }
+        .festivity-grid-card:nth-child(2) { animation-delay: 0.1s; }
+        .festivity-grid-card:nth-child(3) { animation-delay: 0.15s; }
+        .festivity-grid-card:nth-child(4) { animation-delay: 0.2s; }
+        .festivity-grid-card:nth-child(5) { animation-delay: 0.25s; }
+        .festivity-grid-card:nth-child(6) { animation-delay: 0.3s; }
+        .festivity-grid-card:nth-child(7) { animation-delay: 0.35s; }
+        .festivity-grid-card:nth-child(8) { animation-delay: 0.4s; }
         
-        /* Horizontal Scroll Container */
-        #map-results-scroll-container {
-            position: relative;
-            padding: 0.75rem 1rem;
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-            min-width: fit-content;
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        
-        @media (max-width: 768px) {
-            #map-results-scroll-container {
-                padding: 0.5rem 0.75rem;
-                border-radius: 10px;
-                max-width: calc(100% - 1rem);
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 1400px) {
+            .festivities-grid {
+                grid-template-columns: repeat(3, 1fr);
             }
             
-            .results-header {
-                padding: 0.75rem 1rem;
+            .results-map-container {
+                max-width: min(1200px, 100vw - 2rem);
             }
             
-            .results-scroll-area {
-                padding: 0.5rem 0.5rem;
+            .results-grid-section {
+                width: calc(min(1200px, 100vw - 2rem) - 450px);
             }
         }
         
-        .horizontal-scroll-wrapper {
-            display: flex;
-            overflow-x: auto;
-            overflow-y: hidden;
-            scroll-behavior: smooth;
-            gap: 1rem;
-            padding: 0;
-            scrollbar-width: thin;
-            -webkit-overflow-scrolling: touch;
-            justify-content: center;
-            align-items: center;
-            min-width: fit-content;
-        }
-        
-        /* Center items when few, left-align when many (handled by JS) */
-        .horizontal-scroll-wrapper.centered {
-            justify-content: center;
-        }
-        
-        .horizontal-scroll-wrapper.scrollable {
-            justify-content: flex-start;
-        }
-        
-        .horizontal-scroll-wrapper::-webkit-scrollbar {
-            height: 4px;
-        }
-        
-        .horizontal-scroll-wrapper::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .horizontal-scroll-wrapper::-webkit-scrollbar-thumb {
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 2px;
-        }
-        
-        /* Scroll Navigation Buttons */
-        .scroll-nav-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: 15;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(221, 221, 221, 0.8);
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            transition: all 0.2s ease;
-            padding: 0;
-            font-size: 0.875rem;
-            color: #222;
-        }
-        
-        .scroll-nav-btn:hover:not(:disabled) {
-            background: #FEB101;
-            border-color: #FEB101;
-            color: white;
-            box-shadow: 0 4px 12px rgba(254, 177, 1, 0.4);
-            transform: translateY(-50%) scale(1.05);
-        }
-        
-        .scroll-nav-btn-left {
-            left: 0.5rem;
-        }
-        
-        .scroll-nav-btn-right {
-            right: 0.5rem;
-        }
-        
-        .scroll-nav-btn:disabled {
-            opacity: 0.25;
-            cursor: not-allowed;
-            background: #f8f9fa;
-        }
-        
-        /* Compact Cards - Professional Design */
-        .horizontal-festivity-card {
-            flex: 0 0 auto;
-            width: 240px;
-            min-width: 240px;
-        }
-        
-        @media (min-width: 576px) {
-            .horizontal-festivity-card {
-                width: 260px;
+        @media (max-width: 1200px) {
+            .festivities-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .map-section {
+                flex: 0 0 400px;
+                min-width: 400px;
+                width: 400px;
+                height: calc((min(100vw - 2rem, 1000px) - 400px - 2rem) / 3 * 1.2 + 4rem);
+            }
+            
+            .results-map-container {
+                max-width: min(100vw - 2rem, 1000px);
+                height: calc((min(100vw - 2rem, 1000px) - 400px - 2rem) / 3 * 1.2 + 4rem);
+            }
+            
+            .results-grid-section {
+                width: calc(min(100vw - 2rem, 1000px) - 400px);
+                height: calc((min(100vw - 2rem, 1000px) - 400px - 2rem) / 3 * 1.2 + 4rem);
+                max-height: calc((min(100vw - 2rem, 1000px) - 400px - 2rem) / 3 * 1.2 + 4rem);
             }
         }
         
-        @media (min-width: 992px) {
-            .horizontal-festivity-card {
-                width: 280px;
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 2.75rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+            
+            .results-map-container {
+                flex-direction: column;
+            }
+            
+            .results-map-container.map-visible .results-grid-section {
+                margin-right: 0;
+                height: auto;
+            }
+            
+            .results-grid-section {
+                height: auto;
+            }
+            
+            .map-section {
+                flex: 0 0 50%;
+                border-left: none;
+                border-top: 1px solid #E5E7EB;
+                height: auto;
+            }
+            
+            .results-map-container:not(.map-visible) .map-section {
+                flex: 0 0 0;
+                border-top: none;
+            }
+            
+            .festivities-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-lg);
+            }
+            
+            .results-grid-wrapper {
+                padding: 0.5rem;
             }
         }
         
-        .festivity-card-compact {
-            border: none;
-            border-radius: 16px;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            text-decoration: none;
-            color: inherit;
-            position: relative;
-        }
-        
-        .festivity-card-compact::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            border-radius: 16px;
-            padding: 1px;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(0,0,0,0.05));
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .festivity-card-compact:hover {
-            box-shadow: 0 12px 28px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-6px) scale(1.02);
-            text-decoration: none;
-            color: inherit;
-        }
-        
-        .festivity-card-compact:hover::before {
-            opacity: 1;
-        }
-        
-        .festivity-card-image-wrapper {
-            position: relative;
-            width: 100%;
-            height: 180px;
-            overflow: hidden;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .festivity-card-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .festivity-card-compact:hover .festivity-card-image {
-            transform: scale(1.08);
-        }
-        
-        .festivity-card-image-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
-            pointer-events: none;
-        }
-        
-        .festivity-card-body {
-            padding: 1rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background: white;
-        }
-        
-        .festivity-card-title {
-            font-size: 0.98rem;
-            font-weight: 700;
-            color: #1a1a1a;
-            margin: 0 0 0.75rem 0;
-            line-height: 1.4;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            letter-spacing: -0.01em;
-        }
-        
-        .festivity-card-meta {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .festivity-card-province-badge {
-            display: inline-block;
-            padding: 0.25rem 0.625rem;
-            background: linear-gradient(135deg, #F2B705 0%, #E5A805 100%);
-            color: white;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 0.02em;
-            width: fit-content;
-            box-shadow: 0 2px 4px rgba(242, 183, 5, 0.3);
-        }
-        
-        .festivity-card-date {
-            font-size: 0.8rem;
-            color: #666;
-            margin: 0;
-            line-height: 1.4;
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-        }
-        
-        .festivity-card-date i {
-            color: #999;
-            font-size: 0.875rem;
-        }
-        
-        .festivity-card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: auto;
-            padding-top: 0.75rem;
-            border-top: 1px solid #f0f0f0;
-        }
-        
-        .festivity-card-rating {
-            display: flex;
-            align-items: center;
-            gap: 0.375rem;
-            font-size: 0.78rem;
-            color: #1a1a1a;
-            font-weight: 600;
-        }
-        
-        .festivity-card-rating i {
-            color: #F59E0B;
-            font-size: 0.875rem;
-            filter: drop-shadow(0 1px 2px rgba(245, 158, 11, 0.3));
-        }
-        
-        .festivity-card-action {
-            color: #F2B705;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        
-        .festivity-card-compact:hover .festivity-card-action {
-            opacity: 1;
-        }
-        
-        /* Responsive adjustments */
         @media (max-width: 768px) {
             .hero-banner {
-                height: 280px;
+                height: 420px;
             }
             
             .hero-content {
-                padding: 1.5rem 0 1rem;
+                padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-xl);
             }
             
-            .hero-tagline h2 {
-                font-size: 1.25rem !important;
+            .hero-title {
+                font-size: 2.25rem;
+                margin-bottom: var(--spacing-sm);
             }
             
-            .hero-tagline p {
-                font-size: 0.875rem !important;
+            .hero-subtitle {
+                font-size: 1rem;
             }
             
-            .hero-search-container {
-                padding: 0 1rem;
+            .hero-tagline {
+                margin-bottom: var(--spacing-xl);
+            }
+            
+            .hero-search-wrapper {
+                flex-direction: column;
+                align-items: stretch;
             }
             
             .hero-search-bar {
-                flex-direction: column;
-                border-radius: 16px !important;
-                gap: 0.5rem;
-                padding: 0.5rem !important;
-                min-width: auto !important;
-                max-width: 100% !important;
+                min-width: auto;
+                max-width: 100%;
+                border-radius: var(--radius-xl);
+                padding: var(--spacing-sm);
             }
             
-            .hero-search-bar .vr {
+            .search-input-group,
+            .search-select-group {
+                padding: 0 var(--spacing-sm);
+            }
+            
+            .search-divider {
                 display: none;
             }
             
-            .hero-search-select {
-                width: 100% !important;
-                min-width: auto !important;
+            .search-select-group {
+                border-top: 1px solid #E5E7EB;
+                padding-top: var(--spacing-sm);
+                margin-top: var(--spacing-xs);
+                min-width: auto;
             }
             
-            #map-near-me-btn {
+            .search-btn {
                 width: 100%;
-                margin-top: 0.5rem;
+                justify-content: center;
+                margin-top: var(--spacing-sm);
             }
             
+            .near-me-btn {
+                width: 100%;
+                justify-content: center;
+            }
             
             .results-map-section {
-                height: calc(100vh - 240px - 56px + 60px);
-                min-height: 500px;
-                padding: 0;
+                height: auto;
+                min-height: auto;
             }
             
-            .results-section {
-                max-height: 140px;
+            
+            .results-grid-wrapper {
+                padding: 0.5rem;
             }
             
-            .results-header-bar {
-                padding: 0.5rem 1rem;
+            .festivities-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
             }
             
-            .results-header {
-                padding: 0.5rem 1rem;
+            .map-section {
+                flex: 0 0 50%;
+                height: auto;
+                border-top-right-radius: 0;
+                border-top-left-radius: 0;
+                border-bottom-right-radius: 16px;
+                border-bottom-left-radius: 0;
             }
             
-            .results-scroll-area {
-                padding: 0.375rem 0;
+            .results-grid-section {
+                height: auto;
+                border-top-left-radius: 16px;
+                border-top-right-radius: 16px;
+                border-bottom-left-radius: 0;
+                border-bottom-right-radius: 0;
             }
             
-            .festivity-card-image-wrapper {
-                height: 160px;
-            }
-            
-            .horizontal-festivity-card {
-                width: 220px;
+            .loading-skeleton-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
             }
         }
         
         @media (max-width: 576px) {
             .hero-banner {
-                height: 260px;
+                height: 380px;
             }
             
-            .hero-content {
-                padding: 1.25rem 0 0.875rem;
+            .hero-title {
+                font-size: 1.875rem;
             }
             
-            .hero-tagline {
-                margin-bottom: 1rem !important;
-            }
-            
-            .hero-tagline h2 {
-                font-size: 1.125rem !important;
-            }
-            
-            .hero-tagline p {
-                font-size: 0.8125rem !important;
+            .hero-subtitle {
+                font-size: 0.9375rem;
             }
             
             .results-map-section {
-                height: calc(100vh - 220px - 56px + 60px);
-                min-height: 450px;
-                padding: 0;
+                height: auto;
+                min-height: auto;
             }
             
-            .results-section {
-                max-height: 140px;
+            .results-header-title {
+                font-size: 1rem;
             }
             
-            .scroll-nav-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 0.75rem;
+            .results-grid-wrapper {
+                padding: 0.375rem;
             }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        #map-results-container {
-            animation: fadeIn 0.3s ease-in;
+            
+            .festivities-grid {
+                gap: 0.625rem;
+            }
         }
     </style>
 
@@ -805,49 +1408,36 @@
             const searchBtn = document.getElementById('map-search-btn');
             const nearMeBtn = document.getElementById('map-near-me-btn');
             const resultsContainer = document.getElementById('map-results-container');
+            const resultsGrid = document.getElementById('map-results-grid');
             const resultsCount = document.getElementById('map-results-count');
-            const resultsDisplayed = document.getElementById('map-results-displayed');
             const noResultsAlert = document.getElementById('map-no-results');
             const loadingMore = document.getElementById('map-loading-more');
-            const scrollContainer = document.getElementById('map-results-scroll');
-            const scrollLeftBtn = document.getElementById('scroll-left-btn');
-            const scrollRightBtn = document.getElementById('scroll-right-btn');
             
             let map = null;
             let markers = [];
             let currentFestivities = [];
             let filteredFestivities = [];
             let displayedCount = 0;
-            let itemsPerLoad = 3; // Load 3 more items each time
-            const MAX_DISPLAYED = 20; // Maximum number of festivities to show
+            let itemsPerLoad = 16; // Load 16 items at a time (4x4 grid)
+            const MAX_DISPLAYED = 32; // Maximum number of festivities to show (2 grids)
             const madridCenter = { lat: 40.4168, lng: -3.7038 };
             const mapKey = '{{ config('services.google.maps_key') }}';
             const viewAllLink = document.getElementById('map-view-all-link');
             const viewAllContainer = document.getElementById('map-view-all');
             const mapTotalCount = document.getElementById('map-total-count');
+            
+            // Initialize viewAllContainer reference
+            if (!viewAllContainer) {
+                // Will be set when DOM is ready
+            }
             let geocoder = null;
             let isSearching = false;
             
-            // Calculate responsive padding for map (camera centered higher than marked point)
+            // Calculate responsive padding for map
             // Moved outside initMap to be accessible from other functions
             const getMapPadding = () => {
-                // Calculate approximate map height based on viewport
-                const heroHeight = window.innerWidth <= 576 ? 220 : (window.innerWidth <= 768 ? 240 : 260);
-                const navbarHeight = 56;
-                const mapHeight = window.innerHeight - heroHeight - navbarHeight;
-                
-                // To position camera higher than the marked point:
-                // padding.bottom pushes the visual center UP, showing more area below the point
-                // Increased padding for more visible effect
-                const paddingBottom = mapHeight * 0.4; // 40% of map height for more dramatic shift
-                
-                if (window.innerWidth <= 576) {
-                    return { top: 0, right: 0, bottom: Math.round(paddingBottom), left: 0 }; // Mobile
-                } else if (window.innerWidth <= 768) {
-                    return { top: 0, right: 0, bottom: Math.round(paddingBottom), left: 0 }; // Tablet
-                } else {
-                    return { top: 0, right: 0, bottom: Math.round(paddingBottom), left: 0 }; // Desktop
-                }
+                // With the new side-by-side layout, map is smaller, so minimal padding
+                return { top: 0, right: 0, bottom: 0, left: 0 };
             };
             
             // Initialize Google Map
@@ -855,6 +1445,12 @@
                 if (typeof google === 'undefined' || !google.maps) {
                     console.error('Google Maps not loaded');
                     return;
+                }
+                
+                // Hide map loading overlay
+                const mapLoadingOverlay = document.querySelector('.map-loading-overlay');
+                if (mapLoadingOverlay) {
+                    mapLoadingOverlay.classList.add('hidden');
                 }
                 
                 // Custom map styles with warm, colorful palette (orange predominant with complementary colors)
@@ -1082,8 +1678,8 @@
                         // Clear everything before displaying new results to ensure clean state
                         filteredFestivities = [];
                         displayedCount = 0;
-                        if (scrollContainer) {
-                            scrollContainer.innerHTML = '';
+                        if (resultsGrid) {
+                            resultsGrid.innerHTML = '';
                         }
                         // Always display results with reset=true to start fresh
                         // displayMapResults will handle filtering by search query and marker updates
@@ -1118,7 +1714,7 @@
                             content: `
                                 <div style="padding: 10px; max-width: 250px;">
                                     <h6 class="fw-bold mb-2">${festivity.name}</h6>
-                                    <p class="small mb-1"><i class="bi bi-geo-alt"></i> ${festivity.locality.name || ''}</p>
+                                    <p class="small mb-1"><i class="bi bi-geo-alt"></i> ${festivity.locality?.name || ''}</p>
                                     <p class="small mb-2"><i class="bi bi-calendar"></i> ${festivity.start_date}</p>
                                     <a href="${festivity.url}" class="btn btn-sm btn-primary">Ver Más</a>
                                 </div>
@@ -1132,6 +1728,12 @@
                         markers.push(marker);
                     }
                 });
+                
+                // Update marker count display
+                const mapMarkerCount = document.getElementById('map-marker-count');
+                if (mapMarkerCount) {
+                    mapMarkerCount.textContent = markers.length;
+                }
             }
             
             // Normalize text for accent-insensitive search (matches PHP normalizeText)
@@ -1365,13 +1967,12 @@
                 return sorted;
             }
             
-            // Display results with horizontal scroll and pagination
+            // Display results in grid layout
             function displayMapResults(festivities, reset = true) {
                 if (!festivities || festivities.length === 0) {
-                    resultsContainer.classList.add('d-none');
-                    resultsContainer.classList.remove('active');
-                    noResultsAlert.classList.remove('d-none');
-                    scrollContainer.innerHTML = '';
+                    if (resultsContainer) resultsContainer.classList.add('d-none');
+                    if (noResultsAlert) noResultsAlert.classList.remove('d-none');
+                    if (resultsGrid) resultsGrid.innerHTML = '';
                     filteredFestivities = [];
                     displayedCount = 0;
                     return;
@@ -1382,37 +1983,7 @@
                 
                 // Always filter by current query
                 if (query) {
-                    // Debug: log first festivity to check province structure
-                    if (festivities.length > 0 && console && console.log) {
-                        const first = festivities[0];
-                        console.log('First festivity structure:', {
-                            name: first.name,
-                            province: first.province,
-                            locality: first.locality,
-                            localityProvince: first.locality?.province,
-                            allKeys: Object.keys(first)
-                        });
-                        console.log('Searching for:', query);
-                        console.log('Normalized search term:', normalizeText(query));
-                        // Check a few festivities to see province structure
-                        const sampleProvinces = festivities.slice(0, 5).map(f => ({
-                            name: f.name,
-                            province: f.province,
-                            localityProvince: f.locality?.province
-                        }));
-                        console.log('Sample provinces:', sampleProvinces);
-                    }
                     filteredFestivities = searchFestivities(festivities, query);
-                    if (console && console.log) {
-                        console.log('Filtered results:', filteredFestivities.length, 'out of', festivities.length);
-                        if (filteredFestivities.length > 0) {
-                            console.log('First filtered result:', {
-                                name: filteredFestivities[0].name,
-                                province: filteredFestivities[0].province,
-                                localityProvince: filteredFestivities[0].locality?.province
-                            });
-                        }
-                    }
                 } else {
                     filteredFestivities = festivities;
                 }
@@ -1420,12 +1991,9 @@
                 // Always reset when explicitly resetting - this ensures clean state
                 if (reset) {
                     // Clear container immediately to remove ALL old cards
-                    scrollContainer.innerHTML = '';
+                    if (resultsGrid) resultsGrid.innerHTML = '';
                     displayedCount = 0;
                     filteredFestivities = query ? searchFestivities(festivities, query) : festivities;
-                    
-                    // Reset centering
-                    scrollContainer.classList.remove('centered', 'scrollable');
                     
                     // Update markers with all festivities in visible area
                     updateMapMarkers(festivities);
@@ -1433,46 +2001,28 @@
                 
                 if (filteredFestivities.length === 0) {
                     // Hide results container but keep it in DOM for when results appear
-                    resultsContainer.classList.add('d-none');
-                    resultsContainer.classList.remove('active');
+                    if (resultsContainer) resultsContainer.classList.add('d-none');
                     // Show "no results" message
-                    noResultsAlert.classList.remove('d-none');
-                    loadingMore.classList.add('d-none');
-                    viewAllContainer.classList.add('d-none');
-                    resultsCount.textContent = '0';
-                    if (resultsDisplayed) resultsDisplayed.textContent = '0';
-                    scrollContainer.innerHTML = '';
-                    scrollContainer.classList.remove('centered', 'scrollable');
-                    updateScrollButtons();
-                    // Don't clear markers - keep them to show where festivities are
-                    // markers.forEach(marker => marker.setMap(null));
-                    // markers = [];
+                    if (noResultsAlert) noResultsAlert.classList.remove('d-none');
+                    if (loadingMore) loadingMore.classList.add('d-none');
+                    if (viewAllContainer) viewAllContainer.classList.add('d-none');
+                    if (resultsCount) resultsCount.textContent = '0';
+                    if (resultsGrid) resultsGrid.innerHTML = '';
+                    updateGridColumns();
                     return;
                 }
                 
-                noResultsAlert.classList.add('d-none');
-                resultsContainer.classList.remove('d-none');
-                resultsContainer.classList.add('active');
-                resultsCount.textContent = filteredFestivities.length;
+                if (noResultsAlert) noResultsAlert.classList.add('d-none');
+                if (resultsContainer) resultsContainer.classList.remove('d-none');
+                if (resultsCount) resultsCount.textContent = filteredFestivities.length;
                 
                 // Calculate how many to show (initial load or load more)
-                // On initial load, show enough to fill the visible area (at least 3)
                 const initialLoad = displayedCount === 0;
                 let cardsToShow;
                 
                 if (initialLoad) {
-                    // Determine screen size and show appropriate initial amount
-                    const isMobile = window.innerWidth < 576;
-                    const isTablet = window.innerWidth >= 576 && window.innerWidth < 992;
-                    
-                    if (isMobile) {
-                        cardsToShow = 3; // Show 3 cards on mobile (user scrolls to see them)
-                    } else if (isTablet) {
-                        cardsToShow = 4; // Show 4 cards on tablet
-                    } else {
-                        cardsToShow = 6; // Show 6 cards on desktop (2 rows of 3)
-                    }
-                    cardsToShow = Math.min(cardsToShow, filteredFestivities.length);
+                    // Show 16 cards initially (4x4 grid)
+                    cardsToShow = Math.min(16, filteredFestivities.length);
                 } else {
                     cardsToShow = itemsPerLoad;
                 }
@@ -1482,52 +2032,138 @@
                 const endIndex = Math.min(displayedCount + cardsToShow, maxIndex);
                 
                 // Show loading indicator if loading more (and not at max)
-                if (!initialLoad && endIndex < maxIndex) {
+                if (!initialLoad && endIndex < maxIndex && loadingMore) {
                     loadingMore.classList.remove('d-none');
-                } else {
+                } else if (loadingMore) {
                     loadingMore.classList.add('d-none');
                 }
                 
-                // Add cards
+                // Add cards to grid
                 for (let i = displayedCount; i < endIndex; i++) {
                     const festivity = filteredFestivities[i];
                     const card = createFestivityCard(festivity);
-                    scrollContainer.appendChild(card);
+                    if (resultsGrid) resultsGrid.appendChild(card);
                 }
                 
                 displayedCount = endIndex;
-                if (resultsDisplayed) resultsDisplayed.textContent = displayedCount;
-                mapTotalCount.textContent = filteredFestivities.length;
-                
-                // Update centering based on number of cards
-                updateCardsCentering();
-                updateScrollButtons();
+                if (mapTotalCount) mapTotalCount.textContent = filteredFestivities.length;
                 
                 // Show "View All" link if we've reached the max or if there are more results
-                if (displayedCount >= MAX_DISPLAYED && filteredFestivities.length > MAX_DISPLAYED) {
-                    viewAllContainer.classList.remove('d-none');
-                    removeScrollListener();
-                    updateViewAllLink();
-                } else if (displayedCount >= filteredFestivities.length) {
-                    viewAllContainer.classList.add('d-none');
-                    removeScrollListener();
-                } else if (displayedCount < MAX_DISPLAYED) {
-                    viewAllContainer.classList.add('d-none');
+                if (viewAllContainer) {
+                    if (displayedCount >= MAX_DISPLAYED && filteredFestivities.length > MAX_DISPLAYED) {
+                        viewAllContainer.classList.remove('d-none');
+                        updateViewAllLink();
+                    } else if (displayedCount >= filteredFestivities.length) {
+                        viewAllContainer.classList.add('d-none');
+                    } else {
+                        viewAllContainer.classList.add('d-none');
+                    }
+                }
+                
+                // Add scroll listener for infinite scroll
+                if (displayedCount < MAX_DISPLAYED && displayedCount < filteredFestivities.length) {
                     addScrollListener();
                 } else {
-                    viewAllContainer.classList.add('d-none');
                     removeScrollListener();
+                }
+                
+                // Update grid columns based on number of cards (max 3, min 1)
+                updateGridColumns();
+                
+            }
+            
+            // Update grid columns and container width based on number of visible cards
+            function updateGridColumns() {
+                if (!resultsGrid || !resultsGridSection) return;
+                const cardCount = resultsGrid.children.length;
+                const gap = 12; // 0.75rem = 12px
+                const padding = 16; // 0.5rem * 2 = 16px total padding
+                
+                // Calculate card width based on container - siempre el mismo tamaño
+                const maxContainerWidth = Math.min(1200, window.innerWidth - 64); // 1200px or viewport - 4rem
+                const mapWidth = 450;
+                const availableWidth = maxContainerWidth - mapWidth - 32; // minus 2rem gap
+                const cardWidth = (availableWidth - (gap * 2) - padding) / 3; // 3 cards with 2 gaps
+                
+                const gridWrapper = resultsGrid.parentElement;
+                
+                if (cardCount === 0) {
+                    // No cards - resetear todo
+                    resultsGrid.style.gridTemplateColumns = '';
+                    resultsGrid.style.width = '';
+                    resultsGrid.style.minWidth = '';
+                    resultsGridSection.style.width = '';
+                    resultsGridSection.style.minWidth = '';
+                    resultsGridSection.style.maxWidth = '';
+                    if (gridWrapper) {
+                        gridWrapper.style.width = '';
+                        gridWrapper.style.minWidth = '';
+                        gridWrapper.classList.remove('scrollable');
+                    }
+                } else if (cardCount === 1) {
+                    // 1 card - contenedor se ajusta al ancho de 1 card
+                    const containerWidth = cardWidth + padding;
+                    resultsGridSection.style.width = `${containerWidth}px`;
+                    resultsGridSection.style.minWidth = `${containerWidth}px`;
+                    resultsGridSection.style.maxWidth = `${containerWidth}px`;
+                    
+                    resultsGrid.style.gridTemplateColumns = `${cardWidth}px`;
+                    resultsGrid.style.width = '';
+                    resultsGrid.style.minWidth = '';
+                    
+                    if (gridWrapper) {
+                        gridWrapper.style.width = '';
+                        gridWrapper.style.minWidth = '';
+                        gridWrapper.classList.remove('scrollable');
+                    }
+                    
+                } else if (cardCount === 2) {
+                    // 2 cards - contenedor se ajusta al ancho de 2 cards
+                    const containerWidth = (cardWidth * 2) + gap + padding;
+                    resultsGridSection.style.width = `${containerWidth}px`;
+                    resultsGridSection.style.minWidth = `${containerWidth}px`;
+                    resultsGridSection.style.maxWidth = `${containerWidth}px`;
+                    
+                    resultsGrid.style.gridTemplateColumns = `repeat(2, ${cardWidth}px)`;
+                    resultsGrid.style.width = '';
+                    resultsGrid.style.minWidth = '';
+                    
+                    if (gridWrapper) {
+                        gridWrapper.style.width = '';
+                        gridWrapper.style.minWidth = '';
+                        gridWrapper.classList.remove('scrollable');
+                    }
+                    
+                } else {
+                    // 3+ cards - contenedor mantiene ancho de 3 cards y permite scroll
+                    const containerWidth = (cardWidth * 3) + (gap * 2) + padding;
+                    resultsGridSection.style.width = `${containerWidth}px`;
+                    resultsGridSection.style.minWidth = `${containerWidth}px`;
+                    resultsGridSection.style.maxWidth = `${containerWidth}px`;
+                    
+                    // Calcular ancho total para todas las cards
+                    const totalCardsWidth = (cardWidth * cardCount) + (gap * (cardCount - 1));
+                    const wrapperWidth = totalCardsWidth + padding;
+                    
+                    resultsGrid.style.gridTemplateColumns = `repeat(${cardCount}, ${cardWidth}px)`;
+                    resultsGrid.style.width = `${wrapperWidth}px`;
+                    resultsGrid.style.minWidth = `${wrapperWidth}px`;
+                    
+                    if (gridWrapper) {
+                        gridWrapper.style.width = `${wrapperWidth}px`;
+                        gridWrapper.style.minWidth = `${wrapperWidth}px`;
+                        gridWrapper.style.maxWidth = 'none';
+                        gridWrapper.classList.add('scrollable');
+                    }
+                    
                 }
             }
             
-            // Create compact festivity card
+            // Create professional grid festivity card
             function createFestivityCard(festivity) {
-                const cardWrapper = document.createElement('div');
-                cardWrapper.className = 'horizontal-festivity-card';
-                
                 const card = document.createElement('a');
                 card.href = festivity.url;
-                card.className = 'festivity-card-compact';
+                card.className = 'festivity-grid-card';
                 
                 const startDate = new Date(festivity.start_date);
                 const endDate = festivity.end_date ? new Date(festivity.end_date) : null;
@@ -1535,54 +2171,52 @@
                     ? `${startDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} - ${endDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`
                     : startDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
                 
-                const province = festivity.province || festivity.locality?.province || '';
-                const provinceBadge = province 
-                    ? `<span class="festivity-card-province-badge">${province}</span>`
-                    : '';
+                const votesCount = festivity.votes_count || 0;
+                const localityName = festivity.locality?.name || '';
+                const provinceName = festivity.locality?.province || festivity.province || '';
+                const locationStr = localityName && provinceName 
+                    ? `${localityName}, ${provinceName}`
+                    : localityName || provinceName || 'España';
                 
-                const photoHtml = festivity.photo 
-                    ? `<div class="festivity-card-image-wrapper">
-                           <img src="${festivity.photo}" class="festivity-card-image" alt="${festivity.name}">
-                           <div class="festivity-card-image-overlay"></div>
-                       </div>`
-                    : `<div class="festivity-card-image-wrapper d-flex align-items-center justify-content-center">
-                           <i class="bi bi-calendar-event text-white" style="font-size: 3rem; opacity: 0.6;"></i>
-                           <div class="festivity-card-image-overlay"></div>
-                       </div>`;
+                // Background image or gradient
+                const backgroundImage = festivity.photo 
+                    ? `<img src="${festivity.photo}" class="festivity-grid-card-background" alt="${festivity.name}">`
+                    : '<div class="festivity-grid-card-background"></div>';
+                
+                // Format votes count - always show
+                const votesDisplay = votesCount || 0;
                 
                 card.innerHTML = `
-                    ${photoHtml}
-                    <div class="festivity-card-body">
-                        <h6 class="festivity-card-title">${festivity.name}</h6>
-                        <div class="festivity-card-meta">
-                            ${provinceBadge}
-                            <p class="festivity-card-date">
-                                <i class="bi bi-calendar3"></i>
-                                <span>${dateStr}</span>
-                            </p>
-                        </div>
-                        <div class="festivity-card-footer">
-                            <div class="festivity-card-rating">
-                                <i class="bi bi-heart-fill"></i>
-                                <span>${festivity.votes_count || 0}</span>
+                    ${backgroundImage}
+                    <div class="festivity-grid-card-overlay"></div>
+                    ${votesCount > 10 ? '<div class="festivity-grid-card-badge">Popular</div>' : ''}
+                    <div class="festivity-grid-card-votes">
+                        <i class="bi bi-heart-fill"></i>
+                        <span>${votesDisplay}</span>
+                    </div>
+                    <div class="festivity-grid-card-content">
+                        <h6 class="festivity-grid-card-title">${festivity.name}</h6>
+                        <div class="festivity-grid-card-meta">
+                            <div class="festivity-grid-card-location">
+                                <i class="bi bi-geo-alt-fill"></i>
+                                <span>${locationStr}</span>
                             </div>
-                            <span class="festivity-card-action">Ver más →</span>
                         </div>
                     </div>
                 `;
                 
-                cardWrapper.appendChild(card);
-                return cardWrapper;
+                return card;
             }
             
-            // Infinite scroll listener
+            // Infinite scroll listener for grid
             let scrollListener = null;
+            const resultsGridSection = document.querySelector('.results-grid-section');
             
             function addScrollListener() {
-                if (scrollListener) return;
+                if (scrollListener || !resultsGridSection) return;
                 
                 scrollListener = function() {
-                    const container = scrollContainer;
+                    const container = resultsGridSection;
                     const scrollLeft = container.scrollLeft;
                     const scrollWidth = container.scrollWidth;
                     const clientWidth = container.clientWidth;
@@ -1592,11 +2226,9 @@
                     if (scrollPercentage > 0.8 && displayedCount < MAX_DISPLAYED && displayedCount < filteredFestivities.length) {
                         displayMapResults(currentFestivities, false);
                     }
-                    
-                    updateScrollButtons();
                 };
                 
-                scrollContainer.addEventListener('scroll', scrollListener);
+                resultsGridSection.addEventListener('scroll', scrollListener);
             }
             
             // Update "View All" link with current search parameters
@@ -1621,102 +2253,10 @@
             }
             
             function removeScrollListener() {
-                if (scrollListener) {
-                    scrollContainer.removeEventListener('scroll', scrollListener);
+                if (scrollListener && resultsGridSection) {
+                    resultsGridSection.removeEventListener('scroll', scrollListener);
                     scrollListener = null;
                 }
-            }
-            
-            // Update cards centering based on number of visible cards
-            function updateCardsCentering() {
-                if (!scrollContainer) return;
-                
-                const scrollContainerWrapper = document.getElementById('map-results-scroll-container');
-                if (!scrollContainerWrapper) return;
-                
-                const cards = scrollContainer.querySelectorAll('.horizontal-festivity-card');
-                const cardCount = cards.length;
-                
-                if (cardCount === 0) {
-                    scrollContainer.classList.remove('centered', 'scrollable');
-                    scrollContainerWrapper.style.width = 'auto';
-                    return;
-                }
-                
-                // Wait a tick for cards to render, then calculate actual width
-                setTimeout(() => {
-                    // Calculate actual width of all cards including gaps
-                    let totalCardsWidth = 0;
-                    cards.forEach((card, index) => {
-                        if (card.offsetWidth) {
-                            totalCardsWidth += card.offsetWidth;
-                            if (index < cards.length - 1) {
-                                totalCardsWidth += 16; // gap (1rem)
-                            }
-                        }
-                    });
-                    
-                    const padding = 32; // 1rem on each side (0.75rem + 1rem padding)
-                    const totalWidth = totalCardsWidth + padding;
-                    const maxContainerWidth = window.innerWidth - 64; // Account for margins
-                    
-                    // If all cards fit in max width, wrap to fit content; otherwise allow scroll
-                    if (totalWidth <= maxContainerWidth) {
-                        scrollContainerWrapper.style.width = totalWidth + 'px';
-                        scrollContainerWrapper.style.maxWidth = 'none';
-                        scrollContainer.classList.remove('scrollable');
-                        scrollContainer.classList.add('centered');
-                    } else {
-                        // Allow wrapper to expand to max width when scrolling
-                        scrollContainerWrapper.style.width = '100%';
-                        scrollContainerWrapper.style.maxWidth = maxContainerWidth + 'px';
-                        scrollContainer.classList.remove('centered');
-                        scrollContainer.classList.add('scrollable');
-                    }
-                }, 0);
-            }
-            
-            // Update scroll navigation buttons
-            function updateScrollButtons() {
-                if (!scrollLeftBtn || !scrollRightBtn) return;
-                
-                const container = scrollContainer;
-                const scrollLeft = container.scrollLeft;
-                const scrollWidth = container.scrollWidth;
-                const clientWidth = container.clientWidth;
-                
-                scrollLeftBtn.disabled = scrollLeft <= 10;
-                scrollRightBtn.disabled = scrollLeft + clientWidth >= scrollWidth - 10;
-            }
-            
-            // Scroll navigation button handlers
-            if (scrollLeftBtn) {
-                scrollLeftBtn.addEventListener('click', () => {
-                    scrollContainer.scrollBy({ left: -400, behavior: 'smooth' });
-                });
-            }
-            
-            if (scrollRightBtn) {
-                scrollRightBtn.addEventListener('click', () => {
-                    scrollContainer.scrollBy({ left: 400, behavior: 'smooth' });
-                    // Also check if we need to load more when scrolling right (only if not at max)
-                    if (displayedCount < MAX_DISPLAYED && displayedCount < filteredFestivities.length) {
-                        setTimeout(() => {
-                            if (scrollListener) scrollListener();
-                        }, 400);
-                    }
-                });
-            }
-            
-            // Update scroll buttons on scroll
-            if (scrollContainer) {
-                scrollContainer.addEventListener('scroll', updateScrollButtons);
-                
-                // Update centering on window resize
-                window.addEventListener('resize', function() {
-                    updateCardsCentering();
-                    updateScrollButtons();
-                });
             }
             
             // Get user location and center map
@@ -1966,8 +2506,8 @@
                         if (currentFestivities && currentFestivities.length > 0) {
                             filteredFestivities = [];
                             displayedCount = 0;
-                            if (scrollContainer) {
-                                scrollContainer.innerHTML = '';
+                            if (resultsGrid) {
+                                resultsGrid.innerHTML = '';
                             }
                             displayMapResults(currentFestivities, true);
                             updateViewAllLink();
@@ -1979,8 +2519,8 @@
                     if (currentFestivities && currentFestivities.length > 0) {
                         filteredFestivities = [];
                         displayedCount = 0;
-                        if (scrollContainer) {
-                            scrollContainer.innerHTML = '';
+                        if (resultsGrid) {
+                            resultsGrid.innerHTML = '';
                         }
                         displayMapResults(currentFestivities, true);
                         updateViewAllLink();
@@ -2010,6 +2550,66 @@
                 nearMeBtn.addEventListener('click', getNearMeLocation);
             }
             
+            // Map Close Functionality (mobile only)
+            const mapCloseBtn = document.getElementById('map-close-btn');
+            const resultsMapContainer = document.querySelector('.results-map-container');
+            
+            // Initialize map visibility state (default: visible on desktop, hidden on mobile)
+            let mapVisible = window.innerWidth >= 992;
+            
+            // Set map-visible class on desktop by default
+            if (resultsMapContainer && window.innerWidth >= 992) {
+                resultsMapContainer.classList.add('map-visible');
+                mapVisible = true;
+            }
+            
+            function updateMapVisibility() {
+                if (!resultsMapContainer) return;
+                
+                if (mapVisible) {
+                    resultsMapContainer.classList.add('map-visible');
+                } else {
+                    // Only hide on mobile
+                    if (window.innerWidth < 992) {
+                        resultsMapContainer.classList.remove('map-visible');
+                    }
+                }
+                
+                // Trigger map resize if map exists
+                if (map && typeof google !== 'undefined' && google.maps) {
+                    setTimeout(() => {
+                        google.maps.event.trigger(map, 'resize');
+                    }, 300);
+                }
+            }
+            
+            if (mapCloseBtn) {
+                mapCloseBtn.addEventListener('click', function() {
+                    // Only allow closing on mobile
+                    if (window.innerWidth < 992) {
+                        mapVisible = false;
+                        updateMapVisibility();
+                    }
+                });
+            }
+            
+            // Update map visibility on window resize
+            let resizeTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    // On mobile (< 992px), default to hidden
+                    if (window.innerWidth < 992 && !mapVisible) {
+                        updateMapVisibility();
+                    } else if (window.innerWidth >= 992 && !mapVisible) {
+                        mapVisible = true;
+                        updateMapVisibility();
+                    }
+                }, 150);
+            });
+            
+            // Initialize map visibility on page load
+            updateMapVisibility();
             
             // Load Google Maps script
             if (!window.googleMapsScriptLoaded) {
@@ -2034,3 +2634,5 @@
         })();
     </script>
 </x-app-layout>
+
+
