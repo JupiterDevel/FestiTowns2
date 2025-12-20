@@ -69,9 +69,13 @@
         
         /* Footer - remove all spacing on home page */
         body > footer.mt-5,
-        body > footer {
+        body > footer,
+        footer.border-top.mt-4.py-3,
+        footer.mt-4,
+        footer.py-3 {
             margin-top: 0 !important;
             padding-top: 0 !important;
+            margin-bottom: 0 !important;
         }
         
         /* Ensure no gap between main and footer */
@@ -108,8 +112,36 @@
             margin-bottom: 0 !important;
         }
         
-        /* Ensure footer has no top spacing */
+        /* Ensure footer has no top spacing and no white background padding */
         footer {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+        
+        /* Remove any white background or spacing above footer */
+        footer.border-top.mt-4.py-3::before,
+        footer.border-top.mt-4.py-3::after {
+            display: none !important;
+        }
+        
+        /* Ensure no white space above footer */
+        body > footer.border-top.mt-4.py-3 {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            border-top-width: 0 !important;
+        }
+        
+        /* Remove any white background padding/spacing above footer */
+        html body footer.border-top.mt-4.py-3 {
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+            margin-bottom: 0 !important;
+        }
+        
+        /* Remove any element that might create white space before footer */
+        main + footer,
+        .results-map-section + footer,
+        #map-search-section + footer {
             margin-top: 0 !important;
             padding-top: 0 !important;
         }
@@ -117,6 +149,27 @@
         /* Remove any whitespace/spacing from navbar */
         nav.navbar {
             margin-bottom: 0 !important;
+        }
+        
+        /* Add padding to footer container */
+        html body footer.border-top.mt-4.py-3 div.container {
+            padding-left: var(--spacing-lg);
+            padding-right: var(--spacing-lg);
+        }
+        
+        /* Responsive padding for footer container */
+        @media (max-width: 768px) {
+            html body footer.border-top.mt-4.py-3 div.container {
+                padding-left: var(--spacing-md);
+                padding-right: var(--spacing-md);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            html body footer.border-top.mt-4.py-3 div.container {
+                padding-left: var(--spacing-sm);
+                padding-right: var(--spacing-sm);
+            }
         }
     </style>
     
@@ -231,11 +284,6 @@
                 
                 <!-- Polished Map Section -->
                 <div class="map-section" id="map-section">
-                    <div class="map-header">
-                        <button class="map-close-btn" id="map-close-btn" type="button" aria-label="Cerrar mapa">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
                     <div id="festivities-map" class="festivities-map-container">
                         <div class="map-loading-overlay">
                             <div class="map-loading-spinner"></div>
@@ -290,6 +338,21 @@
             z-index: 2;
         }
         
+        /* Mobile: Reduce hero height */
+        @media (max-width: 992px) {
+            .hero-banner {
+                min-height: auto;
+                height: auto;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-banner {
+                min-height: auto;
+                height: auto;
+            }
+        }
+        
         .hero-background {
             position: absolute;
             top: 0;
@@ -308,6 +371,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            padding-bottom: 2rem;
             background: linear-gradient(
                 180deg,
                 rgba(15, 23, 42, 0.4) 0%,
@@ -328,6 +392,19 @@
             padding: var(--spacing-3xl) var(--spacing-lg) var(--spacing-2xl);
         }
         
+        /* Mobile: Reduce padding */
+        @media (max-width: 768px) {
+            .hero-content {
+                padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-content {
+                padding: var(--spacing-lg) var(--spacing-sm) var(--spacing-md);
+            }
+        }
+        
         .hero-tagline {
             text-align: center;
             margin: 0 auto var(--spacing-2xl) auto;
@@ -344,6 +421,37 @@
             text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3), 0 4px 40px rgba(0, 0, 0, 0.2);
         }
         
+        /* Responsive title sizes */
+        @media (max-width: 1200px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 1.75rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .hero-title {
+                font-size: 1.5rem;
+            }
+        }
+        
         .hero-subtitle {
             font-size: 1.25rem;
             font-weight: 400;
@@ -353,11 +461,66 @@
             text-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
         }
         
+        /* Responsive subtitle sizes */
+        @media (max-width: 1200px) {
+            .hero-subtitle {
+                font-size: 1.125rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-subtitle {
+                font-size: 0.9375rem;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .hero-subtitle {
+                font-size: 0.875rem;
+            }
+        }
+        
         /* Premium Search Interface */
         .hero-search-container {
             width: 100%;
             max-width: 1000px;
             margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+        
+        /* Ensure Bootstrap container is responsive */
+        .hero-content .container {
+            width: 100%;
+            max-width: 100%;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        
+        /* Mobile: Full width container */
+        @media (max-width: 992px) {
+            .hero-search-container {
+                max-width: 100%;
+                padding: 0 var(--spacing-md);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .hero-search-container {
+                padding: 0 var(--spacing-sm);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-search-container {
+                width: 100%;
+                padding: 0 var(--spacing-xs);
+            }
         }
         
         .hero-search-wrapper {
@@ -366,6 +529,15 @@
             gap: var(--spacing-md);
             flex-wrap: wrap;
             justify-content: center;
+        }
+        
+        /* Mobile: Stack wrapper elements */
+        @media (max-width: 768px) {
+            .hero-search-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                gap: var(--spacing-sm);
+            }
         }
         
         .hero-search-bar {
@@ -382,6 +554,18 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
+        /* Mobile: Stack search bar elements */
+        @media (max-width: 768px) {
+            .hero-search-bar {
+                min-width: auto;
+                max-width: 100%;
+                flex-direction: column;
+                align-items: stretch;
+                border-radius: var(--radius-lg);
+                padding: var(--spacing-sm);
+            }
+        }
+        
         .hero-search-bar:focus-within {
             box-shadow: var(--shadow-2xl), 0 0 0 3px rgba(254, 177, 1, 0.2);
             transform: translateY(-2px);
@@ -393,6 +577,15 @@
             flex: 1;
             min-width: 0;
             padding: 0 var(--spacing-md);
+        }
+        
+        /* Mobile: Adjust input group */
+        @media (max-width: 768px) {
+            .search-input-group {
+                padding: var(--spacing-sm);
+                border-bottom: 1px solid #E5E7EB;
+                margin-bottom: var(--spacing-sm);
+            }
         }
         
         .search-icon {
@@ -426,12 +619,28 @@
             flex-shrink: 0;
         }
         
+        /* Mobile: Hide divider */
+        @media (max-width: 768px) {
+            .search-divider {
+                display: none;
+            }
+        }
+        
         .search-select-group {
             display: flex;
             align-items: center;
             padding: 0 var(--spacing-md);
             position: relative;
             min-width: 180px;
+        }
+        
+        /* Mobile: Adjust select group */
+        @media (max-width: 768px) {
+            .search-select-group {
+                padding: var(--spacing-sm);
+                min-width: auto;
+                border-top: none;
+            }
         }
         
         .select-icon {
@@ -475,6 +684,16 @@
             box-shadow: 0 4px 12px rgba(254, 177, 1, 0.3);
         }
         
+        /* Mobile: Full width button */
+        @media (max-width: 768px) {
+            .search-btn {
+                width: 100%;
+                justify-content: center;
+                margin-top: var(--spacing-sm);
+                border-radius: var(--radius-md);
+            }
+        }
+        
         .search-btn:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(254, 177, 1, 0.4);
@@ -506,6 +725,16 @@
             white-space: nowrap;
         }
         
+        /* Mobile: Full width button */
+        @media (max-width: 768px) {
+            .near-me-btn {
+                width: 100%;
+                justify-content: center;
+                margin-top: 0;
+                border-radius: var(--radius-md);
+            }
+        }
+        
         .near-me-btn:hover {
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.5);
@@ -532,6 +761,27 @@
             position: relative;
             z-index: 2;
             width: 100%;
+        }
+        
+        /* Mobile: Adjust margin-top */
+        @media (max-width: 992px) {
+            .results-map-section {
+                margin-top: var(--spacing-xl);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .results-map-section {
+                margin-top: var(--spacing-lg);
+                padding: 0 var(--spacing-md);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .results-map-section {
+                margin-top: var(--spacing-md);
+                padding: 0 var(--spacing-sm);
+            }
         }
         
         #map-search-section {
@@ -574,6 +824,33 @@
             }
         }
         
+        /* Tablet: Simplify height calculations */
+        @media (max-width: 992px) {
+            .results-map-container {
+                flex-direction: column;
+                height: auto;
+                min-height: auto;
+                max-width: 100%;
+                width: 100%;
+                border-radius: 16px;
+                padding-bottom: 0;
+            }
+            
+            .results-map-container.map-visible {
+                height: auto;
+            }
+        }
+        
+        /* Mobile: Further simplify */
+        @media (max-width: 768px) {
+            .results-map-container {
+                border-radius: 12px;
+                margin: 0 auto;
+                width: 100%;
+                max-width: 100%;
+            }
+        }
+        
         .results-grid-section {
             flex: 0 0 auto;
             display: block;
@@ -594,6 +871,67 @@
             padding-bottom: 0;
             /* Clip scrollbar buttons to respect border-radius - bottom-left corner */
             clip-path: inset(0 round 16px 0 0 16px);
+        }
+        
+        /* Tablet: Simplify grid section */
+        @media (max-width: 992px) {
+            .results-grid-section {
+                height: auto;
+                max-height: none;
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                overflow-x: auto;
+                overflow-y: visible;
+                border-radius: 16px 16px 0 0;
+                clip-path: none;
+                display: block !important;
+                margin: 0 auto;
+                padding-left: 0;
+                padding-right: 0;
+            }
+            
+            .results-map-container.map-visible .results-grid-section {
+                margin-right: 0;
+                height: auto;
+                max-height: none;
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                border-radius: 16px 16px 0 0;
+            }
+            
+            /* Ensure results are visible even when map is hidden on mobile/tablet */
+            .results-map-container:not(.map-visible) .results-grid-section {
+                border-radius: 16px;
+                display: block !important;
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+            }
+        }
+        
+        /* Mobile: Further adjustments */
+        @media (max-width: 768px) {
+            .results-grid-section {
+                border-radius: 12px 12px 0 0;
+                display: block !important;
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto;
+                padding-left: 0;
+                padding-right: 0;
+            }
+            
+            /* Ensure results are visible even when map is hidden on mobile */
+            .results-map-container:not(.map-visible) .results-grid-section {
+                border-radius: 12px;
+                display: block !important;
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+            }
         }
         
         .results-grid-section::-webkit-scrollbar {
@@ -671,11 +1009,28 @@
             height: 100%;
             width: 100%;
             background: #FAFAFA;
+            margin: 0 auto;
         }
         
         .results-grid-wrapper.scrollable {
             width: max-content;
             min-width: 100%;
+        }
+        
+        /* Mobile: Ensure wrapper is centered */
+        @media (max-width: 768px) {
+            .results-grid-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto;
+                padding-left: var(--spacing-sm);
+                padding-right: var(--spacing-sm);
+            }
+            
+            .results-grid-wrapper.scrollable {
+                width: 100% !important;
+                min-width: 100% !important;
+            }
         }
         
         .festivities-grid {
@@ -689,6 +1044,39 @@
             width: 100%;
             height: 100%;
             padding: 0.25rem;
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        /* Tablet Landscape: 3 columns */
+        @media (max-width: 1400px) {
+            .festivities-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        /* Tablet Portrait: 2 columns */
+        @media (max-width: 992px) {
+            .festivities-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--spacing-md);
+                height: auto;
+            }
+        }
+        
+        /* Mobile: 1 column */
+        @media (max-width: 768px) {
+            .festivities-grid {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-md);
+                height: auto;
+            }
+        }
+        
+        /* Small Mobile: Smaller gap */
+        @media (max-width: 576px) {
+            .festivities-grid {
+                gap: var(--spacing-sm);
+            }
         }
         
         /* Premium Card Design - Polished */
@@ -749,6 +1137,13 @@
             );
             z-index: 1;
             pointer-events: none;
+        }
+        
+        /* Remove overlay on mobile/phone view */
+        @media (max-width: 768px) {
+            .festivity-grid-card-overlay {
+                display: none;
+            }
         }
         
         /* Polished Card Content */
@@ -1057,59 +1452,48 @@
             }
         }
         
-        /* Hide map on mobile by default, show on desktop */
-        @media (max-width: 991px) {
-            .results-map-container:not(.map-visible) .map-section {
-                flex: 0 0 0 !important;
+        /* Tablet: Stack map below results */
+        @media (max-width: 992px) {
+            .map-section {
+                flex: 0 0 auto;
+                width: 100%;
+                min-width: 100%;
+                height: 400px;
+                min-height: 400px;
                 border-left: none;
-                overflow: hidden;
-                min-width: 0 !important;
-                width: 0 !important;
-                opacity: 0 !important;
-                visibility: hidden !important;
-                height: 0 !important;
+                border-top: 1px solid #E5E7EB;
+                border-radius: 0 0 16px 16px;
+                box-shadow: none;
+            }
+            
+            .results-map-container:not(.map-visible) .map-section {
                 display: none !important;
             }
         }
         
-        .map-header {
-            flex: 0 0 auto;
-            padding: 0.75rem;
-            display: flex;
-            justify-content: flex-end;
-            align-items: flex-start;
-            background: transparent;
-            position: absolute;
-            top: 0;
-            right: 0;
-            z-index: 10;
-            pointer-events: none;
+        /* Mobile: Smaller map height */
+        @media (max-width: 768px) {
+            .map-section {
+                height: 350px;
+                min-height: 350px;
+                border-radius: 0 0 12px 12px;
+            }
         }
         
-        .map-close-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            color: #374151;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            flex-shrink: 0;
-            pointer-events: all;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        /* Small Mobile: Even smaller map */
+        @media (max-width: 576px) {
+            .map-section {
+                height: 300px;
+                min-height: 300px;
+            }
         }
         
-        .map-close-btn:hover {
-            background: rgba(255, 255, 255, 1);
-            border-color: rgba(255, 255, 255, 0.4);
-            color: #111827;
-            transform: rotate(90deg) scale(1.05);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        /* Extra Small Mobile: Minimal map */
+        @media (max-width: 400px) {
+            .map-section {
+                height: 250px;
+                min-height: 250px;
+            }
         }
         
         .festivities-map-container {
@@ -1156,6 +1540,41 @@
             border: none;
             margin: 0;
             padding: 0;
+            pointer-events: none;
+        }
+        
+        /* Hide Google Maps controls, buttons, and attribution links */
+        #festivities-map .gm-style-cc,
+        #festivities-map .gm-style-cc a,
+        #festivities-map a[href^="https://maps.google.com"],
+        #festivities-map a[href^="https://www.google.com/maps"],
+        #festivities-map .gmnoprint,
+        #festivities-map button,
+        #festivities-map .gm-control-active,
+        #festivities-map .gm-fullscreen-control,
+        #festivities-map .gm-svpc,
+        #festivities-map .gmnoprint a,
+        .festivities-map-container .gm-style-cc,
+        .festivities-map-container .gm-style-cc a,
+        .festivities-map-container a[href^="https://maps.google.com"],
+        .festivities-map-container a[href^="https://www.google.com/maps"],
+        .festivities-map-container .gmnoprint,
+        .festivities-map-container button {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+        }
+        
+        /* Hide all Google Maps UI elements and attribution */
+        .gm-style > div:first-child > div:last-child,
+        .gm-style-cc,
+        .gmnoprint {
+            display: none !important;
+        }
+        
+        /* But allow pointer events on markers if needed */
+        #festivities-map .gm-marker {
+            pointer-events: auto;
         }
         
         /* Polished Card Animations */
@@ -1186,215 +1605,291 @@
         /* ============================================
            RESPONSIVE DESIGN
            ============================================ */
+        
+        /* Tablet Landscape (992px - 1400px) */
         @media (max-width: 1400px) {
-            .festivities-grid {
-                grid-template-columns: repeat(3, 1fr);
-            }
-            
             .results-map-container {
                 max-width: min(1200px, 100vw - 2rem);
             }
-            
-            .results-grid-section {
-                width: calc(min(1200px, 100vw - 2rem) - 450px);
-            }
         }
         
+        /* Tablet Portrait (768px - 1200px) */
         @media (max-width: 1200px) {
-            .festivities-grid {
-                grid-template-columns: repeat(3, 1fr);
+            .hero-title {
+                font-size: 3rem;
             }
             
-            .map-section {
-                flex: 0 0 400px;
-                min-width: 400px;
-                width: 400px;
-                height: calc((min(100vw - 2rem, 1000px) - 400px - 2rem) / 3 * 1.2 + 4rem);
-            }
-            
-            .results-map-container {
-                max-width: min(100vw - 2rem, 1000px);
-                height: calc((min(100vw - 2rem, 1000px) - 400px - 2rem) / 3 * 1.2 + 4rem);
-            }
-            
-            .results-grid-section {
-                width: calc(min(100vw - 2rem, 1000px) - 400px);
-                height: calc((min(100vw - 2rem, 1000px) - 400px - 2rem) / 3 * 1.2 + 4rem);
-                max-height: calc((min(100vw - 2rem, 1000px) - 400px - 2rem) / 3 * 1.2 + 4rem);
+            .hero-subtitle {
+                font-size: 1.125rem;
             }
         }
         
+        /* Tablet and Small Desktop (768px - 992px) */
         @media (max-width: 992px) {
+            .hero-banner {
+                min-height: auto;
+                height: auto;
+                padding-bottom: 2rem;
+            }
+            
+            .hero-content {
+                padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-xl);
+            }
+            
             .hero-title {
-                font-size: 2.75rem;
+                font-size: 2.5rem;
+                line-height: 1.2;
             }
             
             .hero-subtitle {
                 font-size: 1.125rem;
             }
             
-            .results-map-container {
-                flex-direction: column;
-            }
-            
-            .results-map-container.map-visible .results-grid-section {
-                margin-right: 0;
-                height: auto;
-            }
-            
-            .results-grid-section {
-                height: auto;
-            }
-            
-            .map-section {
-                flex: 0 0 50%;
-                border-left: none;
-                border-top: 1px solid #E5E7EB;
-                height: auto;
-            }
-            
-            .results-map-container:not(.map-visible) .map-section {
-                flex: 0 0 0;
-                border-top: none;
-            }
-            
-            .festivities-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: var(--spacing-lg);
-            }
-            
-            .results-grid-wrapper {
-                padding: 0.5rem;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .hero-banner {
-                height: 420px;
-            }
-            
-            .hero-content {
-                padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-xl);
-            }
-            
-            .hero-title {
-                font-size: 2.25rem;
-                margin-bottom: var(--spacing-sm);
-            }
-            
-            .hero-subtitle {
-                font-size: 1rem;
-            }
-            
             .hero-tagline {
                 margin-bottom: var(--spacing-xl);
             }
             
-            .hero-search-wrapper {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .hero-search-bar {
-                min-width: auto;
+            .hero-search-container {
                 max-width: 100%;
-                border-radius: var(--radius-xl);
-                padding: var(--spacing-sm);
-            }
-            
-            .search-input-group,
-            .search-select-group {
-                padding: 0 var(--spacing-sm);
-            }
-            
-            .search-divider {
-                display: none;
-            }
-            
-            .search-select-group {
-                border-top: 1px solid #E5E7EB;
-                padding-top: var(--spacing-sm);
-                margin-top: var(--spacing-xs);
-                min-width: auto;
-            }
-            
-            .search-btn {
-                width: 100%;
-                justify-content: center;
-                margin-top: var(--spacing-sm);
-            }
-            
-            .near-me-btn {
-                width: 100%;
-                justify-content: center;
             }
             
             .results-map-section {
-                height: auto;
-                min-height: auto;
+                margin-top: var(--spacing-xl);
             }
-            
             
             .results-grid-wrapper {
-                padding: 0.5rem;
+                padding: var(--spacing-md);
             }
             
-            .festivities-grid {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
+            .no-results-message {
+                min-height: 300px;
+                padding: var(--spacing-2xl);
             }
-            
-            .map-section {
-                flex: 0 0 50%;
+        }
+        
+        /* Mobile Landscape and Small Tablets (576px - 768px) */
+        @media (max-width: 768px) {
+            .hero-banner {
+                min-height: auto;
                 height: auto;
-                border-top-right-radius: 0;
-                border-top-left-radius: 0;
-                border-bottom-right-radius: 16px;
-                border-bottom-left-radius: 0;
+                padding-bottom: var(--spacing-xl);
             }
             
-            .results-grid-section {
-                height: auto;
-                border-top-left-radius: 16px;
-                border-top-right-radius: 16px;
-                border-bottom-left-radius: 0;
-                border-bottom-right-radius: 0;
+            .hero-content {
+                padding: var(--spacing-xl) var(--spacing-md) var(--spacing-lg);
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+                margin-bottom: var(--spacing-sm);
+                line-height: 1.2;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+                line-height: 1.5;
+            }
+            
+            .hero-tagline {
+                margin-bottom: var(--spacing-lg);
+            }
+            
+            .search-input {
+                font-size: 0.9375rem;
+            }
+            
+            .search-select {
+                font-size: 0.9375rem;
+            }
+            
+            .search-btn {
+                padding: var(--spacing-md) var(--spacing-lg);
+            }
+            
+            .results-map-section {
+                margin-top: var(--spacing-lg);
+                padding: 0 var(--spacing-md);
+            }
+            
+            .results-grid-wrapper {
+                padding: var(--spacing-sm);
             }
             
             .loading-skeleton-grid {
                 grid-template-columns: 1fr;
                 gap: var(--spacing-md);
             }
+            
+            .no-results-message {
+                min-height: 250px;
+                padding: var(--spacing-xl);
+            }
+            
+            .no-results-illustration {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .no-results-icon i {
+                font-size: 3rem;
+            }
+            
+            .no-results-title {
+                font-size: 1.5rem;
+            }
+            
+            .no-results-text {
+                font-size: 0.9375rem;
+            }
         }
         
+        /* Mobile Portrait (up to 576px) */
         @media (max-width: 576px) {
             .hero-banner {
-                height: 380px;
+                min-height: auto;
+                height: auto;
+                padding-bottom: var(--spacing-lg);
+            }
+            
+            .hero-content {
+                padding: var(--spacing-lg) var(--spacing-sm) var(--spacing-md);
             }
             
             .hero-title {
-                font-size: 1.875rem;
+                font-size: 1.75rem;
+                margin-bottom: var(--spacing-xs);
+                line-height: 1.2;
             }
             
             .hero-subtitle {
                 font-size: 0.9375rem;
+                line-height: 1.4;
             }
             
-            .results-map-section {
-                height: auto;
-                min-height: auto;
+            .hero-tagline {
+                margin-bottom: var(--spacing-md);
             }
             
-            .results-header-title {
+            .hero-search-container {
+                width: 100%;
+            }
+            
+            .hero-search-wrapper {
+                gap: var(--spacing-xs);
+            }
+            
+            .hero-search-bar {
+                border-radius: var(--radius-md);
+                padding: var(--spacing-xs);
+            }
+            
+            .search-input-group {
+                padding: var(--spacing-xs) var(--spacing-sm);
+            }
+            
+            .search-input {
+                font-size: 0.875rem;
+                padding: var(--spacing-sm) 0;
+            }
+            
+            .search-icon {
                 font-size: 1rem;
             }
             
-            .results-grid-wrapper {
-                padding: 0.375rem;
+            .search-select-group {
+                padding: var(--spacing-xs) var(--spacing-sm);
             }
             
-            .festivities-grid {
-                gap: 0.625rem;
+            .search-select {
+                font-size: 0.875rem;
+                padding: var(--spacing-sm) 0;
+            }
+            
+            .select-icon {
+                font-size: 0.9375rem;
+            }
+            
+            .search-btn {
+                padding: var(--spacing-sm) var(--spacing-md);
+                font-size: 0.9375rem;
+            }
+            
+            .near-me-btn {
+                padding: var(--spacing-sm) var(--spacing-md);
+                font-size: 0.9375rem;
+            }
+            
+            .results-map-section {
+                margin-top: var(--spacing-md);
+                padding: 0 var(--spacing-sm);
+            }
+            
+            .results-grid-wrapper {
+                padding: var(--spacing-xs);
+            }
+            
+            .festivity-grid-card {
+                border-radius: 8px;
+            }
+            
+            .festivity-grid-card-content {
+                padding: var(--spacing-sm);
+            }
+            
+            .festivity-grid-card-title {
+                font-size: 0.875rem;
+            }
+            
+            .festivity-grid-card-location {
+                font-size: 0.75rem;
+            }
+            
+            .view-all-link {
+                font-size: 0.8125rem;
+                padding: var(--spacing-sm) var(--spacing-md);
+            }
+            
+            .no-results-message {
+                min-height: 200px;
+                padding: var(--spacing-lg);
+            }
+            
+            .no-results-illustration {
+                width: 100px;
+                height: 100px;
+                margin-bottom: var(--spacing-lg);
+            }
+            
+            .no-results-icon i {
+                font-size: 2.5rem;
+            }
+            
+            .no-results-title {
+                font-size: 1.25rem;
+            }
+            
+            .no-results-text {
+                font-size: 0.875rem;
+            }
+            
+            .suggestion-btn {
+                font-size: 0.875rem;
+                padding: var(--spacing-xs) var(--spacing-md);
+            }
+        }
+        
+        /* Extra Small Mobile (up to 400px) */
+        @media (max-width: 400px) {
+            .hero-title {
+                font-size: 1.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 0.875rem;
+            }
+            
+            .results-grid-wrapper {
+                padding: var(--spacing-xs);
             }
         }
     </style>
@@ -1418,8 +1913,8 @@
             let currentFestivities = [];
             let filteredFestivities = [];
             let displayedCount = 0;
-            let itemsPerLoad = 16; // Load 16 items at a time (4x4 grid)
-            const MAX_DISPLAYED = 32; // Maximum number of festivities to show (2 grids)
+            let itemsPerLoad = 15; // Load 15 items at a time
+            const MAX_DISPLAYED = 15; // Maximum number of festivities to show
             const madridCenter = { lat: 40.4168, lng: -3.7038 };
             const mapKey = '{{ config('services.google.maps_key') }}';
             const viewAllLink = document.getElementById('map-view-all-link');
@@ -1610,6 +2105,13 @@
                     mapTypeControl: false,
                     streetViewControl: false,
                     fullscreenControl: false,
+                    zoomControl: false,
+                    disableDefaultUI: true,
+                    draggable: false,
+                    scrollwheel: false,
+                    disableDoubleClickZoom: true,
+                    keyboardShortcuts: false,
+                    gestureHandling: 'none',
                     styles: mapStyles,
                     // Padding to shift visual center downward (responsive)
                     padding: getMapPadding()
@@ -1625,34 +2127,90 @@
                 // Initialize Geocoder
                 geocoder = new google.maps.Geocoder();
                 
-                // Load initial festivities
-                loadFestivitiesForMap();
-                
-                // Listen to map bounds changes (only if not currently searching)
-                map.addListener('bounds_changed', function() {
-                    if (isSearching) return; // Don't reload if we're performing a search
-                    clearTimeout(window.mapBoundsTimeout);
-                    window.mapBoundsTimeout = setTimeout(function() {
+                // Load initial festivities once map is ready (idle event fires when map is fully loaded with bounds)
+                let initialLoadDone = false;
+                const initialLoadListener = map.addListener('idle', function() {
+                    if (!initialLoadDone && map.getBounds()) {
+                        initialLoadDone = true;
                         loadFestivitiesForMap();
-                    }, 500); // Debounce
+                        google.maps.event.removeListener(initialLoadListener);
+                    }
                 });
+                
+                // Also try loading immediately in case map is already ready
+                // This ensures results load even if idle event already fired
+                setTimeout(() => {
+                    if (!initialLoadDone && map && map.getBounds()) {
+                        initialLoadDone = true;
+                        loadFestivitiesForMap();
+                        google.maps.event.removeListener(initialLoadListener);
+                    } else if (!initialLoadDone) {
+                        // On mobile, if map isn't ready, load with default bounds
+                        initialLoadDone = true;
+                        loadFestivitiesForMap();
+                        google.maps.event.removeListener(initialLoadListener);
+                    }
+                }, 500);
+                
+                // Hide Google Maps UI elements and attribution links
+                const hideGoogleMapsUI = () => {
+                    // Hide attribution and controls
+                    const attributionElements = document.querySelectorAll('.gm-style-cc, .gmnoprint, a[href^="https://maps.google.com"], a[href^="https://www.google.com/maps"]');
+                    attributionElements.forEach(el => {
+                        if (el) {
+                            el.style.display = 'none';
+                            el.style.visibility = 'hidden';
+                            el.style.opacity = '0';
+                        }
+                    });
+                    
+                    // Hide buttons
+                    const buttons = document.querySelectorAll('#festivities-map button, .festivities-map-container button');
+                    buttons.forEach(btn => {
+                        if (btn) {
+                            btn.style.display = 'none';
+                            btn.style.visibility = 'hidden';
+                        }
+                    });
+                };
+                
+                // Hide immediately and on intervals (Google Maps loads UI elements dynamically)
+                hideGoogleMapsUI();
+                setTimeout(hideGoogleMapsUI, 500);
+                setTimeout(hideGoogleMapsUI, 1000);
+                setTimeout(hideGoogleMapsUI, 2000);
+                
+                // Use MutationObserver to hide elements as they appear
+                const observer = new MutationObserver(hideGoogleMapsUI);
+                if (mapElement) {
+                    observer.observe(mapElement, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
             }
             
             // Load festivities for current map view
             function loadFestivitiesForMap() {
-                if (!map) {
-                    return;
+                // On mobile, if map is not initialized, use default bounds (Spain)
+                let bounds = null;
+                let ne, sw;
+                
+                if (map) {
+                    bounds = map.getBounds();
                 }
                 
-                const bounds = map.getBounds();
-                if (!bounds) {
-                    return;
+                // Fallback bounds for Spain if map not ready (mobile scenario)
+                if (!bounds || !bounds.getNorthEast) {
+                    // Use default Spain bounds
+                    ne = { lat: () => 44.0, lng: () => 4.5 };
+                    sw = { lat: () => 36.0, lng: () => -9.5 };
+                } else {
+                    ne = bounds.getNorthEast();
+                    sw = bounds.getSouthWest();
                 }
                 
-                const ne = bounds.getNorthEast();
-                const sw = bounds.getSouthWest();
-                
-                const province = provinceFilter.value;
+                const province = provinceFilter ? provinceFilter.value : '';
                 const params = new URLSearchParams({
                     north: ne.lat(),
                     south: sw.lat(),
@@ -2021,8 +2579,8 @@
                 let cardsToShow;
                 
                 if (initialLoad) {
-                    // Show 16 cards initially (4x4 grid)
-                    cardsToShow = Math.min(16, filteredFestivities.length);
+                    // Show 15 cards initially
+                    cardsToShow = Math.min(15, filteredFestivities.length);
                 } else {
                     cardsToShow = itemsPerLoad;
                 }
@@ -2048,14 +2606,14 @@
                 displayedCount = endIndex;
                 if (mapTotalCount) mapTotalCount.textContent = filteredFestivities.length;
                 
-                // Show "View All" link if we've reached the max or if there are more results
+                // Show "View All" link if there are more than 15 results
                 if (viewAllContainer) {
-                    if (displayedCount >= MAX_DISPLAYED && filteredFestivities.length > MAX_DISPLAYED) {
+                    if (filteredFestivities.length > MAX_DISPLAYED) {
+                        // Show link if we've displayed 15 or if there are more than 15 total
                         viewAllContainer.classList.remove('d-none');
                         updateViewAllLink();
-                    } else if (displayedCount >= filteredFestivities.length) {
-                        viewAllContainer.classList.add('d-none');
                     } else {
+                        // Hide link if 15 or fewer results
                         viewAllContainer.classList.add('d-none');
                     }
                 }
@@ -2077,71 +2635,81 @@
                 if (!resultsGrid || !resultsGridSection) return;
                 const cardCount = resultsGrid.children.length;
                 const gap = 12; // 0.75rem = 12px
-                const padding = 16; // 0.5rem * 2 = 16px total padding
-                
-                // Calculate card width based on container - siempre el mismo tamaño
-                const maxContainerWidth = Math.min(1200, window.innerWidth - 64); // 1200px or viewport - 4rem
-                const mapWidth = 450;
-                const availableWidth = maxContainerWidth - mapWidth - 32; // minus 2rem gap
-                const cardWidth = (availableWidth - (gap * 2) - padding) / 3; // 3 cards with 2 gaps
+                const isMobile = window.innerWidth < 768;
+                const isTablet = window.innerWidth >= 768 && window.innerWidth < 992;
+                const isDesktop = window.innerWidth >= 992;
                 
                 const gridWrapper = resultsGrid.parentElement;
                 
-                if (cardCount === 0) {
-                    // No cards - resetear todo
-                    resultsGrid.style.gridTemplateColumns = '';
-                    resultsGrid.style.width = '';
-                    resultsGrid.style.minWidth = '';
+                // Reset all styles first
+                resultsGrid.style.gridTemplateColumns = '';
+                resultsGrid.style.width = '';
+                resultsGrid.style.minWidth = '';
+                
+                // On mobile/tablet, ensure CSS controls the width
+                if (isMobile || isTablet) {
                     resultsGridSection.style.width = '';
                     resultsGridSection.style.minWidth = '';
                     resultsGridSection.style.maxWidth = '';
                     if (gridWrapper) {
                         gridWrapper.style.width = '';
                         gridWrapper.style.minWidth = '';
+                        gridWrapper.style.maxWidth = '';
                         gridWrapper.classList.remove('scrollable');
                     }
-                } else if (cardCount === 1) {
-                    // 1 card - contenedor se ajusta al ancho de 1 card
+                    // CSS handles layout on mobile/tablet
+                    return;
+                }
+                
+                // Desktop: reset and set styles
+                resultsGridSection.style.width = '';
+                resultsGridSection.style.minWidth = '';
+                resultsGridSection.style.maxWidth = '';
+                if (gridWrapper) {
+                    gridWrapper.style.width = '';
+                    gridWrapper.style.minWidth = '';
+                    gridWrapper.style.maxWidth = '';
+                    gridWrapper.classList.remove('scrollable');
+                }
+                
+                if (cardCount === 0) {
+                    // No cards - reset everything
+                    return;
+                }
+                
+                // Desktop: calculate based on available width
+                const padding = 16; // 0.5rem * 2 = 16px total padding
+                const maxContainerWidth = Math.min(1200, window.innerWidth - 64); // 1200px or viewport - 4rem
+                const mapWidth = 450;
+                const availableWidth = maxContainerWidth - mapWidth - 32; // minus 2rem gap
+                const cardWidth = (availableWidth - (gap * 2) - padding) / 3; // 3 cards with 2 gaps
+                
+                if (cardCount === 1) {
+                    // 1 card - container adjusts to 1 card width
                     const containerWidth = cardWidth + padding;
                     resultsGridSection.style.width = `${containerWidth}px`;
                     resultsGridSection.style.minWidth = `${containerWidth}px`;
                     resultsGridSection.style.maxWidth = `${containerWidth}px`;
                     
                     resultsGrid.style.gridTemplateColumns = `${cardWidth}px`;
-                    resultsGrid.style.width = '';
-                    resultsGrid.style.minWidth = '';
-                    
-                    if (gridWrapper) {
-                        gridWrapper.style.width = '';
-                        gridWrapper.style.minWidth = '';
-                        gridWrapper.classList.remove('scrollable');
-                    }
                     
                 } else if (cardCount === 2) {
-                    // 2 cards - contenedor se ajusta al ancho de 2 cards
+                    // 2 cards - container adjusts to 2 cards width
                     const containerWidth = (cardWidth * 2) + gap + padding;
                     resultsGridSection.style.width = `${containerWidth}px`;
                     resultsGridSection.style.minWidth = `${containerWidth}px`;
                     resultsGridSection.style.maxWidth = `${containerWidth}px`;
                     
                     resultsGrid.style.gridTemplateColumns = `repeat(2, ${cardWidth}px)`;
-                    resultsGrid.style.width = '';
-                    resultsGrid.style.minWidth = '';
-                    
-                    if (gridWrapper) {
-                        gridWrapper.style.width = '';
-                        gridWrapper.style.minWidth = '';
-                        gridWrapper.classList.remove('scrollable');
-                    }
                     
                 } else {
-                    // 3+ cards - contenedor mantiene ancho de 3 cards y permite scroll
+                    // 3+ cards - container maintains 3 cards width and allows scroll
                     const containerWidth = (cardWidth * 3) + (gap * 2) + padding;
                     resultsGridSection.style.width = `${containerWidth}px`;
                     resultsGridSection.style.minWidth = `${containerWidth}px`;
                     resultsGridSection.style.maxWidth = `${containerWidth}px`;
                     
-                    // Calcular ancho total para todas las cards
+                    // Calculate total width for all cards
                     const totalCardsWidth = (cardWidth * cardCount) + (gap * (cardCount - 1));
                     const wrapperWidth = totalCardsWidth + padding;
                     
@@ -2155,9 +2723,17 @@
                         gridWrapper.style.maxWidth = 'none';
                         gridWrapper.classList.add('scrollable');
                     }
-                    
                 }
             }
+            
+            // Update grid columns on window resize
+            let resizeGridTimeout;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeGridTimeout);
+                resizeGridTimeout = setTimeout(function() {
+                    updateGridColumns();
+                }, 150);
+            });
             
             // Create professional grid festivity card
             function createFestivityCard(festivity) {
@@ -2470,8 +3046,8 @@
                 // Always reset filteredFestivities and clear cards when starting new search
                 filteredFestivities = [];
                 displayedCount = 0;
-                if (scrollContainer) {
-                    scrollContainer.innerHTML = '';
+                if (resultsGrid) {
+                    resultsGrid.innerHTML = '';
                 }
                 
                 if (!query) {
@@ -2550,8 +3126,7 @@
                 nearMeBtn.addEventListener('click', getNearMeLocation);
             }
             
-            // Map Close Functionality (mobile only)
-            const mapCloseBtn = document.getElementById('map-close-btn');
+            // Map visibility functionality
             const resultsMapContainer = document.querySelector('.results-map-container');
             
             // Initialize map visibility state (default: visible on desktop, hidden on mobile)
@@ -2583,16 +3158,6 @@
                 }
             }
             
-            if (mapCloseBtn) {
-                mapCloseBtn.addEventListener('click', function() {
-                    // Only allow closing on mobile
-                    if (window.innerWidth < 992) {
-                        mapVisible = false;
-                        updateMapVisibility();
-                    }
-                });
-            }
-            
             // Update map visibility on window resize
             let resizeTimeout;
             window.addEventListener('resize', function() {
@@ -2611,11 +3176,11 @@
             // Initialize map visibility on page load
             updateMapVisibility();
             
-            // Load Google Maps script
+            // Load Google Maps script with loading=async parameter
             if (!window.googleMapsScriptLoaded) {
                 window.googleMapsScriptLoaded = true;
                 const script = document.createElement('script');
-                script.src = `https://maps.googleapis.com/maps/api/js?key=${mapKey}&callback=initFestivitiesMap`;
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${mapKey}&loading=async&callback=initFestivitiesMap`;
                 script.async = true;
                 script.defer = true;
                 script.onerror = function() {
@@ -2634,5 +3199,6 @@
         })();
     </script>
 </x-app-layout>
+
 
 
