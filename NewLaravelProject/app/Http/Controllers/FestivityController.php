@@ -82,44 +82,38 @@ class FestivityController extends Controller
         // Combine active festivities (with ads first, then without ads)
         $activeFestivities = $activeWithAds->merge($activeWithoutAds);
         
-        $neededCount = $perPage * $currentPage;
         $finalFestivities = collect($activeFestivities);
         
-        // Step 2: If we need more, get UPCOMING festivities with PAID ADS
-        if ($finalFestivities->count() < $neededCount) {
-            $upcomingWithAds = Festivity::with(['locality', 'advertisements'])
-                ->where('start_date', '>', $today)
-                ->whereHas('advertisements', function ($adQuery) {
-                    $adQuery->where('premium', true)
-                            ->where('active', true);
-                })
-                ->whereNotIn('id', $finalFestivities->pluck('id'))
-                ->get()
-                ->map(function ($festivity) {
-                    $festivity->total_votes = 0;
-                    $festivity->priority = 2; // Medium priority
-                    return $festivity;
-                })
-                ->sortBy('start_date'); // Sort by soonest festivity
-            
-            $finalFestivities = $finalFestivities->merge($upcomingWithAds);
-        }
+        // Step 2: Get all UPCOMING festivities with PAID ADS
+        $upcomingWithAds = Festivity::with(['locality', 'advertisements'])
+            ->where('start_date', '>', $today)
+            ->whereHas('advertisements', function ($adQuery) {
+                $adQuery->where('premium', true)
+                        ->where('active', true);
+            })
+            ->whereNotIn('id', $finalFestivities->pluck('id'))
+            ->get()
+            ->map(function ($festivity) {
+                $festivity->total_votes = 0;
+                $festivity->priority = 2; // Medium priority
+                return $festivity;
+            })
+            ->sortBy('start_date'); // Sort by soonest festivity
         
-        // Step 3: If we STILL need more, get random festivities
-        if ($finalFestivities->count() < $neededCount) {
-            $randomFestivities = Festivity::with('locality')
-                ->whereNotIn('id', $finalFestivities->pluck('id'))
-                ->inRandomOrder()
-                ->limit($neededCount - $finalFestivities->count())
-                ->get()
-                ->map(function ($festivity) {
-                    $festivity->total_votes = 0;
-                    $festivity->priority = 3; // Lowest priority
-                    return $festivity;
-                });
-            
-            $finalFestivities = $finalFestivities->merge($randomFestivities);
-        }
+        $finalFestivities = $finalFestivities->merge($upcomingWithAds);
+        
+        // Step 3: Get all remaining random festivities
+        $randomFestivities = Festivity::with('locality')
+            ->whereNotIn('id', $finalFestivities->pluck('id'))
+            ->inRandomOrder()
+            ->get()
+            ->map(function ($festivity) {
+                $festivity->total_votes = 0;
+                $festivity->priority = 3; // Lowest priority
+                return $festivity;
+            });
+        
+        $finalFestivities = $finalFestivities->merge($randomFestivities);
         
         // Paginate
         $paginatedFestivities = new \Illuminate\Pagination\LengthAwarePaginator(
@@ -276,42 +270,36 @@ class FestivityController extends Controller
         $activeFestivities = $activeWithAds->merge($activeWithoutAds);
         
         $finalFestivities = collect($activeFestivities);
-        $neededCount = $perPage * $page;
         
-        // Step 2: Fill with upcoming festivities with paid ads
-        if ($finalFestivities->count() < $neededCount) {
-            $upcomingWithAds = Festivity::with(['locality', 'advertisements'])
-                ->whereIn('id', $allMatchingIds)
-                ->whereNotIn('id', $finalFestivities->pluck('id'))
-                ->where('start_date', '>', $today)
-                ->whereHas('advertisements', function ($adQuery) {
-                    $adQuery->where('premium', true)->where('active', true);
-                })
-                ->get()
-                ->map(function ($festivity) {
-                    $festivity->total_votes = 0;
-                    $festivity->priority = 2;
-                    return $festivity;
-                });
-            
-            $finalFestivities = $finalFestivities->merge($upcomingWithAds);
-        }
+        // Step 2: Get all upcoming festivities with paid ads
+        $upcomingWithAds = Festivity::with(['locality', 'advertisements'])
+            ->whereIn('id', $allMatchingIds)
+            ->whereNotIn('id', $finalFestivities->pluck('id'))
+            ->where('start_date', '>', $today)
+            ->whereHas('advertisements', function ($adQuery) {
+                $adQuery->where('premium', true)->where('active', true);
+            })
+            ->get()
+            ->map(function ($festivity) {
+                $festivity->total_votes = 0;
+                $festivity->priority = 2;
+                return $festivity;
+            });
         
-        // Step 3: Fill with random matching festivities
-        if ($finalFestivities->count() < $neededCount) {
-            $remainingFestivities = Festivity::with('locality')
-                ->whereIn('id', $allMatchingIds)
-                ->whereNotIn('id', $finalFestivities->pluck('id'))
-                ->limit($neededCount - $finalFestivities->count())
-                ->get()
-                ->map(function ($festivity) {
-                    $festivity->total_votes = 0;
-                    $festivity->priority = 3;
-                    return $festivity;
-                });
-            
-            $finalFestivities = $finalFestivities->merge($remainingFestivities);
-        }
+        $finalFestivities = $finalFestivities->merge($upcomingWithAds);
+        
+        // Step 3: Get all remaining matching festivities
+        $remainingFestivities = Festivity::with('locality')
+            ->whereIn('id', $allMatchingIds)
+            ->whereNotIn('id', $finalFestivities->pluck('id'))
+            ->get()
+            ->map(function ($festivity) {
+                $festivity->total_votes = 0;
+                $festivity->priority = 3;
+                return $festivity;
+            });
+        
+        $finalFestivities = $finalFestivities->merge($remainingFestivities);
         
         // Sort by relevance if search term is provided
         if ($request->filled('search')) {

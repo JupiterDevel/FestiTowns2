@@ -393,6 +393,9 @@
             background-attachment: fixed;
             background-repeat: no-repeat;
             position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
         body::before {
@@ -406,6 +409,15 @@
             opacity: 0.5;
             z-index: -1;
             pointer-events: none;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        /* Ensure footer stays at bottom */
+        footer {
+            margin-top: auto;
         }
         
         /* Sticky Banner Ad */

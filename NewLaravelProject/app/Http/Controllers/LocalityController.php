@@ -100,52 +100,46 @@ class LocalityController extends Controller
         // Combine active localities (with ads first, then without ads)
         $activeLocalities = $activeWithAds->merge($activeWithoutAds);
         
-        $neededCount = $perPage * $currentPage;
         $finalLocalities = collect($activeLocalities);
         
-        // Step 2: If we need more localities, get those with UPCOMING festivities with PAID ADS
-        if ($finalLocalities->count() < $neededCount) {
-            $upcomingWithAds = Locality::with(['festivities' => function ($query) use ($today) {
-                    $query->where('start_date', '>', $today)
-                          ->whereHas('advertisements', function ($adQuery) {
-                              $adQuery->where('premium', true)
-                                      ->where('active', true);
-                          });
-                }])
-                ->whereHas('festivities', function ($query) use ($today) {
-                    $query->where('start_date', '>', $today)
-                          ->whereHas('advertisements', function ($adQuery) {
-                              $adQuery->where('premium', true)
-                                      ->where('active', true);
-                          });
-                })
-                ->whereNotIn('id', $finalLocalities->pluck('id'))
-                ->get()
-                ->map(function ($locality) {
-                    $locality->total_votes = 0;
-                    $locality->priority = 2; // Medium priority
-                    return $locality;
-                })
-                ->sortBy('festivities.0.start_date'); // Sort by soonest festivity
-            
-            $finalLocalities = $finalLocalities->merge($upcomingWithAds);
-        }
+        // Step 2: Get all localities with UPCOMING festivities with PAID ADS
+        $upcomingWithAds = Locality::with(['festivities' => function ($query) use ($today) {
+                $query->where('start_date', '>', $today)
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)
+                                  ->where('active', true);
+                      });
+            }])
+            ->whereHas('festivities', function ($query) use ($today) {
+                $query->where('start_date', '>', $today)
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)
+                                  ->where('active', true);
+                      });
+            })
+            ->whereNotIn('id', $finalLocalities->pluck('id'))
+            ->get()
+            ->map(function ($locality) {
+                $locality->total_votes = 0;
+                $locality->priority = 2; // Medium priority
+                return $locality;
+            })
+            ->sortBy('festivities.0.start_date'); // Sort by soonest festivity
         
-        // Step 3: If we STILL need more, get random localities
-        if ($finalLocalities->count() < $neededCount) {
-            $randomLocalities = Locality::with('festivities')
-                ->whereNotIn('id', $finalLocalities->pluck('id'))
-                ->inRandomOrder()
-                ->limit($neededCount - $finalLocalities->count())
-                ->get()
-                ->map(function ($locality) {
-                    $locality->total_votes = 0;
-                    $locality->priority = 3; // Lowest priority
-                    return $locality;
-                });
-            
-            $finalLocalities = $finalLocalities->merge($randomLocalities);
-        }
+        $finalLocalities = $finalLocalities->merge($upcomingWithAds);
+        
+        // Step 3: Get all remaining random localities
+        $randomLocalities = Locality::with('festivities')
+            ->whereNotIn('id', $finalLocalities->pluck('id'))
+            ->inRandomOrder()
+            ->get()
+            ->map(function ($locality) {
+                $locality->total_votes = 0;
+                $locality->priority = 3; // Lowest priority
+                return $locality;
+            });
+        
+        $finalLocalities = $finalLocalities->merge($randomLocalities);
         
         // Paginate
         $paginatedLocalities = new \Illuminate\Pagination\LengthAwarePaginator(
@@ -303,46 +297,40 @@ class LocalityController extends Controller
         $activeLocalities = $activeWithAds->merge($activeWithoutAds);
         
         $finalLocalities = collect($activeLocalities);
-        $neededCount = $perPage * $page;
         
-        // Step 2: Fill with upcoming festivities with paid ads
-        if ($finalLocalities->count() < $neededCount) {
-            $upcomingWithAds = Locality::with(['festivities'])
-                ->whereIn('id', $allMatchingIds)
-                ->whereNotIn('id', $finalLocalities->pluck('id'))
-                ->whereHas('festivities', function ($query) use ($today) {
-                    $query->where('start_date', '>', $today)
-                          ->whereHas('advertisements', function ($adQuery) {
-                              $adQuery->where('premium', true)->where('active', true);
-                          });
-                })
-                ->get()
-                ->map(function ($locality) use ($today) {
-                    $locality->active_festivities = collect();
-                    $locality->total_votes = 0;
-                    $locality->priority = 2;
-                    return $locality;
-                });
-            
-            $finalLocalities = $finalLocalities->merge($upcomingWithAds);
-        }
+        // Step 2: Get all upcoming festivities with paid ads
+        $upcomingWithAds = Locality::with(['festivities'])
+            ->whereIn('id', $allMatchingIds)
+            ->whereNotIn('id', $finalLocalities->pluck('id'))
+            ->whereHas('festivities', function ($query) use ($today) {
+                $query->where('start_date', '>', $today)
+                      ->whereHas('advertisements', function ($adQuery) {
+                          $adQuery->where('premium', true)->where('active', true);
+                      });
+            })
+            ->get()
+            ->map(function ($locality) use ($today) {
+                $locality->active_festivities = collect();
+                $locality->total_votes = 0;
+                $locality->priority = 2;
+                return $locality;
+            });
         
-        // Step 3: Fill with random matching localities
-        if ($finalLocalities->count() < $neededCount) {
-            $remainingLocalities = Locality::with(['festivities'])
-                ->whereIn('id', $allMatchingIds)
-                ->whereNotIn('id', $finalLocalities->pluck('id'))
-                ->limit($neededCount - $finalLocalities->count())
-                ->get()
-                ->map(function ($locality) {
-                    $locality->active_festivities = collect();
-                    $locality->total_votes = 0;
-                    $locality->priority = 3;
-                    return $locality;
-                });
-            
-            $finalLocalities = $finalLocalities->merge($remainingLocalities);
-        }
+        $finalLocalities = $finalLocalities->merge($upcomingWithAds);
+        
+        // Step 3: Get all remaining matching localities
+        $remainingLocalities = Locality::with(['festivities'])
+            ->whereIn('id', $allMatchingIds)
+            ->whereNotIn('id', $finalLocalities->pluck('id'))
+            ->get()
+            ->map(function ($locality) {
+                $locality->active_festivities = collect();
+                $locality->total_votes = 0;
+                $locality->priority = 3;
+                return $locality;
+            });
+        
+        $finalLocalities = $finalLocalities->merge($remainingLocalities);
         
         // Sort by relevance if search term is provided
         if ($request->filled('search')) {

@@ -20,14 +20,47 @@
         </div>
     </x-slot>
 
+    <style>
+        body {
+            background-image: url('{{ asset('storage/background.png') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0.5;
+            z-index: -1;
+            pointer-events: none;
+        }
+        main {
+            background-color: transparent;
+            flex: 1;
+        }
+        footer {
+            margin-top: auto;
+        }
+    </style>
+
     <div class="container my-4">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <!-- Profile Header Card -->
-                <div class="card border-0 mb-4" style="overflow: hidden;">
-                    <div class="position-relative" style="background: linear-gradient(135deg, rgba(15,23,42,0.95) 0%, rgba(31,64,104,0.9) 100%);">
-                        <div class="position-absolute top-0 end-0 opacity-25" style="width: 220px; height: 220px; background: radial-gradient(circle at top, rgba(254,177,1,0.4), transparent 60%);"></div>
-                        <div class="position-absolute bottom-0 start-0 opacity-20" style="width: 200px; height: 200px; background: radial-gradient(circle at bottom, rgba(31,164,169,0.5), transparent 60%);"></div>
+                <div class="card border-0 mb-4 shadow-sm" style="overflow: hidden; border-radius: 20px;">
+                    <div class="position-relative" style="background: radial-gradient(circle at center, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.85) 50%, rgba(15,23,42,0.75) 100%);">
+                        <div class="position-absolute top-0 end-0 opacity-25" style="width: 220px; height: 220px; background: radial-gradient(circle at center, rgba(254,177,1,0.4), transparent 70%);"></div>
+                        <div class="position-absolute bottom-0 start-0 opacity-20" style="width: 200px; height: 200px; background: radial-gradient(circle at center, rgba(31,164,169,0.5), transparent 70%);"></div>
 
                         <div class="row align-items-center g-4 p-4 p-md-5 position-relative" style="z-index: 1;">
                             <div class="col-md-4 text-center text-md-start">
