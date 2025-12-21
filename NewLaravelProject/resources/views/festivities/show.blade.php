@@ -8,26 +8,16 @@
         </div>
 
         <div class="container mt-4 mb-5">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
             @if($visitPointsEarned ?? false)
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-star-fill me-2"></i>
-                    <strong>¡Puntos ganados!</strong> Has obtenido 1 punto por visitar una festividad de otra localidad.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+                @push('scripts')
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        if (window.toast) {
+                            window.toast.success('<strong>¡Puntos ganados!</strong> Has obtenido 1 punto por visitar una festividad de otra localidad.');
+                        }
+                    });
+                </script>
+                @endpush
             @endif
 
             <!-- Photo Carousel with Info Overlay -->

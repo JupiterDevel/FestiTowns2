@@ -33,13 +33,7 @@
                             <i class="bi bi-box-arrow-in-right me-2"></i>Iniciar Sesión
                         </h2>
 
-                        <!-- Session Status -->
-                        @if (session('status'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                {{ session('status') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                            </div>
-                        @endif
+                        <!-- Session Status handled by toast system -->
 
                         <form method="POST" action="{{ route('login') }}">
                             @csrf

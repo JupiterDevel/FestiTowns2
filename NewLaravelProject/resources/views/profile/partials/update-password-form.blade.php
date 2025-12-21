@@ -48,15 +48,7 @@
                 <i class="bi bi-save me-1"></i>Guardar
             </button>
 
-            @if (session('status') === 'password-updated')
-                <div class="alert alert-success mb-0 py-2 px-3" 
-                     x-data="{ show: true }"
-                     x-show="show"
-                     x-transition
-                     x-init="setTimeout(() => show = false, 2000)">
-                    <i class="bi bi-check-circle me-1"></i>Cambios guardados.
-                </div>
-            @endif
+            <!-- Password updated status handled by toast system -->
         </div>
     </form>
 </div>

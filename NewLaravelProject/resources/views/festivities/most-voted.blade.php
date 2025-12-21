@@ -79,19 +79,6 @@
     </div>
 
     <div class="container" style="padding-top: 2rem; padding-bottom: 0;">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
 
         @if(!empty($votingInfoMessage ?? ''))
             <div class="alert alert-primary mb-4 d-flex align-items-start" role="alert" style="background: linear-gradient(120deg, rgba(31,164,169,0.06), #EFF6FF); border-color: #BFDBFE; color:#1F2937;">

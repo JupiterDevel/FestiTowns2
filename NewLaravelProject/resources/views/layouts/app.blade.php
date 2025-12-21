@@ -103,6 +103,9 @@
         <!-- Footer -->
         @include('partials.footer')
         
+        <!-- Toast Container -->
+        <x-toast-container />
+        
         <!-- Stack for additional scripts (e.g., Google Maps) -->
         @stack('scripts')
     </body>
