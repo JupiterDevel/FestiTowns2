@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Route;
 // Public routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('localidades', [LocalityController::class, 'index'])->name('localities.index');
+Route::get('localidades/search', [LocalityController::class, 'search'])->name('localities.search');
 Route::get('festividades', [FestivityController::class, 'index'])->name('festivities.index');
+Route::get('festividades/search', [FestivityController::class, 'search'])->name('festivities.search');
 Route::get('mas-votadas', [VoteController::class, 'mostVoted'])->name('festivities.most-voted');
 Route::get('festividades/cercanas', [FestivityController::class, 'nearby'])->name('festivities.nearby');
 Route::get('festividades/mapa', [FestivityController::class, 'forMap'])->name('festivities.map');
@@ -88,6 +90,16 @@ Route::middleware(['auth', 'legal.accepted'])->group(function () {
 
     // Unified admin panel
     Route::get('admin-panel', [AdminPanelController::class, 'index'])->name('admin.panel');
+    
+    // Voting control routes (admin only)
+    Route::post('admin/voting/enable', [AdminPanelController::class, 'enableVoting'])->name('admin.voting.enable');
+    Route::post('admin/voting/disable', [AdminPanelController::class, 'disableVoting'])->name('admin.voting.disable');
+    Route::post('admin/voting/reset', [AdminPanelController::class, 'resetVotes'])->name('admin.voting.reset');
+    Route::post('admin/voting/update-message', [AdminPanelController::class, 'updateMessage'])->name('admin.voting.update-message');
+    Route::post('admin/voting/clear-message', [AdminPanelController::class, 'clearMessage'])->name('admin.voting.clear-message');
+    
+    // Contact information routes (admin only)
+    Route::post('admin/contact/update', [AdminPanelController::class, 'updateContact'])->name('admin.contact.update');
 });
 
 require __DIR__.'/auth.php';

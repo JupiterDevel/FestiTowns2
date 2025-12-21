@@ -26,13 +26,49 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $validated = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Los usuarios con rol townhall no pueden cambiar su provincia
+        if ($user->isTownHall()) {
+            unset($validated['province']);
         }
 
-        $request->user()->save();
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($user->photo && !filter_var($user->photo, FILTER_VALIDATE_URL)) {
+                $oldPhotoPath = public_path(str_replace('/storage/', 'storage/', $user->photo));
+                if (file_exists($oldPhotoPath)) {
+                    unlink($oldPhotoPath);
+                }
+            }
+            
+            $photo = $request->file('photo');
+            $filename = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+            $path = $photo->storeAs('users', $filename, 'public');
+            $validated['photo'] = '/storage/users/' . $filename;
+        } elseif ($request->has('remove_photo')) {
+            // Delete photo if user wants to remove it
+            if ($user->photo && !filter_var($user->photo, FILTER_VALIDATE_URL)) {
+                $oldPhotoPath = public_path(str_replace('/storage/', 'storage/', $user->photo));
+                if (file_exists($oldPhotoPath)) {
+                    unlink($oldPhotoPath);
+                }
+            }
+            $validated['photo'] = null;
+        } else {
+            // Don't update photo if not provided
+            unset($validated['photo']);
+        }
+
+        $user->fill($validated);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }

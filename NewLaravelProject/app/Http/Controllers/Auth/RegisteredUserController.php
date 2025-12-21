@@ -33,6 +33,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'province' => ['nullable', 'string', 'in:'.implode(',', config('provinces.provinces', []))],
             'accepted_legal' => ['required', 'accepted'],
         ]);
 
@@ -41,6 +42,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => 'visitor', // Default role for new registrations
+            'province' => $request->province,
             'accepted_legal' => true,
         ]);
 

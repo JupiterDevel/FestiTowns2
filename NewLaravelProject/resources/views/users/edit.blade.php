@@ -10,9 +10,47 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
-                        <form method="POST" action="{{ route('users.update', $user) }}">
+                        <form method="POST" action="{{ route('users.update', $user) }}" enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
+                            
+                            <!-- Photo Upload -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-camera me-1"></i>Foto de Perfil
+                                </label>
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="position-relative">
+                                        <img src="{{ $user->getPhotoUrl() }}" 
+                                             alt="{{ $user->name }}" 
+                                             class="rounded-circle border border-3 border-primary"
+                                             style="width: 120px; height: 120px; object-fit: cover;"
+                                             id="photoPreview">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" 
+                                               class="form-control @error('photo') is-invalid @enderror" 
+                                               id="photo" 
+                                               name="photo" 
+                                               accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                                               onchange="previewPhoto(this)">
+                                        @error('photo')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">
+                                            Formatos permitidos: JPEG, PNG, GIF, WEBP. Tamaño máximo: 5MB
+                                        </div>
+                                        @if($user->photo)
+                                            <div class="form-check mt-2">
+                                                <input class="form-check-input" type="checkbox" name="remove_photo" id="remove_photo" value="1">
+                                                <label class="form-check-label text-danger" for="remove_photo">
+                                                    <i class="bi bi-trash me-1"></i>Eliminar foto actual
+                                                </label>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                             
                             <div class="mb-3">
                                 <label for="name" class="form-label">Nombre</label>
@@ -77,6 +115,34 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            <div class="mb-3">
+                                <label for="province" class="form-label">Provincia (opcional)</label>
+                                <select class="form-select @error('province') is-invalid @enderror" 
+                                        id="province" name="province">
+                                    <option value="">Seleccionar provincia</option>
+                                    @foreach(config('provinces.provinces') as $province)
+                                        <option value="{{ $province }}" {{ old('province', $user->province) == $province ? 'selected' : '' }}>
+                                            {{ $province }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('province')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <script>
+                            function previewPhoto(input) {
+                                if (input.files && input.files[0]) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        document.getElementById('photoPreview').src = e.target.result;
+                                    };
+                                    reader.readAsDataURL(input.files[0]);
+                                }
+                            }
+                            </script>
 
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route('users.show', $user) }}" class="btn btn-secondary">

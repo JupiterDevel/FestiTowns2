@@ -10,8 +10,43 @@
             <div class="col-md-8">
                 <div class="card">
                     <div class="card-body">
-                        <form method="POST" action="{{ route('users.store') }}">
+                        <form method="POST" action="{{ route('users.store') }}" enctype="multipart/form-data">
                             @csrf
+                            
+                            <!-- Photo Upload -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">
+                                    <i class="bi bi-camera me-1"></i>Foto de Perfil (opcional)
+                                </label>
+                                <div class="d-flex align-items-center gap-4">
+                                    <div class="position-relative">
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center border border-3 border-primary"
+                                             style="width: 120px; height: 120px;"
+                                             id="photoPreviewPlaceholder">
+                                            <i class="bi bi-person-fill" style="font-size: 3rem;"></i>
+                                        </div>
+                                        <img src="" 
+                                             alt="Preview" 
+                                             class="rounded-circle border border-3 border-primary d-none"
+                                             style="width: 120px; height: 120px; object-fit: cover;"
+                                             id="photoPreview">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" 
+                                               class="form-control @error('photo') is-invalid @enderror" 
+                                               id="photo" 
+                                               name="photo" 
+                                               accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                                               onchange="previewPhoto(this)">
+                                        @error('photo')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                        @enderror
+                                        <div class="form-text">
+                                            Formatos permitidos: JPEG, PNG, GIF, WEBP. Tamaño máximo: 5MB
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             
                             <div class="mb-3">
                                 <label for="name" class="form-label">Nombre</label>
@@ -75,6 +110,42 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            <div class="mb-3">
+                                <label for="province" class="form-label">Provincia (opcional)</label>
+                                <select class="form-select @error('province') is-invalid @enderror" 
+                                        id="province" name="province">
+                                    <option value="">Seleccionar provincia</option>
+                                    @foreach(config('provinces.provinces') as $province)
+                                        <option value="{{ $province }}" {{ old('province') == $province ? 'selected' : '' }}>
+                                            {{ $province }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('province')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <script>
+                            function previewPhoto(input) {
+                                const preview = document.getElementById('photoPreview');
+                                const placeholder = document.getElementById('photoPreviewPlaceholder');
+                                
+                                if (input.files && input.files[0]) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(e) {
+                                        preview.src = e.target.result;
+                                        preview.classList.remove('d-none');
+                                        placeholder.classList.add('d-none');
+                                    };
+                                    reader.readAsDataURL(input.files[0]);
+                                } else {
+                                    preview.classList.add('d-none');
+                                    placeholder.classList.remove('d-none');
+                                }
+                            }
+                            </script>
 
                             <div class="d-flex justify-content-between">
                                 <a href="{{ route('users.index') }}" class="btn btn-secondary">

@@ -6,7 +6,7 @@
 @endif
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0">Premium Advertisements</h5>
+    <h5 class="mb-0">Anuncios premium</h5>
     <a href="{{ route('advertisements.create') }}" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-circle me-1"></i>Nuevo Anuncio
     </a>
@@ -36,18 +36,20 @@
             <thead class="table-light">
                 @php
                     $baseQuery = array_merge(request()->except(['page']), ['tab' => 'advertisements']);
-                    $sortLink = function (string $column) use ($baseQuery, $sort, $direction) {
-                        $nextDirection = ($sort === $column && $direction === 'asc') ? 'desc' : 'asc';
+                    $currentSort = $sort ?? 'created_at';
+                    $currentDirection = $direction ?? 'desc';
+                    $sortLink = function (string $column) use ($baseQuery, $currentSort, $currentDirection) {
+                        $nextDirection = ($currentSort === $column && $currentDirection === 'asc') ? 'desc' : 'asc';
                         return route('admin.panel', array_merge($baseQuery, [
                             'sort' => $column,
                             'direction' => $nextDirection,
                         ]));
                     };
-                    $sortIcon = function (string $column) use ($sort, $direction) {
-                        if ($sort !== $column) {
+                    $sortIcon = function (string $column) use ($currentSort, $currentDirection) {
+                        if ($currentSort !== $column) {
                             return '<i class="bi bi-arrow-down-up text-muted small"></i>';
                         }
-                        return $direction === 'asc'
+                        return $currentDirection === 'asc'
                             ? '<i class="bi bi-caret-up-fill text-primary small"></i>'
                             : '<i class="bi bi-caret-down-fill text-primary small"></i>';
                     };
@@ -75,6 +77,11 @@
                             Creado {!! $sortIcon('created_at') !!}
                         </a>
                     </th>
+                    <th>
+                        <a href="{{ $sortLink('end_date') }}" class="text-decoration-none d-inline-flex align-items-center gap-1 text-dark">
+                            Fecha Fin {!! $sortIcon('end_date') !!}
+                        </a>
+                    </th>
                     <th class="text-end">Acciones</th>
                 </tr>
             </thead>
@@ -100,12 +107,18 @@
                             @endif
                         </td>
                         <td>
-                            <div class="small text-muted">
+                            <div class="small">
                                 @if($ad->festivity)
-                                    <div><i class="bi bi-calendar-event me-1"></i>{{ $ad->festivity->name }}</div>
+                                    <div>
+                                        <a href="{{ route('festivities.show', $ad->festivity) }}" class="text-decoration-none text-primary">
+                                            <i class="bi bi-calendar-event me-1"></i>{{ $ad->festivity->name }}
+                                        </a>
+                                    </div>
                                 @endif
                                 @if($ad->locality)
-                                    <div><i class="bi bi-geo-alt me-1"></i>{{ $ad->locality->name }}</div>
+                                    <div class="text-muted">
+                                        <i class="bi bi-geo-alt me-1"></i>{{ $ad->locality->name }}
+                                    </div>
                                 @endif
                             </div>
                         </td>
@@ -126,6 +139,13 @@
                             </form>
                         </td>
                         <td>{{ $ad->created_at->format('d/m/Y') }}</td>
+                        <td>
+                            @if($ad->end_date)
+                                {{ $ad->end_date->format('d/m/Y') }}
+                            @else
+                                <span class="text-muted">-</span>
+                            @endif
+                        </td>
                         <td class="text-end">
                             <div class="d-flex gap-2 justify-content-end">
                                 <a href="{{ route('advertisements.edit', $ad) }}" class="btn btn-sm btn-outline-warning">
@@ -144,7 +164,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5">
+                        <td colspan="8" class="text-center py-5">
                             <i class="bi bi-badge-ad display-5 text-muted d-block mb-3"></i>
                             <p class="mb-3 text-muted">No hay anuncios premium todavía.</p>
                             <a href="{{ route('advertisements.create') }}" class="btn btn-primary">
@@ -157,7 +177,7 @@
         </table>
     </div>
 
-    @if(isset($advertisements) && $advertisements->hasPages())
+    @if(isset($advertisements) && $advertisements instanceof \Illuminate\Pagination\LengthAwarePaginator && $advertisements->hasPages())
         <div class="card-footer">
             {{ $advertisements->links('pagination::bootstrap-5') }}
         </div>

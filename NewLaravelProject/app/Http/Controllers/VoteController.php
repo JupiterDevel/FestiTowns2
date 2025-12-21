@@ -7,6 +7,7 @@ use App\Models\Vote;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class VoteController extends Controller
 {
@@ -17,6 +18,12 @@ class VoteController extends Controller
         // Validar que el usuario esté autenticado
         if (!$user) {
             return back()->with('error', 'Debes estar autenticado para votar.');
+        }
+        
+        // Verificar si las votaciones están habilitadas
+        $votingEnabled = Cache::get('voting_enabled', true); // Por defecto habilitado
+        if (!$votingEnabled) {
+            return back()->with('error', 'Las votaciones están deshabilitadas temporalmente. Por favor, inténtalo más tarde.');
         }
         
         try {
@@ -67,12 +74,98 @@ class VoteController extends Controller
         }
     }
 
-    public function mostVoted()
+    public function mostVoted(Request $request)
     {
-        $mostVotedFestivities = Festivity::withCount('votes')
+        $provinceMapping = config('autonomous_communities.province_to_community');
+        $communities = config('autonomous_communities.communities');
+        $provinces = config('provinces.provinces');
+        
+        // Sección Nacional: Top 7 de todas las festividades
+        $nationalFestivities = Festivity::with('locality')
+            ->withCount('votes')
             ->orderBy('votes_count', 'desc')
             ->limit(7)
             ->get();
+        
+        // Sección Regional: Ranking según comunidad autónoma
+        // Si el usuario está logueado y tiene provincia, usar su comunidad autónoma automáticamente
+        // Si no, usar "Comunidad de Madrid" como fallback
+        $selectedCommunity = $request->input('community', '');
+        $userProvince = null;
+        $userCommunity = null;
+        $defaultCommunity = 'Comunidad de Madrid';
+        
+        if (Auth::check() && Auth::user()->province) {
+            $userProvince = Auth::user()->province;
+            $userCommunity = $provinceMapping[$userProvince] ?? null;
+            
+            // Si no hay comunidad seleccionada manualmente, usar la del usuario
+            if (empty($selectedCommunity) && $userCommunity) {
+                $selectedCommunity = $userCommunity;
+            }
+        }
+        
+        // Fallback: si no hay selección manual ni del usuario, usar Comunidad de Madrid
+        if (empty($selectedCommunity)) {
+            $selectedCommunity = $defaultCommunity;
+        }
+        
+        $regionalFestivities = collect();
+        
+        if ($selectedCommunity) {
+            // Obtener todas las provincias de la comunidad autónoma seleccionada
+            $provincesInCommunity = array_keys(
+                array_filter($provinceMapping, function($community) use ($selectedCommunity) {
+                    return $community === $selectedCommunity;
+                })
+            );
+            
+            if (!empty($provincesInCommunity)) {
+                $regionalFestivities = Festivity::with('locality')
+                    ->withCount('votes')
+                    ->where(function($query) use ($provincesInCommunity) {
+                        $query->whereIn('province', $provincesInCommunity)
+                              ->orWhereHas('locality', function($localityQuery) use ($provincesInCommunity) {
+                                  $localityQuery->whereIn('province', $provincesInCommunity);
+                              });
+                    })
+                    ->orderBy('votes_count', 'desc')
+                    ->limit(7)
+                    ->get();
+            }
+        }
+        
+        // Sección Provincial: Ranking según provincia
+        // Si el usuario está logueado y tiene provincia, usar su provincia automáticamente
+        // Si no, usar "Madrid" como fallback
+        $selectedProvince = $request->input('province', '');
+        $defaultProvince = 'Madrid';
+        
+        // Si no hay provincia seleccionada manualmente y el usuario tiene provincia, usar la del usuario
+        if (empty($selectedProvince) && $userProvince && in_array($userProvince, $provinces)) {
+            $selectedProvince = $userProvince;
+        }
+        
+        // Fallback: si no hay selección manual ni del usuario, usar Madrid
+        if (empty($selectedProvince)) {
+            $selectedProvince = $defaultProvince;
+        }
+        
+        $provincialFestivities = collect();
+        
+        if ($selectedProvince && in_array($selectedProvince, $provinces)) {
+            $provincialFestivities = Festivity::with('locality')
+                ->withCount('votes')
+                ->where(function($query) use ($selectedProvince) {
+                    $query->where('province', $selectedProvince)
+                          ->orWhereHas('locality', function($localityQuery) use ($selectedProvince) {
+                              $localityQuery->where('province', $selectedProvince);
+                          });
+                })
+                ->orderBy('votes_count', 'desc')
+                ->limit(7)
+                ->get();
+        }
         
         // Verificar si el usuario ya votó hoy (los administradores siempre pueden votar)
         $userVotedToday = false;
@@ -86,8 +179,21 @@ class VoteController extends Controller
                     ->exists();
             }
         }
+        
+        // Obtener el mensaje informativo desde la caché
+        $votingInfoMessage = Cache::get('voting_info_message', '');
             
-        return view('festivities.most-voted', compact('mostVotedFestivities', 'userVotedToday'));
+        return view('festivities.most-voted', compact(
+            'nationalFestivities',
+            'regionalFestivities',
+            'provincialFestivities',
+            'selectedCommunity',
+            'selectedProvince',
+            'communities',
+            'provinces',
+            'userVotedToday',
+            'votingInfoMessage'
+        ));
     }
 
     public static function userVotedToday()

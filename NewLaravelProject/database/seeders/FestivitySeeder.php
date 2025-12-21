@@ -16,7 +16,7 @@ class FestivitySeeder extends Seeder
     {
         $pamplona = Locality::where('name', 'Pamplona')->first();
         $valencia = Locality::where('name', 'Valencia')->first();
-        $seville = Locality::where('name', 'Seville')->first();
+        $sevilla = Locality::where('name', 'Sevilla')->first();
 
         $festivities = [
             [
@@ -50,7 +50,7 @@ class FestivitySeeder extends Seeder
                 ]
             ],
             [
-                'locality_id' => $seville->id,
+                'locality_id' => $sevilla->id,
                 'province' => 'Sevilla',
                 'name' => 'Feria de Abril',
                 'start_date' => '2024-04-14',

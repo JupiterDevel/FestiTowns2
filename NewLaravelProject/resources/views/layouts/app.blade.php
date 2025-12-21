@@ -44,7 +44,7 @@
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lobster&display=swap" rel="stylesheet">
         
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -57,7 +57,26 @@
         @endif
 
         <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        @php
+            $manifestPath = public_path('build/manifest.json');
+            if (file_exists($manifestPath)) {
+                $manifest = json_decode(file_get_contents($manifestPath), true);
+                $cssFile = $manifest['resources/css/app.css']['file'] ?? null;
+                $jsFile = $manifest['resources/js/app.js']['file'] ?? null;
+            }
+        @endphp
+        
+        @if(isset($cssFile))
+            <link rel="stylesheet" href="{{ asset('build/' . $cssFile) }}">
+        @else
+            @vite(['resources/css/app.css'])
+        @endif
+        
+        @if(isset($jsFile))
+            <script type="module" src="{{ asset('build/' . $jsFile) }}"></script>
+        @else
+            @vite(['resources/js/app.js'])
+        @endif
         
         <!-- Google AdSense Script (GDPR-friendly: lazy loading) -->
         @if(config('services.google.adsense_client_id'))

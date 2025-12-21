@@ -25,9 +25,10 @@
                         <div class="card h-100 shadow-sm">
                             <div class="card-body d-flex flex-column">
                                 <div class="d-flex align-items-center mb-3">
-                                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                        <i class="bi bi-person-fill"></i>
-                                    </div>
+                                    <img src="{{ $user->getPhotoUrl() }}" 
+                                         alt="{{ $user->name }}" 
+                                         class="rounded-circle border border-2 border-primary me-3"
+                                         style="width: 50px; height: 50px; object-fit: cover;">
                                     <div>
                                         <h5 class="card-title mb-0">{{ $user->name }}</h5>
                                         <p class="text-muted mb-0">{{ $user->email }}</p>

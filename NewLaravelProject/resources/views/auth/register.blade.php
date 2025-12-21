@@ -1,8 +1,33 @@
 <x-app-layout>
+    <style>
+        body {
+            background-image: url('/storage/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #f8f9fa;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0.5;
+            z-index: -1;
+            pointer-events: none;
+        }
+        main {
+            background-color: transparent;
+        }
+    </style>
     <div class="container my-5">
         <div class="row justify-content-center">
             <div class="col-md-6 col-lg-5">
-                <div class="card shadow-lg border-0">
+                <div class="card border-0" style="box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
                     <div class="card-body p-5">
                         <h2 class="card-title text-center mb-4 fw-bold">
                             <i class="bi bi-person-plus me-2"></i>Registrarse
@@ -61,6 +86,25 @@
                                        type="password" name="password_confirmation" required autocomplete="new-password"
                                        placeholder="••••••••">
                                 @error('password_confirmation')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <!-- Province -->
+                            <div class="mb-3">
+                                <label for="province" class="form-label fw-bold">
+                                    <i class="bi bi-geo-alt me-1"></i>Provincia (opcional)
+                                </label>
+                                <select id="province" name="province" 
+                                        class="form-select @error('province') is-invalid @enderror">
+                                    <option value="">Seleccionar provincia</option>
+                                    @foreach(config('provinces.provinces') as $province)
+                                        <option value="{{ $province }}" {{ old('province') == $province ? 'selected' : '' }}>
+                                            {{ $province }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('province')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

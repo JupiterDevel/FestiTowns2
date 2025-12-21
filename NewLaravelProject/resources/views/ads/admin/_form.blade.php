@@ -21,14 +21,21 @@
 <div class="row g-3 mt-2">
     <div class="col-md-6">
         <label for="festivity_id" class="form-label fw-bold">Festividad asociada *</label>
-        <select id="festivity_id" name="festivity_id" class="form-select @error('festivity_id') is-invalid @enderror" required>
+        @php
+            $selectedFestivityId = old('festivity_id', $advertisement->festivity_id ?? $preselectedFestivityId ?? '');
+            $isFestivityPreselected = !empty($preselectedFestivityId);
+        @endphp
+        <select id="festivity_id" name="festivity_id" class="form-select @error('festivity_id') is-invalid @enderror" required {{ $isFestivityPreselected ? 'disabled' : '' }}>
             <option value="">Selecciona una festividad</option>
             @foreach($festivities as $festivity)
-                <option value="{{ $festivity->id }}" {{ (int) old('festivity_id', $advertisement->festivity_id ?? '') === $festivity->id ? 'selected' : '' }}>
+                <option value="{{ $festivity->id }}" {{ (int) $selectedFestivityId === $festivity->id ? 'selected' : '' }}>
                     {{ $festivity->name }} ({{ optional($festivity->locality)->name }})
                 </option>
             @endforeach
         </select>
+        @if($isFestivityPreselected)
+            <input type="hidden" name="festivity_id" value="{{ $preselectedFestivityId }}">
+        @endif
         @error('festivity_id')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror

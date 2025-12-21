@@ -1,17 +1,20 @@
 <x-app-layout>
     <x-slot name="header">
-        <h1 class="display-6 fw-bold text-primary mb-0">
-            <i class="bi bi-shield-check me-2"></i>Admin Panel
+        <h1 class="h2 mb-0 fw-bold" style="color:#1F2937;">
+            <i class="bi bi-shield-check me-2"></i>Panel de administración
         </h1>
     </x-slot>
 
-    <div class="container">
+    <div style="background: radial-gradient(circle at top, rgba(254,177,1,0.12), #F3F4F6); margin: -1.5rem 0 -3rem 0; padding: 2rem 0 3rem 0;">
+        <div class="container">
         @php
             $activeTab = request()->get('tab', 'comments');
             // Determine which tabs to show based on user role
             $showComments = auth()->user()->isAdmin() || auth()->user()->isTownHall();
             $showUsers = auth()->user()->isAdmin();
             $showAdvertisements = auth()->user()->isAdmin();
+            $showVoting = auth()->user()->isAdmin();
+            $showContact = auth()->user()->isAdmin();
             
             // Set default tab if requested tab is not available
             if ($activeTab === 'users' && !$showUsers) {
@@ -20,13 +23,20 @@
             if ($activeTab === 'advertisements' && !$showAdvertisements) {
                 $activeTab = 'comments';
             }
+            if ($activeTab === 'voting' && !$showVoting) {
+                $activeTab = 'comments';
+            }
+            if ($activeTab === 'contact' && !$showContact) {
+                $activeTab = 'comments';
+            }
             if ($activeTab === 'comments' && !$showComments) {
-                $activeTab = $showUsers ? 'users' : ($showAdvertisements ? 'advertisements' : 'comments');
+                $activeTab = $showUsers ? 'users' : ($showAdvertisements ? 'advertisements' : ($showVoting ? 'voting' : ($showContact ? 'contact' : 'comments')));
             }
         @endphp
 
-        <!-- Bootstrap Tabs -->
-        <ul class="nav nav-tabs mb-4" id="adminTabs" role="tablist">
+        <!-- Bootstrap Tabs + Content Panel -->
+        <div class="bg-white rounded-3 shadow-sm p-3 p-md-4">
+        <ul class="nav nav-tabs profile-tabs mb-4" id="adminTabs" role="tablist">
             @if($showComments)
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {{ $activeTab === 'comments' ? 'active' : '' }}" 
@@ -37,7 +47,7 @@
                             role="tab" 
                             aria-controls="comments" 
                             aria-selected="{{ $activeTab === 'comments' ? 'true' : 'false' }}">
-                        <i class="bi bi-chat-dots me-1"></i>Moderate Comments
+                        <i class="bi bi-chat-dots me-1"></i>Comentarios
                     </button>
                 </li>
             @endif
@@ -51,7 +61,7 @@
                             role="tab" 
                             aria-controls="users" 
                             aria-selected="{{ $activeTab === 'users' ? 'true' : 'false' }}">
-                        <i class="bi bi-people me-1"></i>Users
+                        <i class="bi bi-people me-1"></i>Usuarios
                     </button>
                 </li>
             @endif
@@ -65,7 +75,35 @@
                             role="tab" 
                             aria-controls="advertisements" 
                             aria-selected="{{ $activeTab === 'advertisements' ? 'true' : 'false' }}">
-                        <i class="bi bi-badge-ad me-1"></i>Advertisements
+                        <i class="bi bi-badge-ad me-1"></i>Anuncios
+                    </button>
+                </li>
+            @endif
+            @if($showVoting)
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ $activeTab === 'voting' ? 'active' : '' }}" 
+                            id="voting-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#voting" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="voting" 
+                            aria-selected="{{ $activeTab === 'voting' ? 'true' : 'false' }}">
+                        <i class="bi bi-heart me-1"></i>Votaciones
+                    </button>
+                </li>
+            @endif
+            @if($showContact)
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ $activeTab === 'contact' ? 'active' : '' }}" 
+                            id="contact-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#contact" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="contact" 
+                            aria-selected="{{ $activeTab === 'contact' ? 'true' : 'false' }}">
+                        <i class="bi bi-envelope me-1"></i>Contacto
                     </button>
                 </li>
             @endif
@@ -99,7 +137,28 @@
                     @include('admin.partials.advertisements')
                 </div>
             @endif
+
+            @if($showVoting)
+                <div class="tab-pane fade {{ $activeTab === 'voting' ? 'show active' : '' }}" 
+                     id="voting" 
+                     role="tabpanel" 
+                     aria-labelledby="voting-tab">
+                    @include('admin.partials.voting')
+                </div>
+            @endif
+
+            @if($showContact)
+                <div class="tab-pane fade {{ $activeTab === 'contact' ? 'show active' : '' }}" 
+                     id="contact" 
+                     role="tabpanel" 
+                     aria-labelledby="contact-tab">
+                    @include('admin.partials.contact')
+                </div>
+            @endif
+        </div>
+        </div>
+    </div>
+        </div>
         </div>
     </div>
 </x-app-layout>
-
