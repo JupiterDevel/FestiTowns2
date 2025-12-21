@@ -210,6 +210,14 @@ class FestivityController extends Controller
             });
         }
         
+        // Filter by locality (slug)
+        if ($request->filled('locality')) {
+            $localitySlug = $request->input('locality');
+            $allFestivities = $allFestivities->filter(function ($festivity) use ($localitySlug) {
+                return $festivity->locality && $festivity->locality->slug === $localitySlug;
+            });
+        }
+        
         // Filter by date range
         if ($request->filled('date_from')) {
             $allFestivities = $allFestivities->filter(function ($festivity) use ($request) {

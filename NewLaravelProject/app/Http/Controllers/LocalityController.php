@@ -481,9 +481,15 @@ class LocalityController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Locality $locality)
+    public function show(Locality $locality, Request $request)
     {
-        $locality->load('festivities');
+        // Paginate festivities
+        $perPage = 6; // 2 rows x 3 columns = 6 items per page
+        $festivities = $locality->festivities()
+            ->withCount('votes')
+            ->orderBy('start_date', 'asc')
+            ->paginate($perPage, ['*'], 'festivities_page')
+            ->appends($request->except('festivities_page'));
         
         // SEO Meta Tags
         $image = $locality->photos && count($locality->photos) > 0 
@@ -512,6 +518,7 @@ class LocalityController extends Controller
         
         return view('localities.show', [
             'locality' => $locality,
+            'festivities' => $festivities,
             'meta' => $meta,
             'schema' => $schema,
             'mainAdvertisement' => $ads['main'],

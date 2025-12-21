@@ -131,10 +131,22 @@
                 }, 400);
             }
             
+            // Get province parameter from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const provinceParam = urlParams.get('province');
+            
+            // Set province filter if parameter exists
+            if (provinceParam && provinceFilter) {
+                provinceFilter.value = provinceParam;
+            }
+            
+            // Initial fetch on page load (will use province from URL if present)
+            fetchLocalities();
+            
             // Fetch localities via AJAX
             async function fetchLocalities(page = 1) {
                 const searchTerm = searchInput.value.trim();
-                const province = provinceFilter.value;
+                const province = provinceFilter.value || provinceParam || '';
                 
                 // Update context text
                 if (searchTerm || province) {

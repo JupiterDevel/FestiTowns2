@@ -275,7 +275,9 @@
                                 @if($festivity->province)
                                     <div class="location-item">
                                         <i class="bi bi-map me-1"></i>
-                                        <span>{{ $festivity->province }}</span>
+                                        <a href="{{ route('festivities.index') }}?province={{ urlencode($festivity->province) }}" class="text-decoration-none">
+                                            <span>{{ $festivity->province }}</span>
+                                        </a>
                                     </div>
                                 @endif
                                 <div class="location-item">

@@ -138,15 +138,28 @@
                 }, 400);
             }
             
+            // Get parameters from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const localityParam = urlParams.get('locality');
+            const provinceParam = urlParams.get('province');
+            
+            // Set province filter if parameter exists
+            if (provinceParam && provinceFilter) {
+                provinceFilter.value = provinceParam;
+            }
+            
+            // Initial fetch on page load (will use province/locality from URL if present)
+            fetchFestivities();
+            
             // Fetch festivities via AJAX
             async function fetchFestivities(page = 1) {
                 const searchTerm = searchInput.value.trim();
-                const province = provinceFilter.value;
+                const province = provinceFilter.value || provinceParam || '';
                 const dateFrom = dateFromFilter.value;
                 const dateTo = dateToFilter.value;
                 
                 // Update context text
-                if (searchTerm || province || dateFrom || dateTo) {
+                if (searchTerm || province || dateFrom || dateTo || localityParam) {
                     isSearching = true;
                     contextText.innerHTML = '<i class="bi bi-search me-1"></i>Resultados de búsqueda.';
                 } else {
@@ -163,6 +176,7 @@
                     province: province,
                     date_from: dateFrom,
                     date_to: dateTo,
+                    locality: localityParam || '',
                     page: page
                 });
                 
