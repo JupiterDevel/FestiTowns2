@@ -1,10 +1,4 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h1 class="h2 mb-0 fw-bold" style="color:#1F2937;">
-            <i class="bi bi-person-gear me-2"></i>Mi perfil
-        </h1>
-    </x-slot>
-
     <div style="background: radial-gradient(circle at top, rgba(254,177,1,0.12), #F3F4F6); margin: -1.5rem 0 -3rem 0; padding: 2rem 0 3rem 0;">
         <div class="container">
         <!-- Profile Header -->

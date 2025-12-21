@@ -21,6 +21,7 @@
     </x-slot>
 
     <style>
+        /* Background image on body */
         body {
             background-image: url('{{ asset('storage/background.png') }}');
             background-size: cover;
@@ -29,9 +30,9 @@
             background-attachment: fixed;
             background-color: #f8f9fa;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
         }
+        
+        /* White overlay layer */
         body::before {
             content: '';
             position: fixed;
@@ -44,16 +45,18 @@
             z-index: -1;
             pointer-events: none;
         }
-        main {
+        
+        /* Make main and its direct children transparent so background shows through */
+        main.py-4 {
             background-color: transparent;
-            flex: 1;
         }
-        footer {
-            margin-top: auto;
+        
+        main.py-4 > div:first-child {
+            background: none;
+            background-color: transparent;
         }
     </style>
-
-    <div class="container my-4">
+        <div class="container my-4">
         <div class="row justify-content-center">
             <div class="col-lg-10">
                 <!-- Profile Header Card -->
