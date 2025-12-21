@@ -82,14 +82,14 @@
         </div>
 
         <!-- Empty State -->
-        <div id="emptyState" class="text-center py-5 d-none">
+        <div id="emptyState" class="text-center py-5 d-none empty-state-centered">
             <i class="bi bi-search display-4 text-muted"></i>
             <p class="text-muted mt-3">No se encontraron localidades</p>
         </div>
 
         <!-- Pagination -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3">
-            <div class="text-muted small">
+        <div id="paginationInfo" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3">
+            <div id="paginationText" class="text-muted small">
                 Mostrando {{ $localities->firstItem() ?? 0 }} - {{ $localities->lastItem() ?? 0 }} de {{ $localities->total() }} resultados
             </div>
             <div id="paginationContainer">
@@ -108,10 +108,43 @@
             const loadingSpinner = document.getElementById('loadingSpinner');
             const emptyState = document.getElementById('emptyState');
             const paginationContainer = document.getElementById('paginationContainer');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const paginationText = document.getElementById('paginationText');
             
             let searchTimeout;
             let currentPage = 1;
             let isSearching = false;
+            let lastPage = 1;
+            
+            // Track if a request is in progress to prevent double-clicks
+            let isLoading = false;
+            
+            // Set up event delegation for pagination (once, using document to catch all clicks)
+            document.addEventListener('click', function(e) {
+                // Find the closest link with data-page attribute (handles clicks on text nodes too)
+                const link = e.target.closest('a[data-page]');
+                
+                // Check if the link is inside the pagination container
+                if (link && paginationContainer && paginationContainer.contains(link)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Prevent clicks while loading
+                    if (isLoading) {
+                        return;
+                    }
+                    
+                    const pageStr = link.getAttribute('data-page');
+                    const page = parseInt(pageStr);
+                    
+                    // Validate page number - allow navigation if page is valid number
+                    if (pageStr && !isNaN(page) && page >= 1) {
+                        // Don't block navigation - let backend handle validation
+                        fetchLocalities(page);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }
+            });
             
             const isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
             @auth
@@ -140,11 +173,23 @@
                 provinceFilter.value = provinceParam;
             }
             
+            // Clear initial Laravel pagination immediately
+            if (paginationContainer) {
+                paginationContainer.innerHTML = '';
+            }
+            
             // Initial fetch on page load (will use province from URL if present)
             fetchLocalities();
             
             // Fetch localities via AJAX
-            async function fetchLocalities(page = 1) {
+            async function fetchLocalities(pageNum = 1) {
+                // Prevent multiple simultaneous requests
+                if (isLoading) {
+                    return;
+                }
+                
+                isLoading = true;
+                currentPage = pageNum;
                 const searchTerm = searchInput.value.trim();
                 const province = provinceFilter.value || provinceParam || '';
                 
@@ -160,11 +205,12 @@
                 loadingSpinner.classList.remove('d-none');
                 localitiesGrid.classList.add('d-none');
                 emptyState.classList.add('d-none');
+                if (paginationInfo) paginationInfo.classList.remove('d-none');
                 
                 const params = new URLSearchParams({
                     search: searchTerm,
                     province: province,
-                    page: page
+                    page: currentPage
                 });
                 
                 try {
@@ -179,19 +225,26 @@
                     
                     if (data.success) {
                         updateLocalitiesGrid(data.localities);
-                        updatePagination(data.pagination);
+                        
+                        // Always update pagination if it exists in response
+                        if (data.pagination) {
+                            updatePagination(data.pagination);
+                        }
                         
                         if (data.localities.length === 0) {
                             localitiesGrid.classList.add('d-none');
                             emptyState.classList.remove('d-none');
+                            paginationInfo.classList.add('d-none');
                         } else {
                             localitiesGrid.classList.remove('d-none');
                             emptyState.classList.add('d-none');
+                            paginationInfo.classList.remove('d-none');
                         }
                     }
                 } catch (error) {
                     console.error('Error fetching localities:', error);
                 } finally {
+                    isLoading = false;
                     loadingSpinner.classList.add('d-none');
                 }
             }
@@ -218,12 +271,7 @@
                                  style="font-weight: 600; padding: 0.4rem 0.75rem; border-radius: 999px;">
                                  ¡De Fiesta!
                            </span>`
-                        : locality.next_festivity 
-                            ? `<span class="badge compact-badge fw-semibold"
-                                       style="background-color: #1FA4A9; color: #FFFFFF; max-width: 70%; overflow: hidden; text-overflow: ellipsis; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap;">
-                                       ▶▶ ${locality.next_festivity.name}
-                               </span>`
-                            : '';
+                        : '';
                     
                     const overlayBadges = `
                         ${statusBadge ? `<span class="position-absolute top-0 start-0 m-3">${statusBadge}</span>` : ''}
@@ -261,16 +309,14 @@
                                </span>`
                             : '';
                     
-                    const statusInfo = statusLeft
-                        ? `<div class="mt-auto d-flex align-items-center justify-content-between" style="padding-top: 0.85rem; border-top: 1px solid #F3F4F6;">
+                    const statusInfo = `<div class="mt-auto d-flex align-items-center justify-content-between" style="padding-top: 0.85rem; border-top: 1px solid #F3F4F6;">
                                <div class="d-flex align-items-center gap-2">
                                    ${statusLeft}
                                </div>
                                <a href="${localityDetailUrl}" class="text-decoration-none" style="color: #FEB101; font-size: 0.83rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1;">
                                    Ver más →
                                </a>
-                           </div>`
-                        : '';
+                           </div>`;
                     
                     const adminButtons = (canUpdate || canDelete) 
                         ? `<div class="mt-3 pt-3" style="border-top: 1px solid #E5E7EB;">
@@ -297,7 +343,6 @@
                                     <a href="${localityDetailUrl}" class="text-decoration-none">
                                         <h5 class="card-title compact-title mb-0">${locality.name}</h5>
                                     </a>
-                                    ${provinceBadge}
                                 </div>
                                 ${description}
                                 ${statusInfo}
@@ -310,49 +355,122 @@
                 });
             }
             
-            // Update pagination
+            // Update pagination with smart pagination logic
             function updatePagination(pagination) {
-                if (pagination.last_page <= 1) {
-                    paginationContainer.innerHTML = '';
+                if (!pagination || !pagination.last_page || pagination.last_page <= 1) {
+                    if (paginationContainer) {
+                        paginationContainer.innerHTML = '';
+                    }
                     return;
+                }
+                
+                // Ensure we have valid numbers
+                currentPage = parseInt(pagination.current_page) || 1;
+                lastPage = parseInt(pagination.last_page) || 1;
+                const total = parseInt(pagination.total) || 0;
+                const perPage = parseInt(pagination.per_page) || 6;
+                
+                // Safety check - ensure currentPage is within valid range
+                if (currentPage < 1) currentPage = 1;
+                if (currentPage > lastPage) currentPage = lastPage;
+                
+                // Update pagination text
+                if (paginationText && total > 0) {
+                    const firstItem = (currentPage - 1) * perPage + 1;
+                    const lastItem = Math.min(currentPage * perPage, total);
+                    paginationText.textContent = `Mostrando ${firstItem} - ${lastItem} de ${total} resultados`;
                 }
                 
                 let paginationHTML = '<nav><ul class="pagination justify-content-center">';
                 
                 // Previous button
-                if (pagination.current_page > 1) {
+                if (currentPage > 1) {
                     paginationHTML += `<li class="page-item">
-                        <a class="page-link" href="#" data-page="${pagination.current_page - 1}">Anterior</a>
+                        <a class="page-link" href="#" data-page="${currentPage - 1}">Anterior</a>
+                    </li>`;
+                } else {
+                    paginationHTML += `<li class="page-item disabled">
+                        <span class="page-link">Anterior</span>
                     </li>`;
                 }
                 
-                // Page numbers
-                for (let i = 1; i <= pagination.last_page; i++) {
-                    const active = i === pagination.current_page ? 'active' : '';
-                    paginationHTML += `<li class="page-item ${active}">
-                        <a class="page-link" href="#" data-page="${i}">${i}</a>
-                    </li>`;
+                // Smart page number display - show max 7 page numbers total
+                const pagesToShow = [];
+                
+                if (lastPage <= 7) {
+                    // Show all pages if total pages is small (7 or less)
+                    for (let i = 1; i <= lastPage; i++) {
+                        pagesToShow.push(i);
+                    }
+                } else {
+                    // Always show first page
+                    pagesToShow.push(1);
+                    
+                    // Determine what pages to show around current
+                    if (currentPage <= 4) {
+                        // Near start: show 1, 2, 3, 4, 5, ..., last
+                        for (let i = 2; i <= 5 && i <= lastPage; i++) {
+                            pagesToShow.push(i);
+                        }
+                        if (lastPage > 5) {
+                            pagesToShow.push('ellipsis');
+                            pagesToShow.push(lastPage);
+                        }
+                    } else if (currentPage >= lastPage - 3) {
+                        // Near end: show 1, ..., last-4, last-3, last-2, last-1, last
+                        if (lastPage > 5) {
+                            pagesToShow.push('ellipsis');
+                        }
+                        const start = Math.max(2, lastPage - 4);
+                        for (let i = start; i <= lastPage; i++) {
+                            pagesToShow.push(i);
+                        }
+                    } else {
+                        // Middle: show 1, ..., current-1, current, current+1, ..., last
+                        pagesToShow.push('ellipsis');
+                        pagesToShow.push(currentPage - 1);
+                        pagesToShow.push(currentPage);
+                        pagesToShow.push(currentPage + 1);
+                        pagesToShow.push('ellipsis');
+                        pagesToShow.push(lastPage);
+                    }
                 }
                 
-                // Next button
-                if (pagination.current_page < pagination.last_page) {
+                // Render page numbers - filter out any invalid pages
+                pagesToShow.forEach(page => {
+                    if (page === 'ellipsis') {
+                        paginationHTML += `<li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>`;
+                    } else {
+                        const pageNum = parseInt(page);
+                        // Only render if it's a valid page number within range
+                        if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= lastPage) {
+                            const isActive = pageNum === currentPage;
+                            paginationHTML += `<li class="page-item ${isActive ? 'active' : ''}">
+                                <a class="page-link" href="#" data-page="${pageNum}">${pageNum}</a>
+                            </li>`;
+                        }
+                    }
+                });
+                
+                // Next button - simplified like Previous
+                if (currentPage < lastPage) {
                     paginationHTML += `<li class="page-item">
-                        <a class="page-link" href="#" data-page="${pagination.current_page + 1}">Siguiente</a>
+                        <a class="page-link" href="#" data-page="${currentPage + 1}">Siguiente</a>
+                    </li>`;
+                } else {
+                    paginationHTML += `<li class="page-item disabled">
+                        <span class="page-link">Siguiente</span>
                     </li>`;
                 }
                 
                 paginationHTML += '</ul></nav>';
-                paginationContainer.innerHTML = paginationHTML;
                 
-                // Add click handlers
-                paginationContainer.querySelectorAll('a[data-page]').forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const page = parseInt(this.dataset.page);
-                        fetchLocalities(page);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    });
-                });
+                // Set pagination HTML - event delegation already handles clicks, so no need for direct listeners
+                if (paginationContainer) {
+                    paginationContainer.innerHTML = paginationHTML;
+                }
             }
             
             // Event listeners
@@ -372,6 +490,9 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         body::before {
             content: '';
@@ -387,10 +508,25 @@
         }
         main {
             background-color: transparent;
+            flex: 1;
         }
         /* Remove only top padding for this page */
         main.py-4 {
             padding-top: 0 !important;
+        }
+        
+        /* Ensure footer stays at bottom */
+        footer {
+            margin-top: auto;
+        }
+        
+        /* Empty State Centering */
+        .empty-state-centered {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
         }
         
         /* Header Localities - Hero with Image */
@@ -651,10 +787,21 @@
         }
         
         #paginationContainer .page-item.active .page-link {
-            background: #FEB101;
+            background: linear-gradient(135deg, #FEB101 0%, #FF9500 100%);
             border-color: #FEB101;
             color: white;
             font-weight: 700;
+            font-size: 1.05rem;
+            box-shadow: 0 2px 8px rgba(254, 177, 1, 0.5);
+            transform: scale(1.1);
+            z-index: 1;
+            position: relative;
+        }
+        
+        #paginationContainer .page-item.active .page-link:hover {
+            background: linear-gradient(135deg, #FF9500 0%, #FEB101 100%);
+            transform: scale(1.15);
+            box-shadow: 0 3px 12px rgba(254, 177, 1, 0.6);
         }
         
         #paginationContainer .page-item.disabled .page-link {

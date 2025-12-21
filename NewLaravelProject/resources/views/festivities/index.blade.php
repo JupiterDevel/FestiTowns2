@@ -87,14 +87,14 @@
         </div>
 
         <!-- Empty State -->
-        <div id="emptyState" class="text-center py-5 d-none">
+        <div id="emptyState" class="text-center py-5 d-none empty-state-centered">
             <i class="bi bi-search display-4 text-muted"></i>
             <p class="text-muted mt-3">No se encontraron festividades</p>
         </div>
 
         <!-- Pagination -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3">
-            <div class="text-muted small">
+        <div id="paginationInfo" class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3">
+            <div id="paginationText" class="text-muted small">
                 Mostrando {{ $festivities->firstItem() ?? 0 }} - {{ $festivities->lastItem() ?? 0 }} de {{ $festivities->total() }} resultados
             </div>
             <div id="paginationContainer">
@@ -115,10 +115,43 @@
             const loadingSpinner = document.getElementById('loadingSpinner');
             const emptyState = document.getElementById('emptyState');
             const paginationContainer = document.getElementById('paginationContainer');
+            const paginationInfo = document.getElementById('paginationInfo');
+            const paginationText = document.getElementById('paginationText');
             
             let searchTimeout;
             let currentPage = 1;
             let isSearching = false;
+            let lastPage = 1;
+            
+            // Track if a request is in progress to prevent double-clicks
+            let isLoading = false;
+            
+            // Set up event delegation for pagination (once, using document to catch all clicks)
+            document.addEventListener('click', function(e) {
+                // Find the closest link with data-page attribute (handles clicks on text nodes too)
+                const link = e.target.closest('a[data-page]');
+                
+                // Check if the link is inside the pagination container
+                if (link && paginationContainer && paginationContainer.contains(link)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Prevent clicks while loading
+                    if (isLoading) {
+                        return;
+                    }
+                    
+                    const pageStr = link.getAttribute('data-page');
+                    const page = parseInt(pageStr);
+                    
+                    // Validate page number - allow navigation if page is valid number
+                    if (pageStr && !isNaN(page) && page >= 1) {
+                        // Don't block navigation - let backend handle validation
+                        fetchFestivities(page);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }
+            });
             
             const isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
             @auth
@@ -148,11 +181,23 @@
                 provinceFilter.value = provinceParam;
             }
             
+            // Clear initial Laravel pagination immediately
+            if (paginationContainer) {
+                paginationContainer.innerHTML = '';
+            }
+            
             // Initial fetch on page load (will use province/locality from URL if present)
             fetchFestivities();
             
             // Fetch festivities via AJAX
-            async function fetchFestivities(page = 1) {
+            async function fetchFestivities(pageNum = 1) {
+                // Prevent multiple simultaneous requests
+                if (isLoading) {
+                    return;
+                }
+                
+                isLoading = true;
+                currentPage = pageNum;
                 const searchTerm = searchInput.value.trim();
                 const province = provinceFilter.value || provinceParam || '';
                 const dateFrom = dateFromFilter.value;
@@ -170,6 +215,7 @@
                 loadingSpinner.classList.remove('d-none');
                 festivitiesGrid.classList.add('d-none');
                 emptyState.classList.add('d-none');
+                if (paginationInfo) paginationInfo.classList.remove('d-none');
                 
                 const params = new URLSearchParams({
                     search: searchTerm,
@@ -177,7 +223,7 @@
                     date_from: dateFrom,
                     date_to: dateTo,
                     locality: localityParam || '',
-                    page: page
+                    page: currentPage
                 });
                 
                 try {
@@ -192,19 +238,26 @@
                     
                     if (data.success) {
                         updateFestivitiesGrid(data.festivities);
-                        updatePagination(data.pagination);
+                        
+                        // Always update pagination if it exists in response
+                        if (data.pagination) {
+                            updatePagination(data.pagination);
+                        }
                         
                         if (data.festivities.length === 0) {
                             festivitiesGrid.classList.add('d-none');
                             emptyState.classList.remove('d-none');
+                            paginationInfo.classList.add('d-none');
                         } else {
                             festivitiesGrid.classList.remove('d-none');
                             emptyState.classList.add('d-none');
+                            paginationInfo.classList.remove('d-none');
                         }
                     }
                 } catch (error) {
                     console.error('Error fetching festivities:', error);
                 } finally {
+                    isLoading = false;
                     loadingSpinner.classList.add('d-none');
                 }
             }
@@ -239,6 +292,10 @@
                         ? `${festivity.start_date_formatted} - ${festivity.end_date_formatted}`
                         : festivity.start_date_formatted;
                     
+                    const votesBadge = `<span class="badge" style="background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%); color: #FFFFFF; font-weight: 600; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 6px; box-shadow: 0 2px 6px rgba(254, 177, 1, 0.3);">
+                        <i class="bi bi-heart-fill me-1" style="font-size: 0.7rem;"></i>${festivity.votes_count} ${festivity.votes_count === 1 ? 'Voto' : 'Votos'}
+                    </span>`;
+                    
                     const statusInfo = festivity.is_active
                         ? `<div class="mt-auto mb-2">
                                <div class="d-flex align-items-center justify-content-between">
@@ -246,16 +303,12 @@
                                          style="background-color: #198754; color: #FFFFFF; font-size: 0.78rem; padding: 0.35rem 0.9rem; border-radius: 999px;">
                                          Activa ahora
                                    </span>
-                                   <small class="text-muted">
-                                       <i class="bi bi-heart me-1"></i>${festivity.votes_count} ${festivity.votes_count === 1 ? 'voto' : 'votos'}
-                                   </small>
+                                   ${votesBadge}
                                </div>
                            </div>`
                         : `<div class="mt-auto mb-2">
-                               <div>
-                                   <small class="text-muted">
-                                       <i class="bi bi-heart me-1"></i>${festivity.votes_count} ${festivity.votes_count === 1 ? 'voto' : 'votos'}
-                                   </small>
+                               <div class="d-flex align-items-center justify-content-end">
+                                   ${votesBadge}
                                </div>
                            </div>`;
                     
@@ -314,45 +367,122 @@
                 });
             }
             
-            // Update pagination
+            // Update pagination with smart pagination logic
             function updatePagination(pagination) {
-                if (pagination.last_page <= 1) {
-                    paginationContainer.innerHTML = '';
+                if (!pagination || !pagination.last_page || pagination.last_page <= 1) {
+                    if (paginationContainer) {
+                        paginationContainer.innerHTML = '';
+                    }
                     return;
+                }
+                
+                // Ensure we have valid numbers
+                currentPage = parseInt(pagination.current_page) || 1;
+                lastPage = parseInt(pagination.last_page) || 1;
+                const total = parseInt(pagination.total) || 0;
+                const perPage = parseInt(pagination.per_page) || 6;
+                
+                // Safety check - ensure currentPage is within valid range
+                if (currentPage < 1) currentPage = 1;
+                if (currentPage > lastPage) currentPage = lastPage;
+                
+                // Update pagination text
+                if (paginationText && total > 0) {
+                    const firstItem = (currentPage - 1) * perPage + 1;
+                    const lastItem = Math.min(currentPage * perPage, total);
+                    paginationText.textContent = `Mostrando ${firstItem} - ${lastItem} de ${total} resultados`;
                 }
                 
                 let paginationHTML = '<nav><ul class="pagination justify-content-center">';
                 
-                if (pagination.current_page > 1) {
+                // Previous button
+                if (currentPage > 1) {
                     paginationHTML += `<li class="page-item">
-                        <a class="page-link" href="#" data-page="${pagination.current_page - 1}">Anterior</a>
+                        <a class="page-link" href="#" data-page="${currentPage - 1}">Anterior</a>
+                    </li>`;
+                } else {
+                    paginationHTML += `<li class="page-item disabled">
+                        <span class="page-link">Anterior</span>
                     </li>`;
                 }
                 
-                for (let i = 1; i <= pagination.last_page; i++) {
-                    const active = i === pagination.current_page ? 'active' : '';
-                    paginationHTML += `<li class="page-item ${active}">
-                        <a class="page-link" href="#" data-page="${i}">${i}</a>
-                    </li>`;
+                // Smart page number display - show max 7 page numbers total
+                const pagesToShow = [];
+                
+                if (lastPage <= 7) {
+                    // Show all pages if total pages is small (7 or less)
+                    for (let i = 1; i <= lastPage; i++) {
+                        pagesToShow.push(i);
+                    }
+                } else {
+                    // Always show first page
+                    pagesToShow.push(1);
+                    
+                    // Determine what pages to show around current
+                    if (currentPage <= 4) {
+                        // Near start: show 1, 2, 3, 4, 5, ..., last
+                        for (let i = 2; i <= 5 && i <= lastPage; i++) {
+                            pagesToShow.push(i);
+                        }
+                        if (lastPage > 5) {
+                            pagesToShow.push('ellipsis');
+                            pagesToShow.push(lastPage);
+                        }
+                    } else if (currentPage >= lastPage - 3) {
+                        // Near end: show 1, ..., last-4, last-3, last-2, last-1, last
+                        if (lastPage > 5) {
+                            pagesToShow.push('ellipsis');
+                        }
+                        const start = Math.max(2, lastPage - 4);
+                        for (let i = start; i <= lastPage; i++) {
+                            pagesToShow.push(i);
+                        }
+                    } else {
+                        // Middle: show 1, ..., current-1, current, current+1, ..., last
+                        pagesToShow.push('ellipsis');
+                        pagesToShow.push(currentPage - 1);
+                        pagesToShow.push(currentPage);
+                        pagesToShow.push(currentPage + 1);
+                        pagesToShow.push('ellipsis');
+                        pagesToShow.push(lastPage);
+                    }
                 }
                 
-                if (pagination.current_page < pagination.last_page) {
+                // Render page numbers - filter out any invalid pages
+                pagesToShow.forEach(page => {
+                    if (page === 'ellipsis') {
+                        paginationHTML += `<li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>`;
+                    } else {
+                        const pageNum = parseInt(page);
+                        // Only render if it's a valid page number within range
+                        if (!isNaN(pageNum) && pageNum >= 1 && pageNum <= lastPage) {
+                            const isActive = pageNum === currentPage;
+                            paginationHTML += `<li class="page-item ${isActive ? 'active' : ''}">
+                                <a class="page-link" href="#" data-page="${pageNum}">${pageNum}</a>
+                            </li>`;
+                        }
+                    }
+                });
+                
+                // Next button - simplified like Previous
+                if (currentPage < lastPage) {
                     paginationHTML += `<li class="page-item">
-                        <a class="page-link" href="#" data-page="${pagination.current_page + 1}">Siguiente</a>
+                        <a class="page-link" href="#" data-page="${currentPage + 1}">Siguiente</a>
+                    </li>`;
+                } else {
+                    paginationHTML += `<li class="page-item disabled">
+                        <span class="page-link">Siguiente</span>
                     </li>`;
                 }
                 
                 paginationHTML += '</ul></nav>';
-                paginationContainer.innerHTML = paginationHTML;
                 
-                paginationContainer.querySelectorAll('a[data-page]').forEach(link => {
-                    link.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        const page = parseInt(this.dataset.page);
-                        fetchFestivities(page);
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    });
-                });
+                // Set pagination HTML - event delegation already handles clicks, so no need for direct listeners
+                if (paginationContainer) {
+                    paginationContainer.innerHTML = paginationHTML;
+                }
             }
             
             // Event listeners
@@ -380,6 +510,9 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
             background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         body::before {
             content: '';
@@ -395,10 +528,25 @@
         }
         main {
             background-color: transparent;
+            flex: 1;
         }
         /* Remove only top padding for this page */
         main.py-4 {
             padding-top: 0 !important;
+        }
+        
+        /* Ensure footer stays at bottom */
+        footer {
+            margin-top: auto;
+        }
+        
+        /* Empty State Centering */
+        .empty-state-centered {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 60vh;
         }
         
         /* Compact Header Section with Background Image */
@@ -657,10 +805,21 @@
         }
         
         #paginationContainer .page-item.active .page-link {
-            background: #FEB101;
+            background: linear-gradient(135deg, #FEB101 0%, #FF9500 100%);
             border-color: #FEB101;
             color: white;
             font-weight: 700;
+            font-size: 1.05rem;
+            box-shadow: 0 2px 8px rgba(254, 177, 1, 0.5);
+            transform: scale(1.1);
+            z-index: 1;
+            position: relative;
+        }
+        
+        #paginationContainer .page-item.active .page-link:hover {
+            background: linear-gradient(135deg, #FF9500 0%, #FEB101 100%);
+            transform: scale(1.15);
+            box-shadow: 0 3px 12px rgba(254, 177, 1, 0.6);
         }
         
         #paginationContainer .page-item.disabled .page-link {
