@@ -343,13 +343,16 @@
                             @include('ads.secondary_banner', ['ads' => collect([$currentAd]), 'orientation' => 'sidebar', 'newAdParams' => $adCreationParams])
                         </div>
                     @else
+                        <!-- Google AdSense Test Ad when no secondary ad available -->
                         <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body text-center bg-light border border-2 border-secondary border-opacity-25" style="border-style: dashed; min-height: 300px; display: flex; align-items: center; justify-content: center;">
-                                <div>
-                                    <div class="text-muted small text-uppercase mb-2">Google Ads</div>
-                                    <p class="mb-1 fw-semibold">Bloque publicitario</p>
-                                    <p class="mb-0 text-muted small">Placeholder</p>
-                                </div>
+                            <div class="card-body" style="min-height: 300px; padding: 1rem;">
+                                <x-adsense-ad 
+                                    clientId="ca-pub-3940256099942544" 
+                                    type="display"
+                                    style="display:block; min-height: 250px; width: 100%;"
+                                    format="auto"
+                                    :testMode="true"
+                                />
                             </div>
                         </div>
                     @endif
@@ -444,13 +447,16 @@
                             @include('ads.secondary_banner', ['ads' => collect([$currentAd]), 'orientation' => 'sidebar', 'newAdParams' => $adCreationParams])
                         </div>
                     @else
+                        <!-- Google AdSense Test Ad when no secondary ad available -->
                         <div class="card shadow-sm border-0 h-100">
-                            <div class="card-body text-center bg-light border border-2 border-secondary border-opacity-25" style="border-style: dashed; min-height: 300px; display: flex; align-items: center; justify-content: center;">
-                                <div>
-                                    <div class="text-muted small text-uppercase mb-2">Google Ads</div>
-                                    <p class="mb-1 fw-semibold">Bloque publicitario</p>
-                                    <p class="mb-0 text-muted small">Placeholder</p>
-                                </div>
+                            <div class="card-body" style="min-height: 300px; padding: 1rem;">
+                                <x-adsense-ad 
+                                    clientId="ca-pub-3940256099942544" 
+                                    type="display"
+                                    style="display:block; min-height: 250px; width: 100%;"
+                                    format="auto"
+                                    :testMode="true"
+                                />
                             </div>
                         </div>
                     @endif

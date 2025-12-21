@@ -11,6 +11,7 @@
             $isPremium = $ad && $ad->premium;
             $isAdSense = $ad && $ad->is_adsense;
             $imageUrl = ($ad && $ad->image && !$isAdSense) ? $ad->image_url : null;
+            $isRealAd = $ad && ($ad->name || $ad->url || $ad->image || ($ad->is_adsense && $ad->adsense_client_id && $ad->adsense_slot_id));
         @endphp
         <div class="card shadow-sm border-0 h-100 position-relative">
             @if($adminCanManageAds)
@@ -68,6 +69,17 @@
                         type="{{ $ad->adsense_type ?? 'display' }}"
                         style="display:block; min-height: 180px;"
                         format="auto"
+                    />
+                </div>
+            @elseif(!$isRealAd)
+                <!-- Google AdSense Test Ad for Secondary Banner -->
+                <div class="card-body" style="min-height: 300px; padding: 1rem;">
+                    <x-adsense-ad 
+                        clientId="ca-pub-3940256099942544" 
+                        type="display"
+                        style="display:block; min-height: 250px; width: 100%;"
+                        format="auto"
+                        :testMode="true"
                     />
                 </div>
             @else
