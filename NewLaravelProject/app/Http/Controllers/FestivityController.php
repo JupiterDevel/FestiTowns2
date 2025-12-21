@@ -6,6 +6,7 @@ use App\Models\Festivity;
 use App\Models\Locality;
 use App\Services\AdvertisementService;
 use App\Services\GoogleMapsService;
+use App\Services\SearchService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -20,7 +21,8 @@ class FestivityController extends Controller
 
     public function __construct(
         private AdvertisementService $advertisementService,
-        private GoogleMapsService $googleMapsService
+        private GoogleMapsService $googleMapsService,
+        private SearchService $searchService
     ) {
     }
 
@@ -147,7 +149,22 @@ class FestivityController extends Controller
     }
 
     /**
-     * Search festivities via AJAX
+     * Búsqueda de festividades vía AJAX con búsqueda inteligente.
+     * 
+     * Implementa búsqueda avanzada con:
+     * - Normalización de acentos (ej: "Fallas" encuentra "Falles")
+     * - Expansión con sinónimos (ej: "fiesta" encuentra "festividad", "evento", "festival")
+     * - Ordenamiento por relevancia (exacta > empieza con > contiene)
+     * - Búsqueda en múltiples campos (nombre de festividad, descripción, nombre de localidad)
+     * 
+     * Mantiene la lógica de priorización existente:
+     * - Festividades activas con anuncios pagados (prioridad 1.1)
+     * - Festividades activas sin anuncios (prioridad 1.2)
+     * - Festividades próximas con anuncios (prioridad 2)
+     * - Otras festividades (prioridad 3)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function search(Request $request)
     {
@@ -156,36 +173,65 @@ class FestivityController extends Controller
         $perPage = 6;
         $page = $request->input('page', 1);
         
-        // Build base query with filters
-        $baseQuery = Festivity::query();
+        // Get all festivities for intelligent filtering
+        $allFestivities = Festivity::with(['locality', 'votes'])->get();
         
-        // Search by name or description
+        // Apply intelligent search if search term is provided
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
-            $baseQuery->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
+            $expandedQueries = $this->searchService->expandSearchQuery($searchTerm);
+            
+            // Filter festivities using intelligent search
+            $allFestivities = $allFestivities->filter(function ($festivity) use ($expandedQueries) {
+                // Check festivity name
+                if ($this->searchService->matchesExpandedQuery($festivity->name, $expandedQueries)) {
+                    return true;
+                }
+                
+                // Check description
+                if ($festivity->description && $this->searchService->matchesExpandedQuery($festivity->description, $expandedQueries)) {
+                    return true;
+                }
+                
+                // Check locality name
+                if ($festivity->locality && $this->searchService->matchesExpandedQuery($festivity->locality->name, $expandedQueries)) {
+                    return true;
+                }
+                
+                return false;
             });
         }
         
         // Filter by province
         if ($request->filled('province')) {
-            $baseQuery->where('province', $request->input('province'));
+            $allFestivities = $allFestivities->filter(function ($festivity) use ($request) {
+                return $festivity->province === $request->input('province') ||
+                       ($festivity->locality && $festivity->locality->province === $request->input('province'));
+            });
+        }
+        
+        // Filter by locality (slug)
+        if ($request->filled('locality')) {
+            $localitySlug = $request->input('locality');
+            $allFestivities = $allFestivities->filter(function ($festivity) use ($localitySlug) {
+                return $festivity->locality && $festivity->locality->slug === $localitySlug;
+            });
         }
         
         // Filter by date range
         if ($request->filled('date_from')) {
-            $baseQuery->where('start_date', '>=', $request->input('date_from'));
+            $allFestivities = $allFestivities->filter(function ($festivity) use ($request) {
+                return $festivity->start_date >= $request->input('date_from');
+            });
         }
         if ($request->filled('date_to')) {
-            $baseQuery->where(function ($q) use ($request) {
-                $q->whereNull('end_date')
-                  ->orWhere('end_date', '<=', $request->input('date_to'));
+            $allFestivities = $allFestivities->filter(function ($festivity) use ($request) {
+                return $festivity->end_date === null || $festivity->end_date <= $request->input('date_to');
             });
         }
         
-        // Get all matching festivities
-        $allMatchingIds = $baseQuery->pluck('id');
+        // Get all matching IDs
+        $allMatchingIds = $allFestivities->pluck('id');
         
         // Step 1: Get festivities that are ACTIVE from matching results
         // Priority 1.1: Active festivities WITH paid ads
@@ -265,6 +311,33 @@ class FestivityController extends Controller
                 });
             
             $finalFestivities = $finalFestivities->merge($remainingFestivities);
+        }
+        
+        // Sort by relevance if search term is provided
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            $finalFestivities = $finalFestivities->sort(function ($a, $b) use ($searchTerm) {
+                $aName = $this->searchService->normalizeText($a->name);
+                $bName = $this->searchService->normalizeText($b->name);
+                $queryLower = $this->searchService->normalizeText($searchTerm);
+                
+                // Calculate relevance scores
+                $aScore = $this->searchService->calculateRelevanceScore($aName, $queryLower);
+                $bScore = $this->searchService->calculateRelevanceScore($bName, $queryLower);
+                
+                // If same relevance, maintain priority order
+                if ($aScore === $bScore) {
+                    // Maintain existing priority order (1.1 > 1.2 > 2 > 3)
+                    $priorityDiff = ($a->priority ?? 4) - ($b->priority ?? 4);
+                    if ($priorityDiff !== 0) {
+                        return $priorityDiff;
+                    }
+                    // If same priority, sort by name
+                    return strcmp($a->name, $b->name);
+                }
+                
+                return $aScore - $bScore;
+            });
         }
         
         // Format for JSON response

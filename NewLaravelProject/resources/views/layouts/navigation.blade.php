@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #FEB101;">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-enhanced" style="background-color: #FEB101;">
     <div class="container">
         <!-- Brand -->
         <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('home') }}" aria-label="Elalmadelafiesta">
@@ -7,13 +7,15 @@
         </a>
 
         <!-- Toggler -->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+        <button class="navbar-toggler collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon">
+                <span></span>
+            </span>
         </button>
 
         <!-- Navigation Links -->
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
+            <ul class="navbar-nav mx-auto">
                 <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('localities.*') ? 'active' : '' }}" href="{{ route('localities.index') }}">Localidades</a>
                 </li>
@@ -33,7 +35,7 @@
             </ul>
 
             <!-- User Menu -->
-            <ul class="navbar-nav">
+            <ul class="navbar-nav ms-auto">
                 @auth
                     <li class="nav-item dropdown">
                         @php($user = Auth::user())
@@ -43,11 +45,6 @@
                             @if($user->isAdmin() || $user->isTownHall())
                                 <span class="badge ms-2 text-uppercase" style="background-color: #111827; color: #F9FAFB; font-size: 0.68rem;">
                                     {{ $user->isAdmin() ? 'Admin' : 'Town Hall' }}
-                                </span>
-                            @endif
-                            @if($user->isVisitor())
-                                <span class="badge ms-2" style="background-color: #1FA4A9; color: #FFFFFF; font-size: 0.7rem;">
-                                    {{ $user->getRankIcon() }} {{ $user->points }} pts
                                 </span>
                             @endif
                         </a>

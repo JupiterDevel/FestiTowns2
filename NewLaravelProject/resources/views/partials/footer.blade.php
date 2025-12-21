@@ -10,7 +10,7 @@
     $displayEmail = $contactEmail ?: 'almadelasfiestas2000@gmail.com';
 @endphp
 
-<footer class="border-top mt-4 py-3" style="border-top: 2px solid #E5E7EB !important; background-color: #FEB101;">
+<footer class="border-top mt-4 py-3 footer-enhanced" style="background-color: #FEB101;">
     <div class="container">
         <!-- Información de Contacto y Redes Sociales -->
         <div class="row align-items-center mb-2">
