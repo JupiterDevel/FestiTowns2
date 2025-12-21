@@ -15,7 +15,15 @@ class EventController extends Controller
      */
     public function index(Festivity $festivity)
     {
-        $events = $festivity->events()->paginate(10);
+        $events = $festivity->events()
+            ->orderByRaw('
+                CASE 
+                    WHEN start_time IS NULL THEN 0 
+                    ELSE 1 
+                END,
+                start_time ASC
+            ')
+            ->paginate(10);
         
         return view('events.index', compact('festivity', 'events'));
     }

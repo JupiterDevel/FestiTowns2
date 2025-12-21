@@ -68,14 +68,12 @@
             @endif
             
             <div class="mt-auto d-flex align-items-center justify-content-between" style="padding-top: 0.85rem; border-top: 1px solid #F3F4F6;">
-                <div class="d-flex align-items-center" style="gap: 0.4rem;">
-                    <i class="bi bi-heart-fill" style="color: #F59E0B; font-size: 1rem;"></i>
-                    <span style="font-weight: 700; color: #1F2937; font-size: 1rem;">{{ $votesCount }}</span>
-                    <span style="color: #6B7280; font-size: 0.8rem;">{{ $votesCount === 1 ? 'voto' : 'votos' }}</span>
-                </div>
                 <a href="{{ route('festivities.show', $festivity) }}" class="text-decoration-none" style="color: #FEB101; font-weight: 600; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em;">
                     Ver más <i class="bi bi-arrow-right ms-1"></i>
                 </a>
+                <span class="badge" style="background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%); color: #FFFFFF; font-weight: 600; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 6px; box-shadow: 0 2px 6px rgba(254, 177, 1, 0.3);">
+                    <i class="bi bi-heart-fill me-1" style="font-size: 0.7rem;"></i>{{ $votesCount }} {{ $votesCount === 1 ? 'Voto' : 'Votos' }}
+                </span>
             </div>
             
             @auth

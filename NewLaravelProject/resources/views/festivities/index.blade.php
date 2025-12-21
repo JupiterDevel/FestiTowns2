@@ -239,6 +239,10 @@
                         ? `${festivity.start_date_formatted} - ${festivity.end_date_formatted}`
                         : festivity.start_date_formatted;
                     
+                    const votesBadge = `<span class="badge" style="background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%); color: #FFFFFF; font-weight: 600; font-size: 0.75rem; padding: 0.3rem 0.6rem; border-radius: 6px; box-shadow: 0 2px 6px rgba(254, 177, 1, 0.3);">
+                        <i class="bi bi-heart-fill me-1" style="font-size: 0.7rem;"></i>${festivity.votes_count} ${festivity.votes_count === 1 ? 'Voto' : 'Votos'}
+                    </span>`;
+                    
                     const statusInfo = festivity.is_active
                         ? `<div class="mt-auto mb-2">
                                <div class="d-flex align-items-center justify-content-between">
@@ -246,16 +250,12 @@
                                          style="background-color: #198754; color: #FFFFFF; font-size: 0.78rem; padding: 0.35rem 0.9rem; border-radius: 999px;">
                                          Activa ahora
                                    </span>
-                                   <small class="text-muted">
-                                       <i class="bi bi-heart me-1"></i>${festivity.votes_count} ${festivity.votes_count === 1 ? 'voto' : 'votos'}
-                                   </small>
+                                   ${votesBadge}
                                </div>
                            </div>`
                         : `<div class="mt-auto mb-2">
-                               <div>
-                                   <small class="text-muted">
-                                       <i class="bi bi-heart me-1"></i>${festivity.votes_count} ${festivity.votes_count === 1 ? 'voto' : 'votos'}
-                                   </small>
+                               <div class="d-flex align-items-center justify-content-end">
+                                   ${votesBadge}
                                </div>
                            </div>`;
                     

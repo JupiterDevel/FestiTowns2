@@ -218,12 +218,7 @@
                                  style="font-weight: 600; padding: 0.4rem 0.75rem; border-radius: 999px;">
                                  ¡De Fiesta!
                            </span>`
-                        : locality.next_festivity 
-                            ? `<span class="badge compact-badge fw-semibold"
-                                       style="background-color: #1FA4A9; color: #FFFFFF; max-width: 70%; overflow: hidden; text-overflow: ellipsis; font-size: 0.78rem; padding: 0.25rem 0.6rem; border-radius: 6px; white-space: nowrap;">
-                                       ▶▶ ${locality.next_festivity.name}
-                               </span>`
-                            : '';
+                        : '';
                     
                     const overlayBadges = `
                         ${statusBadge ? `<span class="position-absolute top-0 start-0 m-3">${statusBadge}</span>` : ''}
@@ -261,16 +256,14 @@
                                </span>`
                             : '';
                     
-                    const statusInfo = statusLeft
-                        ? `<div class="mt-auto d-flex align-items-center justify-content-between" style="padding-top: 0.85rem; border-top: 1px solid #F3F4F6;">
+                    const statusInfo = `<div class="mt-auto d-flex align-items-center justify-content-between" style="padding-top: 0.85rem; border-top: 1px solid #F3F4F6;">
                                <div class="d-flex align-items-center gap-2">
                                    ${statusLeft}
                                </div>
                                <a href="${localityDetailUrl}" class="text-decoration-none" style="color: #FEB101; font-size: 0.83rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; line-height: 1;">
                                    Ver más →
                                </a>
-                           </div>`
-                        : '';
+                           </div>`;
                     
                     const adminButtons = (canUpdate || canDelete) 
                         ? `<div class="mt-3 pt-3" style="border-top: 1px solid #E5E7EB;">
@@ -297,7 +290,6 @@
                                     <a href="${localityDetailUrl}" class="text-decoration-none">
                                         <h5 class="card-title compact-title mb-0">${locality.name}</h5>
                                     </a>
-                                    ${provinceBadge}
                                 </div>
                                 ${description}
                                 ${statusInfo}

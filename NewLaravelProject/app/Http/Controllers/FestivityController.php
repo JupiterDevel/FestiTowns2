@@ -561,6 +561,7 @@ class FestivityController extends Controller
                         'end_date' => $festivity->end_date ? $festivity->end_date->format('Y-m-d') : null,
                         'latitude' => $festivity->latitude,
                         'longitude' => $festivity->longitude,
+                        'votes_count' => $festivity->votes_count ?? 0,
                         'locality' => [
                             'name' => $festivity->locality->name ?? null,
                             'province' => $festivity->province ?? null,
