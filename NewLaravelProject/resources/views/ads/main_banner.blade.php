@@ -10,23 +10,36 @@
 <section class="mb-4">
     <div class="card border-0 shadow-sm overflow-hidden position-relative">
         @if($adminCanManageAds)
-            <div class="position-absolute top-0 end-0 m-2 d-flex gap-2" style="z-index: 10;">
-                @if($isPremium && $ad?->id)
-                    <a href="{{ route('advertisements.edit', $ad) }}" class="btn btn-light btn-sm" title="Editar anuncio" onclick="event.stopPropagation();">
-                        <i class="bi bi-pencil-square"></i>
+            <div class="position-absolute top-0 start-0 end-0 m-2 d-flex justify-content-between align-items-center" style="z-index: 10;">
+                @if($isPremium && $ad?->id && $ad->name)
+                    <a href="{{ route('admin.panel', ['tab' => 'advertisements']) }}" 
+                       class="ad-name-link text-white text-decoration-none fw-semibold" 
+                       style="text-shadow: 0 1px 3px rgba(0,0,0,0.5); background: rgba(0,0,0,0.4); padding: 0.25rem 0.75rem; border-radius: 6px; backdrop-filter: blur(5px);"
+                       onclick="event.stopPropagation();"
+                       title="Ver en panel de administración">
+                        {{ $ad->name }}
                     </a>
-                    <form method="POST" action="{{ route('advertisements.destroy', $ad) }}" onsubmit="return confirm('¿Eliminar este anuncio?')" onclick="event.stopPropagation();">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-light btn-sm" title="Eliminar anuncio">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </form>
                 @else
-                    <a href="{{ route('advertisements.create', $createParams) }}" class="btn btn-primary btn-sm" title="Crear anuncio" onclick="event.stopPropagation();">
-                        <i class="bi bi-plus-circle me-1"></i>Nuevo
-                    </a>
+                    <span></span>
                 @endif
+                <div class="d-flex gap-2">
+                    @if($isPremium && $ad?->id)
+                        <a href="{{ route('advertisements.edit', $ad) }}" class="btn btn-light btn-sm" title="Editar anuncio" onclick="event.stopPropagation();">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form method="POST" action="{{ route('advertisements.destroy', $ad) }}" onsubmit="return confirm('¿Eliminar este anuncio?')" onclick="event.stopPropagation();">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-light btn-sm" title="Eliminar anuncio">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    @else
+                        <a href="{{ route('advertisements.create', $createParams) }}" class="btn btn-primary btn-sm" title="Crear anuncio" onclick="event.stopPropagation();">
+                            <i class="bi bi-plus-circle me-1"></i>Nuevo
+                        </a>
+                    @endif
+                </div>
             </div>
         @endif
         @php
@@ -46,14 +59,6 @@
                      alt="{{ $ad->name ?? 'Publicidad principal' }}"
                      class="w-100"
                      style="max-height: 320px; object-fit: cover;">
-                @if($ad->name)
-                    <div class="p-3 bg-light d-flex justify-content-between align-items-center flex-wrap">
-                        <div>
-                            <span class="badge bg-warning text-dark me-2">Premium</span>
-                            <strong class="text-dark">{{ $ad->name }}</strong>
-                        </div>
-                    </div>
-                @endif
             @elseif($isAdSense && $ad && $ad->adsense_client_id && $ad->adsense_slot_id)
                 <div class="p-0">
                     <x-adsense-ad 

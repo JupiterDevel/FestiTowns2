@@ -359,6 +359,29 @@
     </script>
     
     <style>
+        body {
+            background-image: url('/storage/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #f8f9fa;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0.5;
+            z-index: -1;
+            pointer-events: none;
+        }
+        main {
+            background-color: transparent;
+        }
         /* Remove only top padding for this page */
         main.py-4 {
             padding-top: 0 !important;
@@ -405,7 +428,7 @@
             padding: 0.75rem 1.25rem;
             max-width: 700px;
             margin: 0 auto;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
             position: relative;
             z-index: 1;
         }
@@ -496,7 +519,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
             transition: all 0.2s ease;
             text-decoration: none;
             font-size: 1.3rem;
@@ -507,7 +530,7 @@
             background: #667eea;
             color: white;
             transform: rotate(90deg);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
         }
         
         /* Compact Festivity Cards */
@@ -515,13 +538,22 @@
             border: none;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .compact-festivity-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
+        
+        /* Override Bootstrap card shadows */
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
         }
         
         .compact-card-img {
@@ -607,7 +639,7 @@
             color: white;
             border-color: #FEB101;
             transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(254, 177, 1, 0.3);
+            box-shadow: 0 1px 4px rgba(254, 177, 1, 0.4);
         }
         
         #paginationContainer .page-item.active .page-link {

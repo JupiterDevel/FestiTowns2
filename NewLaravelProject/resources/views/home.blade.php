@@ -128,7 +128,23 @@
         body > footer.border-top.mt-4.py-3 {
             margin-top: 0 !important;
             padding-top: 0 !important;
-            border-top-width: 0 !important;
+        }
+        
+        /* Ensure footer border is visible on home page */
+        body > footer.footer-enhanced {
+            border-top: 2px solid rgba(255, 255, 255, 0.8) !important;
+            position: relative;
+            z-index: 1001 !important;
+        }
+        
+        /* Ensure hero elements don't overlap footer */
+        .hero-banner {
+            position: relative;
+            z-index: 2;
+        }
+        
+        footer.footer-enhanced {
+            z-index: 1001 !important;
         }
         
         /* Remove any white background padding/spacing above footer */
@@ -379,6 +395,8 @@
                 rgba(15, 23, 42, 0.85) 70%,
                 rgba(15, 23, 42, 0.95) 100%
             );
+            z-index: 1;
+            overflow: hidden;
         }
         
         .hero-content {

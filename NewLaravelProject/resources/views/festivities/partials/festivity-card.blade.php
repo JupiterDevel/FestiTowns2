@@ -7,7 +7,7 @@
                  style="object-fit: cover; transition: transform 0.4s ease;">
             <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 80px; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);"></div>
             @if($festivity->province)
-                <span class="badge position-absolute top-0 end-0 m-3" style="background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%); color: white; font-weight: 600; padding: 0.5rem 0.75rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(254, 177, 1, 0.4);">
+                    <span class="badge position-absolute top-0 end-0 m-3" style="background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%); color: white; font-weight: 600; padding: 0.5rem 0.75rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(254, 177, 1, 0.5);">
                     {{ $festivity->province }}
                 </span>
             @endif
@@ -44,7 +44,7 @@
     <style>
         .card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         
         .card:hover img {

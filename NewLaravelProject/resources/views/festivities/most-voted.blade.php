@@ -6,18 +6,18 @@
                 <div class="col-lg-10">
                     <div class="header-content">
                         <div class="d-flex align-items-center justify-content-center mb-3">
-                            <h1 class="display-5 fw-bold text-white mb-0">
-                                <i class="bi bi-star-fill me-2"></i>Las Más Votadas
+                            <h1 class="display-5 fw-bold text-white mb-0 welcome-title">
+                                <span class="char-shake">🔥</span><span class="char-shake"> </span><span class="char-shake">L</span><span class="char-shake">a</span><span class="char-shake">s</span><span class="char-shake"> </span><span class="char-shake">M</span><span class="char-shake">á</span><span class="char-shake">s</span><span class="char-shake"> </span><span class="char-shake">V</span><span class="char-shake">o</span><span class="char-shake">t</span><span class="char-shake">a</span><span class="char-shake">d</span><span class="char-shake">a</span><span class="char-shake">s</span>
                             </h1>
                             <div class="voting-info-tooltip ms-3">
                                 <button type="button" 
                                         class="btn btn-link text-white p-0 voting-info-btn" 
                                         id="votingInfoBtn">
-                                    <i class="bi bi-question-circle-fill fs-5"></i>
+                                    <i class="bi bi-info-circle fs-5"></i>
                                 </button>
                                 <div class="voting-info-popup" id="votingInfoPopup">
                                     <div class="voting-info-header">
-                                        <i class="bi bi-info-circle-fill me-2"></i>
+                                        <i class="bi bi-star me-2"></i>
                                         <strong>Regla de votación</strong>
                                         <button type="button" class="btn-close-popup" id="closeVotingInfo">
                                             <i class="bi bi-x"></i>
@@ -25,8 +25,8 @@
                                     </div>
                                     <div class="voting-info-body">
                                         <p class="mb-0">
-                                            <i class="bi bi-person-check me-2 text-primary"></i>
-                                            Cada usuario puede votar una sola vez al día por cualquier festividad.
+                                            <i class="bi bi-person-check me-2 voting-info-icon"></i>
+                                            Cada usuario puede votar una vez al día.
                                         </p>
                                     </div>
                                 </div>
@@ -235,6 +235,29 @@
     </div>
 
     <style>
+        body {
+            background-image: url('/storage/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #f8f9fa;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0.5;
+            z-index: -1;
+            pointer-events: none;
+        }
+        main {
+            background-color: transparent;
+        }
         /* Remove only top padding for this page */
         main.py-4 {
             padding-top: 0 !important;
@@ -274,6 +297,113 @@
             z-index: 1;
         }
         
+        /* Welcome Title Styling */
+        .welcome-title {
+            letter-spacing: 0.02em;
+            position: relative;
+            animation: fadeInUp 0.8s ease-out;
+            text-shadow: 0 2px 20px rgba(255, 255, 255, 0.15), 0 4px 30px rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.98);
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.3);
+            text-stroke: 1px rgba(255, 255, 255, 0.3);
+        }
+        
+        .welcome-title .char-shake {
+            display: inline-block;
+            animation: letterTremor 2.5s ease-in-out infinite;
+        }
+        
+        .welcome-title .char-shake:nth-child(1) { animation-delay: 0s; animation-duration: 2.8s; }
+        .welcome-title .char-shake:nth-child(2) { animation-delay: 0.3s; animation-duration: 2.4s; }
+        .welcome-title .char-shake:nth-child(3) { animation-delay: 0.15s; animation-duration: 2.6s; }
+        .welcome-title .char-shake:nth-child(4) { animation-delay: 0.45s; animation-duration: 2.3s; }
+        .welcome-title .char-shake:nth-child(5) { animation-delay: 0.1s; animation-duration: 2.7s; }
+        .welcome-title .char-shake:nth-child(6) { animation-delay: 0.35s; animation-duration: 2.5s; }
+        .welcome-title .char-shake:nth-child(7) { animation-delay: 0.2s; animation-duration: 2.6s; }
+        .welcome-title .char-shake:nth-child(8) { animation-delay: 0.4s; animation-duration: 2.4s; }
+        .welcome-title .char-shake:nth-child(9) { animation-delay: 0.05s; animation-duration: 2.8s; }
+        .welcome-title .char-shake:nth-child(10) { animation-delay: 0.3s; animation-duration: 2.3s; }
+        .welcome-title .char-shake:nth-child(11) { animation-delay: 0.15s; animation-duration: 2.7s; }
+        .welcome-title .char-shake:nth-child(12) { animation-delay: 0.45s; animation-duration: 2.5s; }
+        .welcome-title .char-shake:nth-child(13) { animation-delay: 0.1s; animation-duration: 2.6s; }
+        .welcome-title .char-shake:nth-child(14) { animation-delay: 0.35s; animation-duration: 2.4s; }
+        .welcome-title .char-shake:nth-child(15) { animation-delay: 0.2s; animation-duration: 2.7s; }
+        .welcome-title .char-shake:nth-child(16) { animation-delay: 0.4s; animation-duration: 2.3s; }
+        .welcome-title .char-shake:nth-child(17) { animation-delay: 0.05s; animation-duration: 2.8s; }
+        
+        .welcome-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            animation: expandLine 1s ease-out 0.5s both, shimmer 2.5s ease-in-out 1.5s infinite;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes expandLine {
+            from {
+                width: 0;
+                opacity: 0;
+            }
+            to {
+                width: 60px;
+                opacity: 1;
+            }
+        }
+        
+        @keyframes letterTremor {
+            0%, 100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            12.5% {
+                transform: translate(-0.15px, -0.25px) rotate(-0.1deg);
+            }
+            25% {
+                transform: translate(0.15px, 0.25px) rotate(0.1deg);
+            }
+            37.5% {
+                transform: translate(0.25px, -0.15px) rotate(0.08deg);
+            }
+            50% {
+                transform: translate(-0.15px, 0.15px) rotate(-0.08deg);
+            }
+            62.5% {
+                transform: translate(0.15px, -0.25px) rotate(0.1deg);
+            }
+            75% {
+                transform: translate(-0.25px, 0.15px) rotate(-0.1deg);
+            }
+            87.5% {
+                transform: translate(0.15px, 0.25px) rotate(0.08deg);
+            }
+        }
+        
+        @keyframes shimmer {
+            0%, 100% {
+                opacity: 0.6;
+                width: 60px;
+            }
+            50% {
+                opacity: 0.9;
+                width: 65px;
+            }
+        }
+        
         /* Tab Navigation in Header */
         .ranking-tabs-header {
             margin-top: 1.5rem;
@@ -300,11 +430,11 @@
         }
 
         .ranking-tab-btn.active {
-            background: white;
-            color: #667eea;
-            border-color: white;
+            background: #FEB101;
+            color: white;
+            border-color: #FEB101;
             font-weight: 600;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 6px rgba(254, 177, 1, 0.4);
         }
 
         .ranking-tab-content {
@@ -337,11 +467,12 @@
             overflow: hidden;
             transition: transform 0.2s ease, box-shadow 0.2s ease;
             border: 1px solid #e9ecef;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
         }
 
         .card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3) !important;
         }
 
         .card-img-top {
@@ -379,7 +510,7 @@
             margin-top: 10px;
             background: white;
             border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
             min-width: 320px;
             max-width: 400px;
             z-index: 1000;
@@ -398,7 +529,7 @@
 
         .voting-info-header {
             padding: 1rem 1.25rem;
-            background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+            background: linear-gradient(135deg, #1FA4A9 0%, #0d7d82 100%);
             color: white;
             border-radius: 12px 12px 0 0;
             display: flex;
@@ -452,6 +583,10 @@
         .voting-info-body i {
             margin-top: 2px;
             flex-shrink: 0;
+        }
+        
+        .voting-info-icon {
+            color: #1FA4A9;
         }
 
         @media (max-width: 768px) {

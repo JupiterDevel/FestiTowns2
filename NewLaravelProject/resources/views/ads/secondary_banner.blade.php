@@ -14,23 +14,36 @@
         @endphp
         <div class="card shadow-sm border-0 h-100 position-relative">
             @if($adminCanManageAds)
-                <div class="position-absolute top-0 end-0 m-2 d-flex gap-2">
-                    @if($isPremium && $ad?->id)
-                        <a href="{{ route('advertisements.edit', $ad) }}" class="btn btn-light btn-sm" title="Editar anuncio">
-                            <i class="bi bi-pencil-square"></i>
+                <div class="position-absolute top-0 start-0 end-0 m-2 d-flex justify-content-between align-items-center" style="z-index: 10;">
+                    @if($isPremium && $ad?->id && $ad->name)
+                        <a href="{{ route('admin.panel', ['tab' => 'advertisements']) }}" 
+                           class="ad-name-link text-white text-decoration-none fw-semibold small" 
+                           style="text-shadow: 0 1px 3px rgba(0,0,0,0.5); background: rgba(0,0,0,0.4); padding: 0.25rem 0.75rem; border-radius: 6px; backdrop-filter: blur(5px); max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                           onclick="event.stopPropagation();"
+                           title="Ver en panel de administración">
+                            {{ $ad->name }}
                         </a>
-                        <form method="POST" action="{{ route('advertisements.destroy', $ad) }}" onsubmit="return confirm('¿Eliminar este anuncio?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-light btn-sm" title="Eliminar anuncio">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
                     @else
-                        <a href="{{ route('advertisements.create', $createParams) }}" class="btn btn-primary btn-sm" title="Crear anuncio">
-                            <i class="bi bi-plus-circle me-1"></i>Nuevo
-                        </a>
+                        <span></span>
                     @endif
+                    <div class="d-flex gap-2">
+                        @if($isPremium && $ad?->id)
+                            <a href="{{ route('advertisements.edit', $ad) }}" class="btn btn-light btn-sm" title="Editar anuncio" onclick="event.stopPropagation();">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+                            <form method="POST" action="{{ route('advertisements.destroy', $ad) }}" onsubmit="return confirm('¿Eliminar este anuncio?')" onclick="event.stopPropagation();">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-light btn-sm" title="Eliminar anuncio">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        @else
+                            <a href="{{ route('advertisements.create', $createParams) }}" class="btn btn-primary btn-sm" title="Crear anuncio" onclick="event.stopPropagation();">
+                                <i class="bi bi-plus-circle me-1"></i>Nuevo
+                            </a>
+                        @endif
+                    </div>
                 </div>
             @endif
             @if($imageUrl)
@@ -47,22 +60,6 @@
                 @if($ad->url)
                     </a>
                 @endif
-                <div class="card-body">
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="badge bg-primary text-uppercase small">Premium</span>
-                        <span class="text-muted small">{{ ucfirst($ad->priority) }}</span>
-                    </div>
-                    @if($ad->url)
-                        <a href="{{ $ad->url }}" 
-                           class="text-decoration-none d-block"
-                           target="_blank"
-                           rel="noopener">
-                            <p class="mb-0 fw-semibold text-dark">{{ $ad->name }}</p>
-                        </a>
-                    @else
-                        <p class="mb-0 fw-semibold text-dark">{{ $ad->name }}</p>
-                    @endif
-                </div>
             @elseif($isAdSense && $ad->adsense_client_id && $ad->adsense_slot_id)
                 <div class="card-body p-0">
                     <x-adsense-ad 

@@ -1,0 +1,159 @@
+/* Bootstrap from CDN - will be loaded via link tag */
+/* Custom styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.btn-custom {
+    border-radius: 25px;
+    padding: 10px 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.festivity-card {
+    border: none;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.festivity-card img {
+    height: 200px;
+    object-fit: cover;
+}
+
+.locality-card {
+    border: none;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.locality-card img {
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.locality-card:hover img {
+    transform: scale(1.08);
+}
+
+/* Modern Search and Filter Styles */
+.search-filter-card {
+    background: linear-gradient(135deg, #f8f9ff 0%, #ffffff 100%);
+    border-radius: 20px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
+
+.locality-fade-in {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Badge Enhancements */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 6px 12px;
+}
+
+/* Tourism-style improvements */
+.bg-gradient-tourism {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Skeleton loader for AJAX loading */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Smooth transitions for grid updates */
+.localities-grid-transition {
+    transition: all 0.3s ease;
+}
+
+/* Enhanced card body spacing */
+.locality-card .card-body {
+    min-height: 280px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Modern input styling */
+input[type="text"].form-control,
+select.form-select {
+    transition: all 0.2s ease;
+}
+
+input[type="text"].form-control:hover,
+select.form-select:hover {
+    border-color: #adb5bd;
+}
+
+/* Results counter styling */
+#resultsCounter {
+    font-size: 0.95rem;
+    color: #6c757d;
+}
+
+#resultsCounter .fw-bold {
+    color: #495057;
+    font-size: 1.1rem;
+}
+
+
+
+
