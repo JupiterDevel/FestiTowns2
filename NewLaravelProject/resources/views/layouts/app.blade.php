@@ -38,6 +38,13 @@
         <!-- Canonical URL -->
         <link rel="canonical" href="{{ $meta['url'] ?? url()->current() }}">
 
+        <!-- Google AdSense Script (Test Mode) -->
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940256099942544"></script>
+        <script>
+            // Ensure adsbygoogle array exists
+            window.adsbygoogle = window.adsbygoogle || [];
+        </script>
+
         <!-- Favicon -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 

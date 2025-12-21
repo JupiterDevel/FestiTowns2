@@ -44,6 +44,7 @@
         @endif
         @php
             $hasUrl = $ad && !empty($ad->url);
+            $isRealAd = $ad && ($ad->name || $ad->url || $ad->image || ($ad->is_adsense && $ad->adsense_client_id && $ad->adsense_slot_id));
         @endphp
         @if($hasUrl)
             <a href="{{ $ad->url }}" 
@@ -67,6 +68,17 @@
                         type="{{ $ad->adsense_type ?? 'display' }}"
                         style="display:block; min-height: 180px;"
                         format="auto"
+                    />
+                </div>
+            @elseif(!$isRealAd)
+                <!-- Google AdSense Test Ad for Main Banner -->
+                <div class="p-0" style="min-height: 280px; width: 100%;">
+                    <x-adsense-ad 
+                        clientId="ca-pub-3940256099942544" 
+                        type="display"
+                        style="display:block; min-height: 280px; width: 100%;"
+                        format="auto"
+                        :testMode="true"
                     />
                 </div>
             @else
