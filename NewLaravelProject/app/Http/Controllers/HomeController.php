@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Locality;
 use App\Models\Festivity;
+use App\Services\SearchService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
@@ -11,85 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
-    /**
-     * Normaliza el texto para búsquedas insensibles a acentos y caracteres especiales
-     */
-    private function normalizeText($text)
-    {
-        // Convertir a minúsculas
-        $text = mb_strtolower($text, 'UTF-8');
-        
-        // Reemplazar acentos y caracteres especiales
-        $replacements = [
-            'á' => 'a', 'à' => 'a', 'ä' => 'a', 'â' => 'a', 'ã' => 'a',
-            'é' => 'e', 'è' => 'e', 'ë' => 'e', 'ê' => 'e',
-            'í' => 'i', 'ì' => 'i', 'ï' => 'i', 'î' => 'i',
-            'ó' => 'o', 'ò' => 'o', 'ö' => 'o', 'ô' => 'o', 'õ' => 'o',
-            'ú' => 'u', 'ù' => 'u', 'ü' => 'u', 'û' => 'u',
-            'ñ' => 'n', 'ç' => 'c',
-            'Á' => 'a', 'À' => 'a', 'Ä' => 'a', 'Â' => 'a', 'Ã' => 'a',
-            'É' => 'e', 'È' => 'e', 'Ë' => 'e', 'Ê' => 'e',
-            'Í' => 'i', 'Ì' => 'i', 'Ï' => 'i', 'Î' => 'i',
-            'Ó' => 'o', 'Ò' => 'o', 'Ö' => 'o', 'Ô' => 'o', 'Õ' => 'o',
-            'Ú' => 'u', 'Ù' => 'u', 'Ü' => 'u', 'Û' => 'u',
-            'Ñ' => 'n', 'Ç' => 'c'
-        ];
-        
-        return strtr($text, $replacements);
-    }
-
-    /**
-     * Expande la consulta de búsqueda con sinónimos y variaciones comunes
-     */
-    private function expandSearchQuery($query)
-    {
-        $normalizedQuery = $this->normalizeText($query);
-        
-        // Sinónimos y variaciones comunes para festividades
-        $synonyms = [
-            'fiesta' => ['festividad', 'celebracion', 'evento', 'festival'],
-            'festividad' => ['fiesta', 'celebracion', 'evento', 'festival'],
-            'celebracion' => ['fiesta', 'festividad', 'evento', 'festival'],
-            'evento' => ['fiesta', 'festividad', 'celebracion', 'festival'],
-            'festival' => ['fiesta', 'festividad', 'celebracion', 'evento'],
-            'feria' => ['mercado', 'exposicion', 'muestra'],
-            'carnaval' => ['carnavales', 'mascarada'],
-            'navidad' => ['navideño', 'navideña'],
-            'semana santa' => ['santa semana', 'pascua'],
-            'verano' => ['estival', 'estivales'],
-            'invierno' => ['invernal', 'invernales']
-        ];
-        
-        $expandedQueries = [$query, $normalizedQuery];
-        
-        // Agregar sinónimos si se encuentra una coincidencia
-        foreach ($synonyms as $key => $values) {
-            if (strpos($normalizedQuery, $key) !== false) {
-                $expandedQueries = array_merge($expandedQueries, $values);
-            }
-        }
-        
-        return array_unique($expandedQueries);
-    }
-
-    /**
-     * Calcula el score de relevancia para ordenamiento
-     */
-    private function calculateRelevanceScore($text, $query)
-    {
-        $textLower = mb_strtolower($text, 'UTF-8');
-        $queryLower = mb_strtolower($query, 'UTF-8');
-        
-        // Exacta = 1, empieza con = 2, contiene = 3, no coincide = 4
-        if ($textLower === $queryLower) {
-            return 1;
-        } elseif (strpos($textLower, $queryLower) === 0) {
-            return 2;
-        } elseif (strpos($textLower, $queryLower) !== false) {
-            return 3;
-        }
-        
-        return 4;
+    public function __construct(
+        private SearchService $searchService
+    ) {
     }
 
     /**
@@ -97,35 +22,25 @@ class HomeController extends Controller
      */
     private function searchLocalities($query)
     {
-        $expandedQueries = $this->expandSearchQuery($query);
+        $expandedQueries = $this->searchService->expandSearchQuery($query);
         
         // Obtener todas las localidades y filtrar en PHP para evitar consultas complejas
         $allLocalities = Locality::withCount('festivities')->get();
         
         $filteredLocalities = $allLocalities->filter(function ($locality) use ($expandedQueries) {
-            $localityName = $locality->name;
-            $normalizedLocalityName = $this->normalizeText($localityName);
+            // Check name
+            if ($this->searchService->matchesExpandedQuery($locality->name, $expandedQueries)) {
+                return true;
+            }
             
-            foreach ($expandedQueries as $searchTerm) {
-                $normalizedTerm = $this->normalizeText($searchTerm);
-                
-                // Búsqueda exacta
-                if (stripos($localityName, $searchTerm) !== false) {
-                    return true;
-                }
-                
-                // Búsqueda normalizada
-                if (stripos($normalizedLocalityName, $normalizedTerm) !== false) {
-                    return true;
-                }
-                
-                // Búsqueda por palabras individuales
-                $words = explode(' ', trim($searchTerm));
-                foreach ($words as $word) {
-                    if (strlen($word) > 2 && stripos($localityName, $word) !== false) {
-                        return true;
-                    }
-                }
+            // Check description
+            if ($locality->description && $this->searchService->matchesExpandedQuery($locality->description, $expandedQueries)) {
+                return true;
+            }
+            
+            // Check address
+            if ($locality->address && $this->searchService->matchesExpandedQuery($locality->address, $expandedQueries)) {
+                return true;
             }
             
             return false;
@@ -133,13 +48,13 @@ class HomeController extends Controller
         
         // Ordenar por relevancia
         $sortedLocalities = $filteredLocalities->sort(function ($a, $b) use ($query) {
-            $aName = $this->normalizeText($a->name);
-            $bName = $this->normalizeText($b->name);
-            $queryLower = $this->normalizeText($query);
+            $aName = $this->searchService->normalizeText($a->name);
+            $bName = $this->searchService->normalizeText($b->name);
+            $queryLower = $this->searchService->normalizeText($query);
             
             // Prioridad: exacta > empieza con > contiene
-            $aScore = $this->calculateRelevanceScore($aName, $queryLower);
-            $bScore = $this->calculateRelevanceScore($bName, $queryLower);
+            $aScore = $this->searchService->calculateRelevanceScore($aName, $queryLower);
+            $bScore = $this->searchService->calculateRelevanceScore($bName, $queryLower);
             
             if ($aScore === $bScore) {
                 return strcmp($a->name, $b->name);
@@ -169,52 +84,25 @@ class HomeController extends Controller
      */
     private function searchFestivities($query)
     {
-        $expandedQueries = $this->expandSearchQuery($query);
+        $expandedQueries = $this->searchService->expandSearchQuery($query);
         
         // Obtener todas las festividades y filtrar en PHP para evitar consultas complejas
         $allFestivities = Festivity::with(['locality', 'votes'])->get();
         
         $filteredFestivities = $allFestivities->filter(function ($festivity) use ($expandedQueries) {
-            $festivityName = $festivity->name;
-            $festivityDescription = $festivity->description ?? '';
-            $localityName = $festivity->locality->name ?? '';
+            // Check festivity name
+            if ($this->searchService->matchesExpandedQuery($festivity->name, $expandedQueries)) {
+                return true;
+            }
             
-            $normalizedFestivityName = $this->normalizeText($festivityName);
-            $normalizedDescription = $this->normalizeText($festivityDescription);
-            $normalizedLocalityName = $this->normalizeText($localityName);
+            // Check description
+            if ($festivity->description && $this->searchService->matchesExpandedQuery($festivity->description, $expandedQueries)) {
+                return true;
+            }
             
-            foreach ($expandedQueries as $searchTerm) {
-                $normalizedTerm = $this->normalizeText($searchTerm);
-                
-                // Búsqueda en nombre de festividad
-                if (stripos($festivityName, $searchTerm) !== false || 
-                    stripos($normalizedFestivityName, $normalizedTerm) !== false) {
-                    return true;
-                }
-                
-                // Búsqueda en descripción
-                if (stripos($festivityDescription, $searchTerm) !== false || 
-                    stripos($normalizedDescription, $normalizedTerm) !== false) {
-                    return true;
-                }
-                
-                // Búsqueda en nombre de localidad
-                if (stripos($localityName, $searchTerm) !== false || 
-                    stripos($normalizedLocalityName, $normalizedTerm) !== false) {
-                    return true;
-                }
-                
-                // Búsqueda por palabras individuales
-                $words = explode(' ', trim($searchTerm));
-                foreach ($words as $word) {
-                    if (strlen($word) > 2) {
-                        if (stripos($festivityName, $word) !== false || 
-                            stripos($festivityDescription, $word) !== false || 
-                            stripos($localityName, $word) !== false) {
-                            return true;
-                        }
-                    }
-                }
+            // Check locality name
+            if ($festivity->locality && $this->searchService->matchesExpandedQuery($festivity->locality->name, $expandedQueries)) {
+                return true;
             }
             
             return false;
@@ -222,12 +110,12 @@ class HomeController extends Controller
         
         // Ordenar por relevancia
         $sortedFestivities = $filteredFestivities->sort(function ($a, $b) use ($query) {
-            $aName = $this->normalizeText($a->name);
-            $bName = $this->normalizeText($b->name);
-            $queryLower = $this->normalizeText($query);
+            $aName = $this->searchService->normalizeText($a->name);
+            $bName = $this->searchService->normalizeText($b->name);
+            $queryLower = $this->searchService->normalizeText($query);
             
-            $aScore = $this->calculateRelevanceScore($aName, $queryLower);
-            $bScore = $this->calculateRelevanceScore($bName, $queryLower);
+            $aScore = $this->searchService->calculateRelevanceScore($aName, $queryLower);
+            $bScore = $this->searchService->calculateRelevanceScore($bName, $queryLower);
             
             if ($aScore === $bScore) {
                 return strcmp($a->name, $b->name);

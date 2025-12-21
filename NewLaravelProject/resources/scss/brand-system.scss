@@ -229,6 +229,143 @@ h3, .h3 {
     background-color: $brand-orange;
 }
 
+.navbar-enhanced {
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.6);
+    z-index: 1000;
+    
+    // Subtle grain overlay
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 3px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                rgba(0, 0, 0, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 3px
+            );
+        background-size: 4px 4px;
+        opacity: 0.6;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    // Ensure content is above grain
+    > * {
+        position: relative;
+        z-index: 2;
+    }
+    
+    // Center navigation links
+    .navbar-collapse {
+        position: relative;
+        align-items: center;
+        width: 100%;
+        
+        // Only set display: flex when shown (Bootstrap adds .show class)
+        // On desktop (lg+), Bootstrap already shows it by default, so this won't interfere
+        &.show {
+            display: flex !important;
+        }
+        
+        .navbar-nav.mx-auto {
+            position: absolute;
+            left: calc(50% - 100px);
+            transform: translateX(-50%);
+            
+            @media (max-width: 991.98px) {
+                position: static;
+                transform: none;
+                margin: 0 !important;
+            }
+        }
+        
+        // Ensure user menu stays on the right
+        .navbar-nav.ms-auto {
+            margin-left: auto !important;
+            position: relative;
+            z-index: 10;
+        }
+    }
+}
+
+// ============================================
+// FOOTER
+// ============================================
+.footer-enhanced {
+    position: relative;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15), 0 -2px 4px rgba(0, 0, 0, 0.1);
+    border-top: 2px solid rgba(255, 255, 255, 0.8);
+    z-index: 1000;
+    
+    // Subtle grain overlay
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 3px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                rgba(0, 0, 0, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 0, 0, 0.03) 3px
+            );
+        background-size: 4px 4px;
+        opacity: 0.6;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    // Ensure content is above grain
+    > * {
+        position: relative;
+        z-index: 2;
+    }
+    
+    // Improve legibility for text and links
+    .brand-text {
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+    
+    a {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+        letter-spacing: 0.01em;
+        
+        &:hover {
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+    }
+    
+    span:not(.badge):not(.brand-text) {
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+}
+
 .navbar-toggler {
     border-color: rgba(255, 255, 255, 0.6);
     padding: 0.2rem 0.5rem;
@@ -274,12 +411,21 @@ h3, .h3 {
     bottom: 0.35rem;
 }
 
+.navbar-toggler-icon span {
+    top: 50%;
+    transform: translateY(-50%);
+}
+
 .navbar-toggler.collapsed .navbar-toggler-icon::before {
     transform: rotate(0deg);
 }
 
 .navbar-toggler.collapsed .navbar-toggler-icon::after {
     transform: rotate(0deg);
+}
+
+.navbar-toggler.collapsed .navbar-toggler-icon span {
+    opacity: 1;
 }
 
 .navbar-toggler:not(.collapsed) .navbar-toggler-icon::before {
@@ -293,32 +439,45 @@ h3, .h3 {
     transform: translateY(-50%) rotate(-45deg);
 }
 
+.navbar-toggler:not(.collapsed) .navbar-toggler-icon span {
+    opacity: 0;
+}
+
 .navbar-brand {
     font-family: $font-brand;
     font-size: 1.75rem;
     color: #FFFFFF !important;
     font-weight: 400;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     
     &:hover {
         color: #FFFFFF !important;
+    }
+    
+    .brand-text {
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
     }
 }
 
 .nav-link {
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.95);
     transition: color 0.2s ease, transform 0.15s ease;
     padding: 0.35rem 0.75rem !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    letter-spacing: 0.01em;
     
     &:hover {
         color: #FFFFFF;
         transform: translateY(-1px);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
     
     &.active {
         color: #FFFFFF;
         font-weight: 600;
         position: relative;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         
         &::after {
             content: '';
@@ -329,47 +488,54 @@ h3, .h3 {
             height: 3px;
             border-radius: 999px;
             background-color: #FFFFFF;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
     }
 }
 
 // User dropdown (navbar)
 .navbar .dropdown-toggle {
-    color: rgba(255, 255, 255, 0.9);
+    color: rgba(255, 255, 255, 0.95);
     font-weight: 500;
     padding-left: 0.75rem;
     padding-right: 0.75rem;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+    letter-spacing: 0.01em;
 
     &:hover {
         color: #FFFFFF;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 }
 
 .navbar .dropdown-menu {
     border-radius: 14px;
-    border: 1px solid #E5E7EB;
-    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.25);
     padding: 0.4rem 0;
     min-width: 210px;
+    background-color: #FEB101;
+    margin-top: 0.5rem;
 }
 
 .navbar .dropdown-item {
     font-size: 0.9rem;
     padding: 0.55rem 1rem;
-    color: #374151;
+    color: rgba(255, 255, 255, 0.95);
     display: flex;
     align-items: center;
     gap: 0.4rem;
+    font-weight: 500;
 
     &:hover {
-        background-color: #F8F9FA;
-        color: #111827;
+        background-color: rgba(255, 255, 255, 0.15);
+        color: #FFFFFF;
     }
 }
 
 .navbar .dropdown-divider {
     margin: 0.25rem 0.75rem;
-    border-color: #E5E7EB;
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 // ============================================

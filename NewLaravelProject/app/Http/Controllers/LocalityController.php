@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Locality;
 use App\Services\AdvertisementService;
+use App\Services\SearchService;
 use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -13,8 +14,10 @@ class LocalityController extends Controller
 {
     use AuthorizesRequests;
 
-    public function __construct(private AdvertisementService $advertisementService)
-    {
+    public function __construct(
+        private AdvertisementService $advertisementService,
+        private SearchService $searchService
+    ) {
     }
 
     /**
@@ -172,7 +175,22 @@ class LocalityController extends Controller
     }
 
     /**
-     * Search localities via AJAX
+     * Búsqueda de localidades vía AJAX con búsqueda inteligente.
+     * 
+     * Implementa búsqueda avanzada con:
+     * - Normalización de acentos (ej: "Valencia" encuentra "València")
+     * - Expansión con sinónimos (ej: "pueblo" encuentra "localidad", "municipio", "ciudad")
+     * - Ordenamiento por relevancia (exacta > empieza con > contiene)
+     * - Búsqueda en múltiples campos (nombre, descripción, dirección)
+     * 
+     * Mantiene la lógica de priorización existente:
+     * - Localidades con festividades activas y anuncios pagados (prioridad 1.1)
+     * - Localidades con festividades activas sin anuncios (prioridad 1.2)
+     * - Localidades con festividades próximas con anuncios (prioridad 2)
+     * - Otras localidades (prioridad 3)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function search(Request $request)
     {
@@ -181,26 +199,44 @@ class LocalityController extends Controller
         $perPage = 6;
         $page = $request->input('page', 1);
         
-        // Build base query with filters
-        $baseQuery = Locality::query();
+        // Get all localities for intelligent filtering
+        $allLocalities = Locality::with(['festivities'])->get();
         
-        // Search by name or description
+        // Apply intelligent search if search term is provided
         if ($request->filled('search')) {
             $searchTerm = $request->input('search');
-            $baseQuery->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('address', 'like', '%' . $searchTerm . '%');
+            $expandedQueries = $this->searchService->expandSearchQuery($searchTerm);
+            
+            // Filter localities using intelligent search
+            $allLocalities = $allLocalities->filter(function ($locality) use ($expandedQueries) {
+                // Check name
+                if ($this->searchService->matchesExpandedQuery($locality->name, $expandedQueries)) {
+                    return true;
+                }
+                
+                // Check description
+                if ($locality->description && $this->searchService->matchesExpandedQuery($locality->description, $expandedQueries)) {
+                    return true;
+                }
+                
+                // Check address
+                if ($locality->address && $this->searchService->matchesExpandedQuery($locality->address, $expandedQueries)) {
+                    return true;
+                }
+                
+                return false;
             });
         }
         
         // Filter by province
         if ($request->filled('province')) {
-            $baseQuery->where('province', $request->input('province'));
+            $allLocalities = $allLocalities->filter(function ($locality) use ($request) {
+                return $locality->province === $request->input('province');
+            });
         }
         
-        // Get all matching localities
-        $allMatchingIds = $baseQuery->pluck('id');
+        // Get all matching IDs
+        $allMatchingIds = $allLocalities->pluck('id');
         
         // Step 1: Get localities with ACTIVE festivities from matching results
         // Priority 1.1: Active festivities WITH paid ads
@@ -306,6 +342,33 @@ class LocalityController extends Controller
                 });
             
             $finalLocalities = $finalLocalities->merge($remainingLocalities);
+        }
+        
+        // Sort by relevance if search term is provided
+        if ($request->filled('search')) {
+            $searchTerm = $request->input('search');
+            $finalLocalities = $finalLocalities->sort(function ($a, $b) use ($searchTerm) {
+                $aName = $this->searchService->normalizeText($a->name);
+                $bName = $this->searchService->normalizeText($b->name);
+                $queryLower = $this->searchService->normalizeText($searchTerm);
+                
+                // Calculate relevance scores
+                $aScore = $this->searchService->calculateRelevanceScore($aName, $queryLower);
+                $bScore = $this->searchService->calculateRelevanceScore($bName, $queryLower);
+                
+                // If same relevance, maintain priority order
+                if ($aScore === $bScore) {
+                    // Maintain existing priority order (1.1 > 1.2 > 2 > 3)
+                    $priorityDiff = ($a->priority ?? 4) - ($b->priority ?? 4);
+                    if ($priorityDiff !== 0) {
+                        return $priorityDiff;
+                    }
+                    // If same priority, sort by name
+                    return strcmp($a->name, $b->name);
+                }
+                
+                return $aScore - $bScore;
+            });
         }
         
         // Format for JSON response
@@ -418,9 +481,15 @@ class LocalityController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Locality $locality)
+    public function show(Locality $locality, Request $request)
     {
-        $locality->load('festivities');
+        // Paginate festivities
+        $perPage = 6; // 2 rows x 3 columns = 6 items per page
+        $festivities = $locality->festivities()
+            ->withCount('votes')
+            ->orderBy('start_date', 'asc')
+            ->paginate($perPage, ['*'], 'festivities_page')
+            ->appends($request->except('festivities_page'));
         
         // SEO Meta Tags
         $image = $locality->photos && count($locality->photos) > 0 
@@ -449,6 +518,7 @@ class LocalityController extends Controller
         
         return view('localities.show', [
             'locality' => $locality,
+            'festivities' => $festivities,
             'meta' => $meta,
             'schema' => $schema,
             'mainAdvertisement' => $ads['main'],

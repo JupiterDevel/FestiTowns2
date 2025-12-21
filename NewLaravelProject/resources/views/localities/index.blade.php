@@ -131,10 +131,22 @@
                 }, 400);
             }
             
+            // Get province parameter from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const provinceParam = urlParams.get('province');
+            
+            // Set province filter if parameter exists
+            if (provinceParam && provinceFilter) {
+                provinceFilter.value = provinceParam;
+            }
+            
+            // Initial fetch on page load (will use province from URL if present)
+            fetchLocalities();
+            
             // Fetch localities via AJAX
             async function fetchLocalities(page = 1) {
                 const searchTerm = searchInput.value.trim();
-                const province = provinceFilter.value;
+                const province = provinceFilter.value || provinceParam || '';
                 
                 // Update context text
                 if (searchTerm || province) {
@@ -353,6 +365,29 @@
     </script>
     
     <style>
+        body {
+            background-image: url('/storage/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #f8f9fa;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0.5;
+            z-index: -1;
+            pointer-events: none;
+        }
+        main {
+            background-color: transparent;
+        }
         /* Remove only top padding for this page */
         main.py-4 {
             padding-top: 0 !important;
@@ -399,7 +434,7 @@
             padding: 0.65rem 1rem;
             max-width: 650px;
             margin: 0 auto;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
         }
         
         .search-box-main .d-flex {
@@ -484,7 +519,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
             transition: all 0.2s ease;
             text-decoration: none;
             font-size: 1.3rem;
@@ -495,7 +530,7 @@
             background: #1FA4A9;
             color: #FFFFFF;
             transform: rotate(90deg);
-            box-shadow: 0 4px 12px rgba(31, 164, 169, 0.35);
+            box-shadow: 0 2px 6px rgba(31, 164, 169, 0.4);
         }
         
         /* Compact Cards - aligned with Festivities style but slightly lighter */
@@ -503,13 +538,22 @@
             border: none;
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
             transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
         }
         
         .compact-locality-card:hover {
             transform: translateY(-8px);
-            box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+        }
+        
+        /* Override Bootstrap card shadows */
+        .card {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25) !important;
+        }
+        
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
         }
         
         .compact-card-img {
@@ -603,7 +647,7 @@
             color: white;
             border-color: #FEB101;
             transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(254, 177, 1, 0.3);
+            box-shadow: 0 1px 4px rgba(254, 177, 1, 0.4);
         }
         
         #paginationContainer .page-item.active .page-link {
