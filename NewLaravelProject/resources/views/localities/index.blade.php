@@ -60,12 +60,6 @@
     </div>
 
     <div class="container" style="padding-top: 2rem; padding-bottom: 0;">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
 
         <!-- Loading Spinner -->
         <div id="loadingSpinner" class="text-center py-5 d-none">

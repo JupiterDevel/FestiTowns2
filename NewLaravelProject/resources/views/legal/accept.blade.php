@@ -8,19 +8,7 @@
                             <i class="bi bi-shield-check me-2"></i>Aceptación de Términos Legales
                         </h2>
 
-                        @if (session('success'))
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
-
-                        @if (session('error'))
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <i class="bi bi-exclamation-circle me-2"></i>{{ session('error') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
+                        {{-- Session messages handled by toast system --}}
 
                         <div class="alert alert-info" role="alert">
                             <i class="bi bi-info-circle me-2"></i>

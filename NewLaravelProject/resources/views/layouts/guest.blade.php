@@ -29,5 +29,8 @@
         
         <!-- Footer -->
         @include('partials.footer')
+        
+        <!-- Toast Container -->
+        <x-toast-container />
     </body>
 </html>
