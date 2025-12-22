@@ -82,6 +82,25 @@
         @if(config('services.google.adsense_client_id'))
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config('services.google.adsense_client_id') }}" crossorigin="anonymous"></script>
         @endif
+        
+        <style>
+            /* Make footer stick to bottom on desktop/PC view */
+            @media (min-width: 768px) {
+                body {
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                main {
+                    flex: 1;
+                }
+                
+                footer {
+                    margin-top: auto;
+                }
+            }
+        </style>
     </head>
     <body>
         @include('layouts.navigation')

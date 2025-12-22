@@ -5,6 +5,29 @@
         </h1>
     </x-slot>
 
+    <style>
+        /* Extend admin panel background to footer on desktop */
+        @media (min-width: 768px) {
+            main {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            main > div[style*="radial-gradient"] {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 0 !important;
+            }
+            
+            main > div[style*="radial-gradient"] > .container {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    </style>
+
     <div style="background: radial-gradient(circle at top, rgba(254,177,1,0.12), #F3F4F6); margin: -1.5rem 0 -3rem 0; padding: 2rem 0 3rem 0;">
         <div class="container">
         @php
