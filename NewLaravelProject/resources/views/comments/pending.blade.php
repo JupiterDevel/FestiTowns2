@@ -6,12 +6,7 @@
     </x-slot>
 
     <div class="container">
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
+        {{-- Session messages handled by toast system --}}
 
         @if($comments->count() > 0)
             <div class="row g-4">

@@ -5,6 +5,29 @@
         </h1>
     </x-slot>
 
+    <style>
+        /* Extend admin panel background to footer on desktop */
+        @media (min-width: 768px) {
+            main {
+                display: flex;
+                flex-direction: column;
+            }
+            
+            main > div[style*="radial-gradient"] {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                margin-bottom: 0 !important;
+            }
+            
+            main > div[style*="radial-gradient"] > .container {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+    </style>
+
     <div style="background: radial-gradient(circle at top, rgba(254,177,1,0.12), #F3F4F6); margin: -1.5rem 0 -3rem 0; padding: 2rem 0 3rem 0;">
         <div class="container">
         @php
@@ -15,6 +38,7 @@
             $showAdvertisements = auth()->user()->isAdmin();
             $showVoting = auth()->user()->isAdmin();
             $showContact = auth()->user()->isAdmin();
+            $showFestivities = auth()->user()->isAdmin();
             
             // Set default tab if requested tab is not available
             if ($activeTab === 'users' && !$showUsers) {
@@ -29,8 +53,11 @@
             if ($activeTab === 'contact' && !$showContact) {
                 $activeTab = 'comments';
             }
+            if ($activeTab === 'festivities' && !$showFestivities) {
+                $activeTab = 'comments';
+            }
             if ($activeTab === 'comments' && !$showComments) {
-                $activeTab = $showUsers ? 'users' : ($showAdvertisements ? 'advertisements' : ($showVoting ? 'voting' : ($showContact ? 'contact' : 'comments')));
+                $activeTab = $showUsers ? 'users' : ($showAdvertisements ? 'advertisements' : ($showVoting ? 'voting' : ($showContact ? 'contact' : ($showFestivities ? 'festivities' : 'comments'))));
             }
         @endphp
 
@@ -93,6 +120,20 @@
                     </button>
                 </li>
             @endif
+            @if($showFestivities)
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link {{ $activeTab === 'festivities' ? 'active' : '' }}" 
+                            id="festivities-tab" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#festivities" 
+                            type="button" 
+                            role="tab" 
+                            aria-controls="festivities" 
+                            aria-selected="{{ $activeTab === 'festivities' ? 'true' : 'false' }}">
+                        <i class="bi bi-calendar-event me-1"></i>Festividades
+                    </button>
+                </li>
+            @endif
             @if($showContact)
                 <li class="nav-item" role="presentation">
                     <button class="nav-link {{ $activeTab === 'contact' ? 'active' : '' }}" 
@@ -144,6 +185,15 @@
                      role="tabpanel" 
                      aria-labelledby="voting-tab">
                     @include('admin.partials.voting')
+                </div>
+            @endif
+
+            @if($showFestivities)
+                <div class="tab-pane fade {{ $activeTab === 'festivities' ? 'show active' : '' }}" 
+                     id="festivities" 
+                     role="tabpanel" 
+                     aria-labelledby="festivities-tab">
+                    @include('admin.partials.festivities')
                 </div>
             @endif
 

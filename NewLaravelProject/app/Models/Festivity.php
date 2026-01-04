@@ -11,6 +11,7 @@ class Festivity extends Model
 {
     protected $fillable = [
         'locality_id',
+        'user_id',
         'province',
         'name',
         'slug',
@@ -21,6 +22,7 @@ class Festivity extends Model
         'latitude',
         'longitude',
         'google_maps_url',
+        'approved',
     ];
 
     protected static function boot()
@@ -83,11 +85,33 @@ class Festivity extends Model
         'photos' => 'array',
         'latitude' => 'decimal:8',
         'longitude' => 'decimal:8',
+        'approved' => 'boolean',
     ];
 
     public function locality(): BelongsTo
     {
         return $this->belongsTo(Locality::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Scope a query to only include approved festivities.
+     */
+    public function scopeApproved($query)
+    {
+        return $query->where('approved', true);
+    }
+
+    /**
+     * Scope a query to only include pending festivities.
+     */
+    public function scopePending($query)
+    {
+        return $query->where('approved', false);
     }
 
     public function comments(): HasMany

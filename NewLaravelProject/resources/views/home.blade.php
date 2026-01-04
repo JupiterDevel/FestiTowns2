@@ -210,7 +210,7 @@
                             <div class="search-input-group">
                                 <i class="bi bi-search search-icon"></i>
                                 <input type="text" id="map-search-query" class="search-input" 
-                                       placeholder="Busca por nombre, lugar o provincia">
+                                       placeholder="San Fermín, Feria de Abril, Fallas...">
                             </div>
                             
                             <!-- Vertical Divider -->
@@ -246,8 +246,10 @@
         
         <!-- Results and Map Section - Polished Professional Design -->
         <div id="map-search-section" class="results-map-section">
-            <!-- Main Content: Results + Map Side-by-Side -->
-            <div class="results-map-container" id="results-map-container">
+            <!-- Glassy Container Wrapper -->
+            <div class="glassy-container-wrapper">
+                <!-- Main Content: Results + Map Side-by-Side -->
+                <div class="results-map-container" id="results-map-container">
                 <!-- Results Grid Section -->
                 <div class="results-grid-section">
                     <div id="map-results-container" class="results-grid-wrapper d-none">
@@ -306,6 +308,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     </div>
@@ -806,24 +809,77 @@
             background: transparent !important;
         }
         
+        /* Glassy Container Wrapper - Translucent Glass Effect */
+        .glassy-container-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0.375rem 0.375rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .glassy-container-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.3) 50%, 
+                transparent
+            );
+            pointer-events: none;
+        }
+        
+        /* Responsive adjustments for glassy container */
+        @media (max-width: 992px) {
+            .glassy-container-wrapper {
+                padding: 0.25rem 0.25rem;
+                border-radius: 20px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .glassy-container-wrapper {
+                padding: 0.25rem 0.25rem;
+                border-radius: 16px;
+                margin: 0 var(--spacing-md);
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .glassy-container-wrapper {
+                margin: 0 var(--spacing-sm);
+                padding: 0.25rem 0.25rem;
+            }
+        }
+        
         
         .results-map-container {
             flex: 0 0 auto;
             display: flex !important;
             flex-direction: row;
             min-height: 0;
-            overflow: visible;
+            overflow: hidden;
             gap: 0;
             position: relative;
             height: calc((min(1200px, 100vw - 4rem) - 450px - 2rem) / 3 * 1.2 + 4rem);
-            width: auto;
-            max-width: 1200px;
-            margin: 0 auto;
-            background: #0F172A;
-            border-bottom: 1px solid #1E293B;
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            background: transparent;
+            border: none;
             border-radius: 16px;
-            border-bottom-left-radius: 16px;
             padding-bottom: 1rem;
+            box-sizing: border-box;
         }
 
         @media (min-width: 1401px) {
@@ -1335,22 +1391,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: var(--spacing-3xl);
-            min-height: 500px;
+            padding: var(--spacing-xl);
+            min-height: auto;
             min-width: 100%;
             width: 100%;
         }
         
         .no-results-content {
             text-align: center;
-            max-width: 480px;
+            max-width: 400px;
+            padding: var(--spacing-md);
         }
         
         .no-results-illustration {
             position: relative;
-            width: 160px;
-            height: 160px;
-            margin: 0 auto var(--spacing-2xl);
+            width: 100px;
+            height: 100px;
+            margin: 0 auto var(--spacing-lg);
         }
         
         .no-results-icon {
@@ -1363,11 +1420,11 @@
             justify-content: center;
             position: relative;
             z-index: 2;
-            box-shadow: 0 8px 24px rgba(254, 177, 1, 0.2);
+            box-shadow: 0 4px 12px rgba(254, 177, 1, 0.2);
         }
         
         .no-results-icon i {
-            font-size: 4rem;
+            font-size: 2.5rem;
             color: #F59E0B;
         }
         
@@ -1395,18 +1452,18 @@
         }
         
         .no-results-title {
-            font-size: 1.75rem;
+            font-size: 1.25rem;
             font-weight: 700;
             color: #111827;
-            margin: 0 0 var(--spacing-md) 0;
+            margin: 0 0 var(--spacing-sm) 0;
             letter-spacing: -0.02em;
         }
         
         .no-results-text {
-            font-size: 1rem;
+            font-size: 0.875rem;
             color: #6B7280;
-            margin: 0 0 var(--spacing-xl) 0;
-            line-height: 1.6;
+            margin: 0 0 var(--spacing-md) 0;
+            line-height: 1.5;
         }
         
         .no-results-suggestions {
@@ -1457,11 +1514,12 @@
             visibility: visible !important;
             min-width: 450px;
             width: 450px;
+            max-width: 100%;
             box-shadow: -2px 0 8px rgba(0, 0, 0, 0.04);
             border-top-left-radius: 0;
-            border-top-right-radius: 16px;
+            border-top-right-radius: 20px;
             border-bottom-left-radius: 0;
-            border-bottom-right-radius: 16px;
+            border-bottom-right-radius: 20px;
         }
         
         @media (min-width: 1401px) {
@@ -1480,7 +1538,7 @@
                 min-height: 400px;
                 border-left: none;
                 border-top: 1px solid #E5E7EB;
-                border-radius: 0 0 16px 16px;
+                border-radius: 0 0 18px 18px;
                 box-shadow: none;
             }
             
@@ -1494,7 +1552,7 @@
             .map-section {
                 height: 350px;
                 min-height: 350px;
-                border-radius: 0 0 12px 12px;
+                border-radius: 0 0 14px 14px;
             }
         }
         
@@ -1680,8 +1738,8 @@
             }
             
             .no-results-message {
-                min-height: 300px;
-                padding: var(--spacing-2xl);
+                min-height: auto;
+                padding: var(--spacing-lg);
             }
         }
         
@@ -1739,25 +1797,26 @@
             }
             
             .no-results-message {
-                min-height: 250px;
-                padding: var(--spacing-xl);
+                min-height: auto;
+                padding: var(--spacing-md);
             }
             
             .no-results-illustration {
-                width: 120px;
-                height: 120px;
+                width: 80px;
+                height: 80px;
+                margin-bottom: var(--spacing-md);
             }
             
             .no-results-icon i {
-                font-size: 3rem;
+                font-size: 2rem;
             }
             
             .no-results-title {
-                font-size: 1.5rem;
+                font-size: 1.125rem;
             }
             
             .no-results-text {
-                font-size: 0.9375rem;
+                font-size: 0.8125rem;
             }
         }
         
@@ -1868,26 +1927,26 @@
             }
             
             .no-results-message {
-                min-height: 200px;
-                padding: var(--spacing-lg);
+                min-height: auto;
+                padding: var(--spacing-sm);
             }
             
             .no-results-illustration {
-                width: 100px;
-                height: 100px;
-                margin-bottom: var(--spacing-lg);
+                width: 70px;
+                height: 70px;
+                margin-bottom: var(--spacing-sm);
             }
             
             .no-results-icon i {
-                font-size: 2.5rem;
+                font-size: 1.75rem;
             }
             
             .no-results-title {
-                font-size: 1.25rem;
+                font-size: 1rem;
             }
             
             .no-results-text {
-                font-size: 0.875rem;
+                font-size: 0.75rem;
             }
             
             .suggestion-btn {

@@ -150,3 +150,66 @@ select.form-select:hover {
     color: #495057;
     font-size: 1.1rem;
 }
+
+/* Toast Notification Styles - Brand Colors */
+.toast-container {
+    max-width: 400px;
+}
+
+.toast {
+    min-width: 300px;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border: none;
+    margin-bottom: 0.75rem;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.toast-header {
+    font-weight: 600;
+    padding: 0.75rem 1rem;
+    border-bottom: none;
+}
+
+/* Brand Color Classes for Toasts */
+.toast-header.bg-success-green {
+    background-color: #28A745 !important;
+    color: #FFFFFF;
+}
+
+.toast-header.bg-brand-teal {
+    background-color: #1FA4A9 !important;
+    color: #FFFFFF;
+}
+
+.toast-header.bg-brand-red {
+    background-color: #E5483B !important;
+    color: #FFFFFF;
+}
+
+.toast-header.bg-brand-rating {
+    background-color: #F59E0B !important;
+    color: #FFFFFF;
+}
+
+.toast-body {
+    padding: 0.75rem 1rem;
+    background-color: #fff;
+    color: #1F2937;
+}
+
+.toast.showing {
+    opacity: 1;
+}
+
+@media (max-width: 576px) {
+    .toast-container {
+        max-width: calc(100% - 1rem);
+        padding: 0.5rem !important;
+    }
+    
+    .toast {
+        min-width: auto;
+        width: 100%;
+    }
+}

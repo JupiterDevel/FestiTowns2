@@ -8,19 +8,6 @@
         </div>
 
         <div class="container mt-4 mb-5">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
 
             <!-- Photo Carousel with Info Overlay -->
             @if(!empty($locality->photos) && is_array($locality->photos) && count($locality->photos) > 0)
@@ -298,9 +285,13 @@
                                 <h3 class="h5 mb-0"><i class="bi bi-calendar-event me-2"></i>Festividades</h3>
                                 @auth
                                     @can('create', App\Models\Festivity::class)
-                                        @if(!auth()->user()->isTownHall() || (auth()->user()->isTownHall() && auth()->user()->locality_id === $locality->id))
+                                        @if(auth()->user()->isVisitor())
                                             <a href="{{ route('festivities.create') }}?locality_id={{ $locality->id }}" class="btn btn-primary btn-sm" style="background-color: #FEB101; border: none;">
-                                                <i class="bi bi-plus-circle me-1"></i>Añadir
+                                                <i class="bi bi-lightbulb me-1"></i>Sugerir una festividad
+                                            </a>
+                                        @elseif(!auth()->user()->isTownHall() || (auth()->user()->isTownHall() && auth()->user()->locality_id === $locality->id))
+                                            <a href="{{ route('festivities.create') }}?locality_id={{ $locality->id }}" class="btn btn-primary btn-sm" style="background-color: #FEB101; border: none;">
+                                                <i class="bi bi-plus-circle me-1"></i>Crear Festividad
                                             </a>
                                         @endif
                                     @endcan
@@ -393,6 +384,9 @@
             background-attachment: fixed;
             background-repeat: no-repeat;
             position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
         body::before {
@@ -406,6 +400,15 @@
             opacity: 0.5;
             z-index: -1;
             pointer-events: none;
+        }
+        
+        main {
+            flex: 1;
+        }
+        
+        /* Ensure footer stays at bottom */
+        footer {
+            margin-top: auto;
         }
         
         /* Sticky Banner Ad */

@@ -63,6 +63,8 @@ Route::middleware(['auth', 'legal.accepted'])->group(function () {
     Route::put('festividades/{festivity}', [FestivityController::class, 'update'])->name('festivities.update');
     Route::patch('festividades/{festivity}', [FestivityController::class, 'update'])->name('festivities.patch');
     Route::delete('festividades/{festivity}', [FestivityController::class, 'destroy'])->name('festivities.destroy');
+    Route::patch('festividades/{festivity}/aprobar', [FestivityController::class, 'approve'])->name('festivities.approve');
+    Route::patch('festividades/{festivity}/rechazar', [FestivityController::class, 'reject'])->name('festivities.reject');
     
     // Protected events routes
     Route::get('festividades/{festivity}/eventos', [EventController::class, 'index'])->name('events.index');
