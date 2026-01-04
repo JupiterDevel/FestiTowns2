@@ -7,7 +7,7 @@
     $createParams = array_filter($newAdParams ?? []);
 @endphp
 
-<section class="mb-4">
+<section class="mb-4 main-banner-container" id="mainBannerSection">
     <div class="card border-0 shadow-sm overflow-hidden position-relative">
         @if($adminCanManageAds)
             <div class="position-absolute top-0 start-0 end-0 m-2 d-flex justify-content-between align-items-center" style="z-index: 10;">
@@ -42,6 +42,16 @@
                 </div>
             </div>
         @endif
+        <!-- Close Button with Countdown -->
+        <button type="button" 
+                class="btn btn-close-banner position-absolute" 
+                id="closeBannerBtn"
+                onclick="closeMainBanner()"
+                style="top: 10px; right: 10px; z-index: 11; width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(255, 255, 255, 0.8); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; cursor: not-allowed; transition: all 0.3s ease; backdrop-filter: blur(5px); pointer-events: auto;"
+                title="Espera 5 segundos...">
+            <span id="bannerCountdown">5</span>
+            <span id="bannerCloseIcon" style="display: none; font-size: 20px;">&times;</span>
+        </button>
         @php
             $hasUrl = $ad && !empty($ad->url);
             $isRealAd = $ad && ($ad->name || $ad->url || $ad->image || ($ad->is_adsense && $ad->adsense_client_id && $ad->adsense_slot_id));
@@ -103,4 +113,75 @@
         @endif
     </div>
 </section>
+
+<style>
+    .btn-close-banner:hover {
+        background: rgba(0, 0, 0, 0.8) !important;
+        transform: scale(1.1);
+    }
+    
+    .btn-close-banner:active {
+        transform: scale(0.95);
+    }
+    
+    .main-banner-container.hidden {
+        display: none !important;
+    }
+</style>
+
+<script>
+    (function() {
+        let countdown = 5;
+        const countdownElement = document.getElementById('bannerCountdown');
+        const closeIcon = document.getElementById('bannerCloseIcon');
+        const closeBtn = document.getElementById('closeBannerBtn');
+
+        // Disable button during countdown
+        if (closeBtn) {
+            closeBtn.disabled = true;
+        }
+
+        // Start countdown
+        const countdownInterval = setInterval(function() {
+            countdown--;
+            if (countdownElement) {
+                countdownElement.textContent = countdown;
+            }
+
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                // Show close icon and enable button
+                if (countdownElement) {
+                    countdownElement.style.display = 'none';
+                }
+                if (closeIcon) {
+                    closeIcon.style.display = 'inline';
+                }
+                if (closeBtn) {
+                    closeBtn.disabled = false;
+                    closeBtn.style.cursor = 'pointer';
+                    closeBtn.title = 'Cerrar publicidad';
+                }
+            }
+        }, 1000);
+
+        // Make closeBanner function globally available
+        window.closeMainBanner = function() {
+            if (countdown > 0) {
+                return; // Don't close if countdown hasn't finished
+            }
+
+            const bannerSection = document.getElementById('mainBannerSection');
+            if (bannerSection) {
+                bannerSection.style.transition = 'opacity 0.3s ease, height 0.3s ease';
+                bannerSection.style.opacity = '0';
+                bannerSection.style.height = bannerSection.offsetHeight + 'px';
+                
+                setTimeout(function() {
+                    bannerSection.classList.add('hidden');
+                }, 300);
+            }
+        };
+    })();
+</script>
 
