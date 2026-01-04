@@ -29,7 +29,9 @@ class FestivityPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdmin() || $user->isTownHall();
+        // Allow all authenticated users to create (suggest) festivities
+        // Approval will be handled based on user role in the controller
+        return true;
     }
 
     /**

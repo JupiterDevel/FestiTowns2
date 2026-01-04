@@ -285,9 +285,13 @@
                                 <h3 class="h5 mb-0"><i class="bi bi-calendar-event me-2"></i>Festividades</h3>
                                 @auth
                                     @can('create', App\Models\Festivity::class)
-                                        @if(!auth()->user()->isTownHall() || (auth()->user()->isTownHall() && auth()->user()->locality_id === $locality->id))
+                                        @if(auth()->user()->isVisitor())
                                             <a href="{{ route('festivities.create') }}?locality_id={{ $locality->id }}" class="btn btn-primary btn-sm" style="background-color: #FEB101; border: none;">
-                                                <i class="bi bi-plus-circle me-1"></i>Añadir
+                                                <i class="bi bi-lightbulb me-1"></i>Sugerir una festividad
+                                            </a>
+                                        @elseif(!auth()->user()->isTownHall() || (auth()->user()->isTownHall() && auth()->user()->locality_id === $locality->id))
+                                            <a href="{{ route('festivities.create') }}?locality_id={{ $locality->id }}" class="btn btn-primary btn-sm" style="background-color: #FEB101; border: none;">
+                                                <i class="bi bi-plus-circle me-1"></i>Crear Festividad
                                             </a>
                                         @endif
                                     @endcan

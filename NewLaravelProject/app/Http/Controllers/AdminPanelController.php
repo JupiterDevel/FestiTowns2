@@ -6,6 +6,7 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Models\Advertisement;
 use App\Models\Vote;
+use App\Models\Festivity;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Cache;
@@ -144,6 +145,56 @@ class AdminPanelController extends Controller
                 // Load all advertisements without pagination for non-active tab
                 $data['advertisements'] = Advertisement::with(['festivity', 'locality'])
                     ->premium()
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
+        }
+
+        // Load festivity suggestions (admin only)
+        if (auth()->user()->isAdmin()) {
+            if ($activeTab === 'festivities') {
+                $search = $request->get('search', '');
+                $sort = in_array($request->get('sort'), ['name', 'user_name', 'locality_name', 'created_at'], true) 
+                    ? $request->get('sort') 
+                    : 'created_at';
+                $direction = $request->get('direction') === 'asc' ? 'asc' : 'desc';
+
+                $query = Festivity::with(['user', 'locality'])
+                    ->where('approved', false)
+                    ->when($search, function ($q) use ($search) {
+                        $q->where(function ($inner) use ($search) {
+                            $inner->where('name', 'like', "%{$search}%")
+                                ->orWhereHas('user', function ($userQuery) use ($search) {
+                                    $userQuery->where('name', 'like', "%{$search}%")
+                                        ->orWhere('email', 'like', "%{$search}%");
+                                })
+                                ->orWhereHas('locality', function ($localityQuery) use ($search) {
+                                    $localityQuery->where('name', 'like', "%{$search}%");
+                                });
+                        });
+                    });
+
+                // Apply sorting
+                if ($sort === 'user_name') {
+                    $query->join('users', 'festivities.user_id', '=', 'users.id')
+                        ->orderBy('users.name', $direction)
+                        ->select('festivities.*');
+                } elseif ($sort === 'locality_name') {
+                    $query->join('localities', 'festivities.locality_id', '=', 'localities.id')
+                        ->orderBy('localities.name', $direction)
+                        ->select('festivities.*');
+                } else {
+                    $query->orderBy('festivities.' . $sort, $direction);
+                }
+
+                $data['festivities'] = $query->paginate(12)->withQueryString();
+                $data['festivities_search'] = $search;
+                $data['festivities_sort'] = $sort;
+                $data['festivities_direction'] = $direction;
+            } else {
+                // Load all pending festivities without pagination for non-active tab
+                $data['festivities'] = Festivity::with(['user', 'locality'])
+                    ->where('approved', false)
                     ->orderBy('created_at', 'desc')
                     ->get();
             }

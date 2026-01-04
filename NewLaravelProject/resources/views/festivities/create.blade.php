@@ -1,17 +1,29 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h1 class="display-6 fw-bold text-primary mb-0">
-            <i class="bi bi-plus-circle me-2"></i>Create New Festivity
-        </h1>
-    </x-slot>
-
-    <div class="container">
+    <div class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
         {{-- Session messages handled by toast system --}}
         
         <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow">
-                    <div class="card-body">
+            <div class="col-lg-10">
+                <div class="form-card">
+                    <div class="form-header">
+                        @auth
+                            @if(auth()->user()->isVisitor())
+                                <h2 class="form-title">
+                                    <i class="bi bi-lightbulb me-2"></i>Sugerir una festividad
+                                </h2>
+                            @else
+                                <h2 class="form-title">
+                                    <i class="bi bi-plus-circle me-2"></i>Crear Festividad
+                                </h2>
+                            @endif
+                        @else
+                            <h2 class="form-title">
+                                <i class="bi bi-plus-circle me-2"></i>Crear Festividad
+                            </h2>
+                        @endauth
+                    </div>
+                    
+                    <div class="form-body">
                         <form method="POST" action="{{ route('festivities.store') }}" enctype="multipart/form-data">
                             @csrf
                             
@@ -141,12 +153,29 @@
                                 <div id="photos-preview" class="mt-3 row g-2"></div>
                             </div>
 
-                            <div class="d-flex justify-content-end gap-3">
-                                <a href="{{ route('festivities.index') }}" class="btn btn-secondary btn-custom">
-                                    <i class="bi bi-arrow-left me-1"></i>Cancel
+                            @auth
+                                @if(auth()->user()->isVisitor())
+                                    <div class="alert alert-info-custom mb-4">
+                                        <i class="bi bi-info-circle me-2"></i>
+                                        <strong>Nota:</strong> Tu sugerencia será revisada por un administrador antes de ser publicada en la plataforma.
+                                    </div>
+                                @endif
+                            @endauth
+                            
+                            <div class="form-actions">
+                                <a href="{{ route('festivities.index') }}" class="btn btn-secondary-custom">
+                                    <i class="bi bi-arrow-left me-1"></i>Cancelar
                                 </a>
-                                <button type="submit" class="btn btn-primary btn-custom">
-                                    <i class="bi bi-plus-circle me-1"></i>Create Festivity
+                                <button type="submit" class="btn btn-primary-custom">
+                                    @auth
+                                        @if(auth()->user()->isVisitor())
+                                            <i class="bi bi-lightbulb me-1"></i>Sugerir Festividad
+                                        @else
+                                            <i class="bi bi-plus-circle me-1"></i>Crear Festividad
+                                        @endif
+                                    @else
+                                        <i class="bi bi-plus-circle me-1"></i>Crear Festividad
+                                    @endauth
                                 </button>
                             </div>
                         </form>
@@ -155,6 +184,203 @@
             </div>
         </div>
     </div>
+
+    <style>
+        body {
+            background-image: url('/storage/background.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-color: #f8f9fa;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            opacity: 0.5;
+            z-index: -1;
+            pointer-events: none;
+        }
+        main {
+            background-color: transparent;
+        }
+        main.py-4 {
+            padding-top: 0 !important;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%);
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .form-title {
+            color: white;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .form-body {
+            padding: 2.5rem;
+        }
+
+        .form-label {
+            color: #1F2937;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .form-label i {
+            color: #FEB101;
+            margin-right: 0.5rem;
+        }
+
+        .form-control,
+        .form-select {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #FEB101;
+            box-shadow: 0 0 0 3px rgba(254, 177, 1, 0.1);
+            outline: none;
+        }
+
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .form-text i {
+            color: #FEB101;
+        }
+
+        .alert-info-custom {
+            background: linear-gradient(120deg, rgba(31,164,169,0.08), #EFF6FF);
+            border: 2px solid #BFDBFE;
+            border-left: 4px solid #1FA4A9;
+            color: #1F2937;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+        }
+
+        .alert-info-custom i {
+            color: #1FA4A9;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-primary-custom,
+        .btn-secondary-custom {
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, #FEB101 0%, #F59E0B 100%);
+            color: white;
+            box-shadow: 0 2px 6px rgba(254, 177, 1, 0.3);
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(254, 177, 1, 0.4);
+            color: white;
+        }
+
+        .btn-secondary-custom {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #4b5563;
+            transform: translateY(-2px);
+            color: white;
+        }
+
+        #photos-preview img {
+            border-radius: 8px;
+        }
+
+        .invalid-feedback {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+        .is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .form-body {
+                padding: 1.5rem;
+            }
+
+            .form-header {
+                padding: 1.5rem;
+            }
+
+            .form-title {
+                font-size: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column-reverse;
+            }
+
+            .btn-primary-custom,
+            .btn-secondary-custom {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
 
     <script>
         document.getElementById('photos').addEventListener('change', function(e) {
