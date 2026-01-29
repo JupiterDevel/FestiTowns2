@@ -14,6 +14,7 @@ class EnsureAcceptedLegal
      */
     protected array $allowedRoutes = [
         'legal.index',
+        'legal.accept.form',
         'legal.accept',
         'logout',
         'login',
@@ -52,7 +53,7 @@ class EnsureAcceptedLegal
                 
                 if (!$isLegalRoute) {
                     // Redirect to legal acceptance page
-                    return redirect()->route('legal.accept');
+                    return redirect()->route('legal.accept.form');
                 }
             }
         }

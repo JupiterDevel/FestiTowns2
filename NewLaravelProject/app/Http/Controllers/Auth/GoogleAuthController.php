@@ -50,7 +50,7 @@ class GoogleAuthController extends Controller
                     Auth::login($user, true);
                     
                     // Redirect to legal acceptance page
-                    return redirect()->route('legal.accept');
+                    return redirect()->route('legal.accept.form');
                 }
             } else {
                 // New user - store Google user data in session
@@ -62,7 +62,7 @@ class GoogleAuthController extends Controller
                 ]);
                 
                 // Redirect to legal acceptance page
-                return redirect()->route('legal.accept');
+                return redirect()->route('legal.accept.form');
             }
 
             // User exists and has accepted legal terms - proceed with login

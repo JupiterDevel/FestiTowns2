@@ -88,7 +88,7 @@ class LegalController extends Controller
             $saved = $user->save();
             
             if (!$saved) {
-                return redirect()->route('legal.accept')
+                return redirect()->route('legal.accept.form')
                     ->with('error', 'Error al guardar la aceptación. Por favor, intente nuevamente.');
             }
             
