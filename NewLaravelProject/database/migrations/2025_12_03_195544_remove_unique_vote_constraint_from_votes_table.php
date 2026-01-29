@@ -12,8 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('votes', function (Blueprint $table) {
-            // Eliminar la restricción única para permitir múltiples votos por día a administradores
+            // 1️⃣ Primero eliminamos la foreign key que depende del índice (ajusta el nombre si es diferente)
+            $table->dropForeign(['user_id']);
+
+            // 2️⃣ Ahora sí eliminamos la restricción única
             $table->dropUnique(['user_id', 'voted_at']);
+
+            // 3️⃣ Opcional: recrear la foreign key después
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -23,8 +29,11 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('votes', function (Blueprint $table) {
-            // Restaurar la restricción única si se revierte la migración
+            // Restaurar la restricción única
             $table->unique(['user_id', 'voted_at']);
+
+            // Restaurar la foreign key si la eliminaste
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 };
