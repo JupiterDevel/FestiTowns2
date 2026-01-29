@@ -28,7 +28,7 @@ Route::get('robots.txt', [\App\Http\Controllers\SitemapController::class, 'robot
 
 // Legal routes (public)
 Route::get('legal', [\App\Http\Controllers\LegalController::class, 'index'])->name('legal.index');
-Route::get('legal/accept', [\App\Http\Controllers\LegalController::class, 'acceptForm'])->name('legal.accept');
+Route::get('legal/accept', [\App\Http\Controllers\LegalController::class, 'acceptForm'])->name('legal.accept.form');
 Route::post('legal/accept', [\App\Http\Controllers\LegalController::class, 'accept'])->name('legal.accept');
 
 // Authentication routes
