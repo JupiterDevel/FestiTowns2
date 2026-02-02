@@ -38,12 +38,12 @@
         <!-- Canonical URL -->
         <link rel="canonical" href="{{ $meta['url'] ?? url()->current() }}">
 
-        <!-- Google AdSense Script (Test Mode) -->
+        {{-- Google AdSense Script (Test Mode) - COMENTADO: usar ADSENSE_CLIENT_ID en .env para usuario real
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940256099942544"></script>
         <script>
-            // Ensure adsbygoogle array exists
             window.adsbygoogle = window.adsbygoogle || [];
         </script>
+        --}}
 
         <!-- Favicon -->
         <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
@@ -85,9 +85,12 @@
             @vite(['resources/js/app.js'])
         @endif
         
-        <!-- Google AdSense Script (GDPR-friendly: lazy loading) -->
-        @if(config('services.google.adsense_client_id'))
+        <!-- Google AdSense Script (usuario real: ADSENSE_CLIENT_ID en .env) -->
+        @if(config('services.google.adsense_enabled') && config('services.google.adsense_client_id'))
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ config('services.google.adsense_client_id') }}" crossorigin="anonymous"></script>
+            <script>
+                window.adsbygoogle = window.adsbygoogle || [];
+            </script>
         @endif
         
         <style>
