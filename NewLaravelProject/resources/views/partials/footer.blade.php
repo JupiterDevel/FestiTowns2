@@ -15,7 +15,7 @@
         <!-- Información de Contacto y Redes Sociales -->
         <div class="row align-items-center mb-2">
             <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                <span class="brand-text d-block d-md-inline" style="color: #E5483B; font-size: 1.35rem;">Elalmadelafiesta</span>
+                <span class="brand-text d-block d-md-inline" style="color: #E5483B; font-size: 1.35rem;">ElAlmaDeLaFiesta</span>
                 <div class="d-flex flex-column flex-md-row align-items-center align-items-md-start gap-3">
                     @if($contactEmail)
                         <a href="mailto:{{ $contactEmail }}" class="text-decoration-none" style="color: #F9FAFB; font-weight: 500; transition: color 0.2s ease;" onmouseover="this.style.color='#FFFFFF'" onmouseout="this.style.color='#F9FAFB'">

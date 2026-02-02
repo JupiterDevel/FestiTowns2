@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Festivity;
 use App\Models\Vote;
+use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -182,7 +183,10 @@ class VoteController extends Controller
         
         // Obtener el mensaje informativo desde la caché
         $votingInfoMessage = Cache::get('voting_info_message', '');
-            
+
+        // SEO Meta Tags
+        $meta = SeoService::generateMostVotedMeta();
+
         return view('festivities.most-voted', compact(
             'nationalFestivities',
             'regionalFestivities',
@@ -192,7 +196,8 @@ class VoteController extends Controller
             'communities',
             'provinces',
             'userVotedToday',
-            'votingInfoMessage'
+            'votingInfoMessage',
+            'meta'
         ));
     }
 

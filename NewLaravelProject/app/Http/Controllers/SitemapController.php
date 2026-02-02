@@ -27,6 +27,7 @@ class SitemapController extends Controller
         $sitemap .= $this->addUrl(route('localities.index'), '0.9', 'weekly');
         $sitemap .= $this->addUrl(route('festivities.index'), '0.9', 'weekly');
         $sitemap .= $this->addUrl(route('festivities.most-voted'), '0.8', 'weekly');
+        $sitemap .= $this->addUrl(route('legal.index'), '0.5', 'monthly');
 
         // Localidades
         $localities = Locality::all();

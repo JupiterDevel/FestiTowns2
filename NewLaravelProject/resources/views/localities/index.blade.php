@@ -1,4 +1,14 @@
 <x-app-layout>
+    @push('head')
+        @if(isset($localities) && method_exists($localities, 'previousPageUrl'))
+            @if($localities->previousPageUrl())
+                <link rel="prev" href="{{ $localities->previousPageUrl() }}">
+            @endif
+            @if($localities->nextPageUrl())
+                <link rel="next" href="{{ $localities->nextPageUrl() }}">
+            @endif
+        @endif
+    @endpush
     <!-- Compact Header Section -->
     <div class="header-localities">
         <div class="container">

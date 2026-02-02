@@ -179,7 +179,7 @@ class LocalityController extends Controller
         
         // SEO Meta Tags
         $meta = SeoService::generateMetaTags([
-            'title' => 'Localidades de España - Festividades y Turismo | FestiTowns',
+            'title' => 'Localidades de España - Festividades y Turismo | ElAlmaDeLaFiesta',
             'description' => 'Explora las localidades españolas y descubre sus festividades tradicionales, lugares de interés y monumentos. Planifica tu visita y conoce la cultura de España.',
             'keywords' => 'localidades españa, turismo españa, pueblos españa, ciudades españa, festividades por localidad',
             'url' => route('localities.index'),

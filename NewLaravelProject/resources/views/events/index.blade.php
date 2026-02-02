@@ -1,4 +1,14 @@
 <x-app-layout>
+    @push('head')
+        @if(isset($events) && method_exists($events, 'previousPageUrl'))
+            @if($events->previousPageUrl())
+                <link rel="prev" href="{{ $events->previousPageUrl() }}">
+            @endif
+            @if($events->nextPageUrl())
+                <link rel="next" href="{{ $events->nextPageUrl() }}">
+            @endif
+        @endif
+    @endpush
     <!-- Header Section -->
     <div class="header-events">
         <div class="container">

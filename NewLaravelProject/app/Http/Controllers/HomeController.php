@@ -225,7 +225,7 @@ class HomeController extends Controller
         
         // SEO Meta Tags
         $meta = SeoService::generateMetaTags([
-            'title' => 'FestiTowns - Festividades y Eventos Tradicionales de España',
+            'title' => 'ElAlmaDeLaFiesta - Festividades y Eventos Tradicionales de España',
             'description' => 'Descubre las mejores festividades y eventos tradicionales de España. Fallas de Valencia, San Fermín, Feria de Abril y muchas más. Información sobre horarios, eventos y tradiciones.',
             'keywords' => 'festividades españa, eventos tradicionales, fiestas populares, turismo cultural, fallas valencia, san fermin, feria abril',
             'url' => route('home'),

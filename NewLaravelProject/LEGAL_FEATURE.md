@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the legal compliance feature implemented in FestiTowns, which includes mandatory acceptance of Terms & Conditions and Cookies Policy for all users.
+This document describes the legal compliance feature implemented in ElAlmaDeLaFiesta, which includes mandatory acceptance of Terms & Conditions and Cookies Policy for all users.
 
 ## Features Implemented
 

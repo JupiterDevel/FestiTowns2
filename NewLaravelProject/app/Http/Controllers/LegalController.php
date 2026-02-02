@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\SeoService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,13 @@ class LegalController extends Controller
      */
     public function index(): View
     {
-        return view('legal.index');
+        $meta = SeoService::generateMetaTags([
+            'title' => 'Información Legal - Términos, Cookies y Contacto | ElAlmaDeLaFiesta',
+            'description' => 'Términos y Condiciones, Política de Cookies e información de contacto de ElAlmaDeLaFiesta. Plataforma de festividades y eventos tradicionales en España.',
+            'keywords' => 'términos y condiciones, política de cookies, información legal, contacto ElAlmaDeLaFiesta',
+            'url' => route('legal.index'),
+        ]);
+        return view('legal.index', compact('meta'));
     }
 
     /**
@@ -25,7 +32,13 @@ class LegalController extends Controller
      */
     public function acceptForm(): View
     {
-        return view('legal.accept');
+        $meta = [
+            'title' => 'Aceptar Términos Legales | ElAlmaDeLaFiesta',
+            'description' => 'Aceptación de Términos y Condiciones y Política de Cookies.',
+            'url' => route('legal.accept.form'),
+            'robots' => 'noindex, nofollow',
+        ];
+        return view('legal.accept', compact('meta'));
     }
 
     /**

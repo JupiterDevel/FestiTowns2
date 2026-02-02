@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\Festivity;
+use App\Services\SeoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,8 +25,19 @@ class EventController extends Controller
                 start_time ASC
             ')
             ->paginate(10);
-        
-        return view('events.index', compact('festivity', 'events'));
+
+        $meta = SeoService::generateMetaTags([
+            'title' => SeoService::generateEventsIndexTitle($festivity),
+            'description' => SeoService::generateEventsIndexDescription($festivity),
+            'keywords' => SeoService::generateKeywords('festivity', [
+                'name' => $festivity->name,
+                'locality' => $festivity->locality->name ?? '',
+                'province' => $festivity->province ?? '',
+            ]),
+            'url' => route('events.index', $festivity),
+        ]);
+
+        return view('events.index', compact('festivity', 'events', 'meta'));
     }
 
     /**
@@ -88,7 +100,21 @@ class EventController extends Controller
      */
     public function show(Festivity $festivity, Event $event)
     {
-        return view('events.show', compact('festivity', 'event'));
+        $meta = SeoService::generateMetaTags([
+            'title' => SeoService::generateEventShowTitle($event, $festivity),
+            'description' => SeoService::generateEventShowDescription($event, $festivity),
+            'keywords' => SeoService::generateKeywords('festivity', [
+                'name' => $event->name . ' ' . $festivity->name,
+                'locality' => $festivity->locality->name ?? '',
+                'province' => $festivity->province ?? '',
+            ]),
+            'url' => route('events.show', [$festivity, $event]),
+            'type' => 'article',
+        ]);
+
+        $schema = SeoService::generateSingleEventSchema($event, $festivity);
+
+        return view('events.show', compact('festivity', 'event', 'meta', 'schema'));
     }
 
     /**
