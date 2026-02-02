@@ -80,15 +80,16 @@
                         format="auto"
                     />
                 </div>
-            @elseif(!$isRealAd)
-                <!-- Google AdSense Test Ad for Main Banner -->
+            @elseif(!$isRealAd && config('services.google.adsense_enabled') && config('services.google.adsense_client_id'))
+                {{-- AdSense usuario real (variables en .env) --}}
                 <div class="p-0" style="min-height: 280px; width: 100%;">
                     <x-adsense-ad 
-                        clientId="ca-pub-3940256099942544" 
+                        :clientId="config('services.google.adsense_client_id')" 
+                        :slotId="config('services.google.adsense_default_slot')"
                         type="display"
                         style="display:block; min-height: 280px; width: 100%;"
                         format="auto"
-                        :testMode="true"
+                        :testMode="config('services.google.adsense_test_mode')"
                     />
                 </div>
             @else

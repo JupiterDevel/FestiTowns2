@@ -40,7 +40,11 @@ return [
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
         'maps_key' => env('GOOGLE_MAPS_KEY'),
+        // AdSense (usuario real; configurable en .env)
         'adsense_client_id' => env('ADSENSE_CLIENT_ID'),
+        'adsense_enabled' => env('ADSENSE_ENABLED', true),
+        'adsense_test_mode' => env('ADSENSE_TEST_MODE', false),
+        'adsense_default_slot' => env('ADSENSE_DEFAULT_SLOT'),
     ],
 
 ];

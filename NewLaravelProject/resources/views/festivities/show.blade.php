@@ -332,18 +332,23 @@
                         <div class="h-100">
                             @include('ads.secondary_banner', ['ads' => collect([$currentAd]), 'orientation' => 'sidebar', 'newAdParams' => $adCreationParams])
                         </div>
-                    @else
-                        <!-- Google AdSense Test Ad when no secondary ad available -->
+                    @elseif(config('services.google.adsense_enabled') && config('services.google.adsense_client_id'))
+                        {{-- AdSense usuario real (variables en .env) --}}
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body" style="min-height: 300px; padding: 1rem;">
                                 <x-adsense-ad 
-                                    clientId="ca-pub-3940256099942544" 
+                                    :clientId="config('services.google.adsense_client_id')" 
+                                    :slotId="config('services.google.adsense_default_slot')"
                                     type="display"
                                     style="display:block; min-height: 250px; width: 100%;"
                                     format="auto"
-                                    :testMode="true"
+                                    :testMode="config('services.google.adsense_test_mode')"
                                 />
                             </div>
+                        </div>
+                    @else
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body" style="min-height: 300px;"></div>
                         </div>
                     @endif
                 </div>
@@ -436,18 +441,23 @@
                         <div class="h-100">
                             @include('ads.secondary_banner', ['ads' => collect([$currentAd]), 'orientation' => 'sidebar', 'newAdParams' => $adCreationParams])
                         </div>
-                    @else
-                        <!-- Google AdSense Test Ad when no secondary ad available -->
+                    @elseif(config('services.google.adsense_enabled') && config('services.google.adsense_client_id'))
+                        {{-- AdSense usuario real (variables en .env) --}}
                         <div class="card shadow-sm border-0 h-100">
                             <div class="card-body" style="min-height: 300px; padding: 1rem;">
                                 <x-adsense-ad 
-                                    clientId="ca-pub-3940256099942544" 
+                                    :clientId="config('services.google.adsense_client_id')" 
+                                    :slotId="config('services.google.adsense_default_slot')"
                                     type="display"
                                     style="display:block; min-height: 250px; width: 100%;"
                                     format="auto"
-                                    :testMode="true"
+                                    :testMode="config('services.google.adsense_test_mode')"
                                 />
                             </div>
+                        </div>
+                    @else
+                        <div class="card shadow-sm border-0 h-100">
+                            <div class="card-body" style="min-height: 300px;"></div>
                         </div>
                     @endif
                 </div>
