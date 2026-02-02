@@ -5,7 +5,25 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'El Alma de las Fiestas') }}</title>
+        @php
+            $meta = $meta ?? [];
+            $pageTitle = $meta['title'] ?? config('app.name', 'ElAlmaDeLaFiesta');
+            $pageDescription = $meta['description'] ?? 'Descubre las mejores festividades y eventos tradicionales de España.';
+            $pageUrl = $meta['url'] ?? url()->current();
+            $robotsContent = $meta['robots'] ?? 'noindex, nofollow';
+        @endphp
+
+        <title>{{ $pageTitle }}</title>
+        <meta name="description" content="{{ $pageDescription }}">
+        <meta name="robots" content="{{ $robotsContent }}">
+        <link rel="canonical" href="{{ $pageUrl }}">
+
+        <!-- Open Graph -->
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ $pageUrl }}">
+        <meta property="og:title" content="{{ $pageTitle }}">
+        <meta property="og:description" content="{{ $pageDescription }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'ElAlmaDeLaFiesta') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

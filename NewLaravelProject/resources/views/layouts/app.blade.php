@@ -15,7 +15,7 @@
         <meta name="description" content="{{ $meta['description'] ?? 'Descubre las mejores festividades y eventos tradicionales de España' }}">
         <meta name="keywords" content="{{ $meta['keywords'] ?? 'festividades españa, eventos tradicionales, fiestas populares' }}">
         <meta name="author" content="El Alma de las Fiestas">
-        <meta name="robots" content="index, follow">
+        <meta name="robots" content="{{ $meta['robots'] ?? 'index, follow' }}">
         <meta name="language" content="Spanish">
         <meta name="revisit-after" content="7 days">
 
@@ -37,6 +37,8 @@
 
         <!-- Canonical URL -->
         <link rel="canonical" href="{{ $meta['url'] ?? url()->current() }}">
+
+        @stack('head')
 
         {{-- Google AdSense Script (Test Mode) - COMENTADO: usar ADSENSE_CLIENT_ID en .env para usuario real
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3940256099942544"></script>

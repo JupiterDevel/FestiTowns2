@@ -20,7 +20,7 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Admin User',
-                'email' => 'admin@festitowns.com',
+                'email' => 'admin@elalmadelafiesta.com',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
                 'locality_id' => null,

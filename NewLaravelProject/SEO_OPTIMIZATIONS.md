@@ -1,8 +1,8 @@
-# Optimizaciones SEO Implementadas - FestiTowns
+# Optimizaciones SEO Implementadas - ElAlmaDeLaFiesta
 
 ## Resumen Ejecutivo
 
-Se han implementado optimizaciones SEO técnicas y de contenido completas para mejorar el posicionamiento de la aplicación FestiTowns en los motores de búsqueda. Las mejoras incluyen URLs amigables, meta tags dinámicos, Schema.org JSON-LD, sitemap automático, y optimizaciones de rendimiento y accesibilidad.
+Se han implementado optimizaciones SEO técnicas y de contenido completas para mejorar el posicionamiento de la aplicación ElAlmaDeLaFiesta en los motores de búsqueda. Las mejoras incluyen URLs amigables, meta tags dinámicos, Schema.org JSON-LD, sitemap automático, y optimizaciones de rendimiento y accesibilidad.
 
 ---
 
@@ -62,32 +62,32 @@ $meta = SeoService::generateMetaTags([
 
 ```html
 <!-- Primary Meta Tags -->
-<title>Fallas de Valencia 2025 en Valencia: Horarios, Eventos y Tradiciones | FestiTowns</title>
+<title>Fallas de Valencia 2025 en Valencia: Horarios, Eventos y Tradiciones | ElAlmaDeLaFiesta</title>
 <meta name="description" content="Descubre todo sobre Fallas de Valencia en Valencia, Valencia. Fechas: del 15/03/2025 al 19/03/2025. Información sobre eventos, horarios, tradiciones y cómo disfrutar de esta festividad única. Vota y comparte tu experiencia.">
 <meta name="keywords" content="fallas de valencia, valencia, valencia, festividad, fiesta tradicional, evento cultural, turismo, españa">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://festitowns.com/festividades/fallas-de-valencia-2025">
-<meta property="og:title" content="Fallas de Valencia 2025 en Valencia: Horarios, Eventos y Tradiciones | FestiTowns">
+<meta property="og:url" content="https://elalmadelafiesta.com/festividades/fallas-de-valencia-2025">
+<meta property="og:title" content="Fallas de Valencia 2025 en Valencia: Horarios, Eventos y Tradiciones | ElAlmaDeLaFiesta">
 <meta property="og:description" content="Descubre todo sobre Fallas de Valencia en Valencia, Valencia...">
-<meta property="og:image" content="https://festitowns.com/images/fallas-valencia.jpg">
+<meta property="og:image" content="https://elalmadelafiesta.com/images/fallas-valencia.jpg">
 <meta property="og:locale" content="es_ES">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Fallas de Valencia 2025 en Valencia: Horarios, Eventos y Tradiciones | FestiTowns">
+<meta name="twitter:title" content="Fallas de Valencia 2025 en Valencia: Horarios, Eventos y Tradiciones | ElAlmaDeLaFiesta">
 <meta name="twitter:description" content="Descubre todo sobre Fallas de Valencia...">
-<meta name="twitter:image" content="https://festitowns.com/images/fallas-valencia.jpg">
+<meta name="twitter:image" content="https://elalmadelafiesta.com/images/fallas-valencia.jpg">
 
 <!-- Canonical -->
-<link rel="canonical" href="https://festitowns.com/festividades/fallas-de-valencia-2025">
+<link rel="canonical" href="https://elalmadelafiesta.com/festividades/fallas-de-valencia-2025">
 ```
 
 #### Para Localidad: "Valencia"
 
 ```html
-<title>Valencia, Valencia - Festividades y Lugares de Interés | FestiTowns</title>
+<title>Valencia, Valencia - Festividades y Lugares de Interés | ElAlmaDeLaFiesta</title>
 <meta name="description" content="Explora Valencia, Valencia. Descubre sus 12 festividades tradicionales, lugares de interés y monumentos. Planifica tu visita y conoce la cultura y tradiciones de esta localidad española.">
 <meta name="keywords" content="valencia, valencia, localidad, turismo, festividades, lugares de interés, españa">
 ```
@@ -121,8 +121,8 @@ Se genera automáticamente Schema.org JSON-LD para eventos (festividades) y ciud
     }
   },
   "image": [
-    "https://festitowns.com/images/fallas-1.jpg",
-    "https://festitowns.com/images/fallas-2.jpg"
+    "https://elalmadelafiesta.com/images/fallas-1.jpg",
+    "https://elalmadelafiesta.com/images/fallas-2.jpg"
   ],
   "subEvent": [
     {
@@ -153,7 +153,7 @@ Se genera automáticamente Schema.org JSON-LD para eventos (festividades) y ciud
     "addressCountry": "ES"
   },
   "image": [
-    "https://festitowns.com/images/valencia-1.jpg"
+    "https://elalmadelafiesta.com/images/valencia-1.jpg"
   ]
 }
 ```
@@ -171,14 +171,14 @@ Se creó `SitemapController` que genera dinámicamente el sitemap.xml incluyendo
 - Todas las festividades (prioridad 0.9, frecuencia semanal)
 
 ### Acceso
-- URL: `https://festitowns.com/sitemap.xml`
+- URL: `https://elalmadelafiesta.com/sitemap.xml`
 - Ruta: `Route::get('sitemap.xml', [SitemapController::class, 'index'])`
 
 ### Ejemplo de Entrada en Sitemap
 
 ```xml
 <url>
-  <loc>https://festitowns.com/festividades/fallas-de-valencia-2025</loc>
+  <loc>https://elalmadelafiesta.com/festividades/fallas-de-valencia-2025</loc>
   <lastmod>2025-11-06T14:30:00+01:00</lastmod>
   <changefreq>weekly</changefreq>
   <priority>0.9</priority>
@@ -197,7 +197,7 @@ Se creó un endpoint dinámico para `robots.txt` que incluye:
 - Permisos explícitos para contenido público
 
 ### Acceso
-- URL: `https://festitowns.com/robots.txt`
+- URL: `https://elalmadelafiesta.com/robots.txt`
 - Ruta: `Route::get('robots.txt', [SitemapController::class, 'robots'])`
 
 ### Contenido
@@ -207,7 +207,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://festitowns.com/sitemap.xml
+Sitemap: https://elalmadelafiesta.com/sitemap.xml
 
 # Disallow admin and private areas
 Disallow: /profile
@@ -275,26 +275,26 @@ Todas las imágenes (excepto la primera de cada carrusel) usan `loading="lazy"`:
 
 **Festividades:**
 ```
-{nombre} {año} en {localidad}: Horarios, Eventos y Tradiciones | FestiTowns
+{nombre} {año} en {localidad}: Horarios, Eventos y Tradiciones | ElAlmaDeLaFiesta
 ```
 
 **Localidades:**
 ```
-{nombre}, {provincia} - Festividades y Lugares de Interés | FestiTowns
+{nombre}, {provincia} - Festividades y Lugares de Interés | ElAlmaDeLaFiesta
 ```
 
 ### Ejemplos Reales
 
 1. **Fallas de Valencia 2025**
-   - Título: "Fallas de Valencia 2025 en Valencia: Horarios, Eventos y Tradiciones | FestiTowns"
+   - Título: "Fallas de Valencia 2025 en Valencia: Horarios, Eventos y Tradiciones | ElAlmaDeLaFiesta"
    - Descripción: "Descubre todo sobre Fallas de Valencia en Valencia, Valencia. Fechas: del 15/03/2025 al 19/03/2025. Información sobre eventos, horarios, tradiciones y cómo disfrutar de esta festividad única."
 
 2. **San Fermín**
-   - Título: "San Fermín 2025 en Pamplona: Horarios, Eventos y Tradiciones | FestiTowns"
+   - Título: "San Fermín 2025 en Pamplona: Horarios, Eventos y Tradiciones | ElAlmaDeLaFiesta"
    - Descripción: "Descubre todo sobre San Fermín en Pamplona, Navarra. Fechas: del 06/07/2025 al 14/07/2025. Información sobre el encierro, eventos, tradiciones y cómo disfrutar de esta festividad única."
 
 3. **Feria de Abril**
-   - Título: "Feria de Abril 2025 en Sevilla: Horarios, Eventos y Tradiciones | FestiTowns"
+   - Título: "Feria de Abril 2025 en Sevilla: Horarios, Eventos y Tradiciones | ElAlmaDeLaFiesta"
    - Descripción: "Descubre todo sobre Feria de Abril en Sevilla, Sevilla. Fechas: del 20/04/2025 al 26/04/2025. Información sobre casetas, eventos, tradiciones y cómo disfrutar de esta festividad única."
 
 ---
@@ -369,5 +369,5 @@ Este comando genera slugs para todas las localidades y festividades que no tenga
 
 ## Conclusión
 
-Se han implementado optimizaciones SEO completas que mejorarán significativamente el posicionamiento de FestiTowns en los motores de búsqueda. Las URLs amigables, meta tags dinámicos, Schema.org JSON-LD, y las optimizaciones de rendimiento y accesibilidad proporcionan una base sólida para el SEO técnico y de contenido.
+Se han implementado optimizaciones SEO completas que mejorarán significativamente el posicionamiento de ElAlmaDeLaFiesta en los motores de búsqueda. Las URLs amigables, meta tags dinámicos, Schema.org JSON-LD, y las optimizaciones de rendimiento y accesibilidad proporcionan una base sólida para el SEO técnico y de contenido.
 

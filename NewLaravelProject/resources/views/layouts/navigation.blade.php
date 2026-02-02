@@ -1,9 +1,9 @@
 <nav class="navbar navbar-expand-lg navbar-dark navbar-enhanced" style="background-color: #FEB101;">
     <div class="container">
         <!-- Brand -->
-        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('home') }}" aria-label="Elalmadelafiesta">
-            <img src="{{ asset('storage/fiesta-logo.png') }}" alt="Elalmadelafiesta" style="height: 40px; width: auto; display: block;">
-            <span class="brand-text" style="font-size: 1.5rem; color: #E5483B;">Elalmadelafiesta</span>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{{ route('home') }}" aria-label="ElAlmaDeLaFiesta">
+            <img src="{{ asset('storage/fiesta-logo.png') }}" alt="ElAlmaDeLaFiesta" style="height: 40px; width: auto; display: block;">
+            <span class="brand-text" style="font-size: 1.5rem; color: #E5483B;">ElAlmaDeLaFiesta</span>
         </a>
 
         <!-- Toggler -->

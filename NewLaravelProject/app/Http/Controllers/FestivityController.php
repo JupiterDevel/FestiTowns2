@@ -143,7 +143,7 @@ class FestivityController extends Controller
         
         // SEO Meta Tags
         $meta = SeoService::generateMetaTags([
-            'title' => 'Festividades de España - Calendario Completo | FestiTowns',
+            'title' => 'Festividades de España - Calendario Completo | ElAlmaDeLaFiesta',
             'description' => 'Descubre todas las festividades tradicionales de España. Fallas de Valencia, San Fermín, Feria de Abril y muchas más. Calendario completo con fechas, eventos y tradiciones.',
             'keywords' => 'festividades españa, calendario festividades, fiestas tradicionales, eventos culturales españa',
             'url' => route('festivities.index'),

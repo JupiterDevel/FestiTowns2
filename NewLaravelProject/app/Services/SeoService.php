@@ -122,6 +122,53 @@ class SeoService
     }
 
     /**
+     * Genera meta para la página "Las más votadas"
+     */
+    public static function generateMostVotedMeta(): array
+    {
+        return self::generateMetaTags([
+            'title' => 'Las Más Votadas - Ranking de Festividades | ElAlmaDeLaFiesta',
+            'description' => 'Descubre el ranking de las festividades más votadas de España. Nacional, por comunidad autónoma y por provincia. Vota por tu favorita.',
+            'keywords' => 'festividades más votadas, ranking festividades españa, fiestas populares, votación festividades',
+            'url' => route('festivities.most-voted'),
+        ]);
+    }
+
+    /**
+     * Genera título SEO para listado de eventos de una festividad
+     */
+    public static function generateEventsIndexTitle($festivity): string
+    {
+        return "Eventos de {$festivity->name} | ElAlmaDeLaFiesta";
+    }
+
+    /**
+     * Genera descripción SEO para listado de eventos
+     */
+    public static function generateEventsIndexDescription($festivity): string
+    {
+        $locality = $festivity->locality->name ?? '';
+        return self::cleanDescription("Consulta los eventos programados para {$festivity->name} en {$locality}. Horarios, ubicaciones y detalles.");
+    }
+
+    /**
+     * Genera título SEO para detalle de evento
+     */
+    public static function generateEventShowTitle($event, $festivity): string
+    {
+        return "{$event->name} - {$festivity->name} | ElAlmaDeLaFiesta";
+    }
+
+    /**
+     * Genera descripción SEO para detalle de evento
+     */
+    public static function generateEventShowDescription($event, $festivity): string
+    {
+        $desc = $event->description ? self::cleanDescription($event->description, 160) : "Evento {$event->name} de la festividad {$festivity->name}.";
+        return $desc;
+    }
+
+    /**
      * Limpia y optimiza descripciones para SEO
      */
     private static function cleanDescription(string $description, int $maxLength = 160): string
@@ -229,6 +276,39 @@ class SeoService
             $schema['image'] = array_map(function ($photo) {
                 return filter_var($photo, FILTER_VALIDATE_URL) ? $photo : url($photo);
             }, $locality->photos);
+        }
+
+        return $schema;
+    }
+
+    /**
+     * Genera Schema.org JSON-LD para un evento individual (subevento de festividad)
+     */
+    public static function generateSingleEventSchema($event, $festivity): array
+    {
+        $schema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Event',
+            'name' => $event->name,
+            'description' => $event->description ? self::cleanDescription($event->description, 500) : "Evento {$event->name} de la festividad {$festivity->name}.",
+            'superEvent' => [
+                '@type' => 'Event',
+                'name' => $festivity->name,
+                'url' => route('festivities.show', $festivity),
+            ],
+        ];
+
+        if ($event->start_time) {
+            $schema['startDate'] = $event->start_time->toIso8601String();
+        }
+        if ($event->end_time) {
+            $schema['endDate'] = $event->end_time->toIso8601String();
+        }
+        if ($event->location) {
+            $schema['location'] = [
+                '@type' => 'Place',
+                'name' => $event->location,
+            ];
         }
 
         return $schema;
