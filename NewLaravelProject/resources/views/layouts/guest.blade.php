@@ -7,7 +7,7 @@
 
         @php
             $meta = $meta ?? [];
-            $pageTitle = $meta['title'] ?? config('app.name', 'ElAlmaDeLaFiesta');
+            $pageTitle = $meta['title'] ?? config('app.name', 'ElAlmaDeLasFiestas');
             $pageDescription = $meta['description'] ?? 'Descubre las mejores festividades y eventos tradicionales de España.';
             $pageUrl = $meta['url'] ?? url()->current();
             $robotsContent = $meta['robots'] ?? 'noindex, nofollow';
@@ -23,7 +23,7 @@
         <meta property="og:url" content="{{ $pageUrl }}">
         <meta property="og:title" content="{{ $pageTitle }}">
         <meta property="og:description" content="{{ $pageDescription }}">
-        <meta property="og:site_name" content="{{ config('app.name', 'ElAlmaDeLaFiesta') }}">
+        <meta property="og:site_name" content="{{ config('app.name', 'ElAlmaDeLasFiestas') }}">
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">

@@ -1,4 +1,4 @@
-# SEO Re-Optimization Report – ElAlmaDeLaFiesta
+# SEO Re-Optimization Report – ElAlmaDeLasFiestas
 
 **Date:** February 2, 2025  
 **Scope:** Full codebase scan and incremental SEO improvements without changing business logic, routes, or UX.
@@ -7,15 +7,15 @@
 
 ## 1. Summary of Optimizations
 
-### 1.1 Brand Consistency (Festitowns → ElAlmaDeLaFiesta)
+### 1.1 Brand Consistency (Festitowns → ElAlmaDeLasFiestas)
 
-All occurrences of "Festitowns" / "FestiTowns" were renamed to **ElAlmaDeLaFiesta** so branding is consistent and SEO signals align with the chosen brand.
+All occurrences of "Festitowns" / "FestiTowns" were renamed to **ElAlmaDeLasFiestas** so branding is consistent and SEO signals align with the chosen brand.
 
-- **Controllers:** Home, Festivity, Locality – page titles now use "ElAlmaDeLaFiesta" in the suffix.
-- **Navigation & footer:** Logo alt, `aria-label`, and visible brand text updated to "ElAlmaDeLaFiesta".
-- **Docs:** `SEO_OPTIMIZATIONS.md`, `LEGAL_FEATURE.md` – examples and references updated to ElAlmaDeLaFiesta / elalmadelafiesta.com.
+- **Controllers:** Home, Festivity, Locality – page titles now use "ElAlmaDeLasFiestas" in the suffix.
+- **Navigation & footer:** Logo alt, `aria-label`, and visible brand text updated to "ElAlmaDeLasFiestas".
+- **Docs:** `SEO_OPTIMIZATIONS.md`, `LEGAL_FEATURE.md` – examples and references updated to ElAlmaDeLasFiestas / elalmadelasfiestas.com.
 - **Assets:** `resources/scss/brand-system.scss` – comment updated.
-- **Seeder:** `UserSeeder` – admin email placeholder set to `admin@elalmadelafiesta.com`.
+- **Seeder:** `UserSeeder` – admin email placeholder set to `admin@elalmadelasfiestas.com`.
 
 ### 1.2 Meta Tags & Titles
 
@@ -24,12 +24,12 @@ All occurrences of "Festitowns" / "FestiTowns" were renamed to **ElAlmaDeLaFiest
 - **App layout:**  
   Robots meta made overridable via `$meta['robots']` so pages like legal/accept can use `noindex, nofollow`.
 - **VoteController – most-voted:**  
-  Dedicated meta via `SeoService::generateMostVotedMeta()`: title "Las Más Votadas - Ranking de Festividades | ElAlmaDeLaFiesta", description, keywords, canonical.
+  Dedicated meta via `SeoService::generateMostVotedMeta()`: title "Las Más Votadas - Ranking de Festividades | ElAlmaDeLasFiestas", description, keywords, canonical.
 - **LegalController:**  
   - **legal.index:** Custom meta (title, description, keywords, url) for the legal info page.  
   - **legal.accept:** Custom meta with `robots => 'noindex, nofollow'` so the acceptance form is not indexed.
 - **EventController:**  
-  - **events.index:** Meta built from `SeoService` (title "Eventos de {festivity} | ElAlmaDeLaFiesta", description, keywords, canonical).  
+  - **events.index:** Meta built from `SeoService` (title "Eventos de {festivity} | ElAlmaDeLasFiestas", description, keywords, canonical).  
   - **events.show:** Meta + JSON-LD for the single event (title, description, keywords, url, type article).
 
 ### 1.3 Structured Data (JSON-LD)
@@ -66,7 +66,7 @@ New helpers in `SeoService`:
 - `generateEventShowTitle($event, $festivity)` / `generateEventShowDescription($event, $festivity)` – event detail.
 - `generateSingleEventSchema($event, $festivity)` – JSON-LD for a single event.
 
-All use the "ElAlmaDeLaFiesta" brand in titles.
+All use the "ElAlmaDeLasFiestas" brand in titles.
 
 ---
 
@@ -74,9 +74,9 @@ All use the "ElAlmaDeLaFiesta" brand in titles.
 
 | File | Change |
 |------|--------|
-| `app/Http/Controllers/HomeController.php` | Title: FestiTowns → ElAlmaDeLaFiesta |
-| `app/Http/Controllers/FestivityController.php` | Title: FestiTowns → ElAlmaDeLaFiesta |
-| `app/Http/Controllers/LocalityController.php` | Title: FestiTowns → ElAlmaDeLaFiesta |
+| `app/Http/Controllers/HomeController.php` | Title: FestiTowns → ElAlmaDeLasFiestas |
+| `app/Http/Controllers/FestivityController.php` | Title: FestiTowns → ElAlmaDeLasFiestas |
+| `app/Http/Controllers/LocalityController.php` | Title: FestiTowns → ElAlmaDeLasFiestas |
 | `app/Http/Controllers/VoteController.php` | Use SeoService; pass `$meta` for most-voted |
 | `app/Http/Controllers/LegalController.php` | Use SeoService; pass `$meta` for index and accept (accept: noindex) |
 | `app/Http/Controllers/EventController.php` | Use SeoService; pass `$meta` and `$schema` for index and show |
@@ -84,21 +84,21 @@ All use the "ElAlmaDeLaFiesta" brand in titles.
 | `app/Services/SeoService.php` | New helpers (most-voted, events index/show, single event schema); brand in titles |
 | `resources/views/layouts/app.blade.php` | Robots from `$meta['robots']`; add `@stack('head')` |
 | `resources/views/layouts/guest.blade.php` | Full SEO head (title, description, canonical, robots, OG); support `$meta` |
-| `resources/views/layouts/navigation.blade.php` | Brand: Elalmadelafiesta → ElAlmaDeLaFiesta (alt, aria-label, text) |
-| `resources/views/partials/footer.blade.php` | Brand: Elalmadelafiesta → ElAlmaDeLaFiesta |
+| `resources/views/layouts/navigation.blade.php` | Brand: Elalmadelafiesta → ElAlmaDeLasFiestas (alt, aria-label, text) |
+| `resources/views/partials/footer.blade.php` | Brand: Elalmadelafiesta → ElAlmaDeLasFiestas |
 | `resources/views/events/index.blade.php` | Push rel prev/next for pagination |
 | `resources/views/festivities/index.blade.php` | Push rel prev/next for pagination |
 | `resources/views/localities/index.blade.php` | Push rel prev/next for pagination |
-| `resources/scss/brand-system.scss` | Comment: FestiTowns → ElAlmaDeLaFiesta |
-| `database/seeders/UserSeeder.php` | admin@festitowns.com → admin@elalmadelafiesta.com |
-| `SEO_OPTIMIZATIONS.md` | FestiTowns → ElAlmaDeLaFiesta; festitowns.com → elalmadelafiesta.com |
-| `LEGAL_FEATURE.md` | FestiTowns → ElAlmaDeLaFiesta |
+| `resources/scss/brand-system.scss` | Comment: FestiTowns → ElAlmaDeLasFiestas |
+| `database/seeders/UserSeeder.php` | admin@festitowns.com → admin@elalmadelasfiestas.com |
+| `SEO_OPTIMIZATIONS.md` | FestiTowns → ElAlmaDeLasFiestas; festitowns.com → elalmadelasfiestas.com |
+| `LEGAL_FEATURE.md` | FestiTowns → ElAlmaDeLasFiestas |
 
 ---
 
 ## 3. Why Each Change Was Made
 
-- **Brand rename:** One consistent brand (ElAlmaDeLaFiesta) improves recognition and avoids diluted or conflicting signals in titles and content.
+- **Brand rename:** One consistent brand (ElAlmaDeLasFiestas) improves recognition and avoids diluted or conflicting signals in titles and content.
 - **Guest layout SEO:** Auth/utility pages get correct title, description, and canonical; default noindex avoids indexing login/reset/verify pages.
 - **Robots override in app layout:** Lets legal/accept (and any future utility form) set noindex without a separate layout.
 - **Meta for most-voted, legal, events:** Each important public page has a unique, relevant title and description, improving CTR and relevance in search.
@@ -113,7 +113,7 @@ All use the "ElAlmaDeLaFiesta" brand in titles.
 ## 4. What Was Not Changed
 
 - **Routes, controller names, variable names:** Unchanged except where meta/schema were added.
-- **Design and UX:** No layout or visual changes beyond brand text (ElAlmaDeLaFiesta).
+- **Design and UX:** No layout or visual changes beyond brand text (ElAlmaDeLasFiestas).
 - **Business logic:** No changes to auth, voting, events, localities, or festivity logic.
 - **Existing schemas:** Festivity Event and Locality City JSON-LD on show pages unchanged.
 - **robots.txt logic:** Kept as-is (disallow rules, sitemap reference, crawl-delay if present).
@@ -139,7 +139,7 @@ All use the "ElAlmaDeLaFiesta" brand in titles.
 - [x] Canonical URLs set from controller meta; no duplicate meta for same URL.
 - [x] Legal acceptance form has noindex; legal index is indexable and in sitemap.
 - [x] Paginated list views (festivities, localities, events) send rel prev/next when applicable.
-- [x] Brand "ElAlmaDeLaFiesta" used consistently in titles, nav, footer, and docs.
+- [x] Brand "ElAlmaDeLasFiestas" used consistently in titles, nav, footer, and docs.
 - [x] New JSON-LD (single event) is valid and rendered only on event show.
 - [x] No routes or controller actions renamed; no breaking changes to existing behaviour.
 

@@ -6,7 +6,7 @@
                     <i class="bi bi-person-circle me-2"></i>Perfil de usuario
                 </h1>
                 <p class="mb-0 text-muted" style="font-size: 0.9rem;">
-                    Detalle del perfil dentro de <span style="color:#E5483B; font-weight:600;">Elalmadelafiesta</span>
+                    Detalle del perfil dentro de <span style="color:#E5483B; font-weight:600;">ElAlmaDeLasFiestas</span>
                 </p>
             </div>
             <div class="d-flex gap-2">

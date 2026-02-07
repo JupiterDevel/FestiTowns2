@@ -19,9 +19,9 @@ class LegalController extends Controller
     public function index(): View
     {
         $meta = SeoService::generateMetaTags([
-            'title' => 'Información Legal - Términos, Cookies y Contacto | ElAlmaDeLaFiesta',
-            'description' => 'Términos y Condiciones, Política de Cookies e información de contacto de ElAlmaDeLaFiesta. Plataforma de festividades y eventos tradicionales en España.',
-            'keywords' => 'términos y condiciones, política de cookies, información legal, contacto ElAlmaDeLaFiesta',
+            'title' => 'Información Legal - Términos, Cookies y Contacto | ElAlmaDeLasFiestas',
+            'description' => 'Términos y Condiciones, Política de Cookies e información de contacto de ElAlmaDeLasFiestas. Plataforma de festividades y eventos tradicionales en España.',
+            'keywords' => 'términos y condiciones, política de cookies, información legal, contacto ElAlmaDeLasFiestas',
             'url' => route('legal.index'),
         ]);
         return view('legal.index', compact('meta'));
@@ -33,7 +33,7 @@ class LegalController extends Controller
     public function acceptForm(): View
     {
         $meta = [
-            'title' => 'Aceptar Términos Legales | ElAlmaDeLaFiesta',
+            'title' => 'Aceptar Términos Legales | ElAlmaDeLasFiestas',
             'description' => 'Aceptación de Términos y Condiciones y Política de Cookies.',
             'url' => route('legal.accept.form'),
             'robots' => 'noindex, nofollow',
