@@ -127,7 +127,7 @@ class SeoService
     public static function generateMostVotedMeta(): array
     {
         return self::generateMetaTags([
-            'title' => 'Las Más Votadas - Ranking de Festividades | ElAlmaDeLaFiesta',
+            'title' => 'Las Más Votadas - Ranking de Festividades | ElAlmaDeLasFiestas',
             'description' => 'Descubre el ranking de las festividades más votadas de España. Nacional, por comunidad autónoma y por provincia. Vota por tu favorita.',
             'keywords' => 'festividades más votadas, ranking festividades españa, fiestas populares, votación festividades',
             'url' => route('festivities.most-voted'),
@@ -139,7 +139,7 @@ class SeoService
      */
     public static function generateEventsIndexTitle($festivity): string
     {
-        return "Eventos de {$festivity->name} | ElAlmaDeLaFiesta";
+        return "Eventos de {$festivity->name} | ElAlmaDeLasFiestas";
     }
 
     /**
@@ -156,7 +156,7 @@ class SeoService
      */
     public static function generateEventShowTitle($event, $festivity): string
     {
-        return "{$event->name} - {$festivity->name} | ElAlmaDeLaFiesta";
+        return "{$event->name} - {$festivity->name} | ElAlmaDeLasFiestas";
     }
 
     /**
