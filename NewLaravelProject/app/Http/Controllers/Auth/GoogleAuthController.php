@@ -13,13 +13,23 @@ use Throwable;
 
 class GoogleAuthController extends Controller
 {
+    private function redirectUri(): string
+    {
+        return (string) config('services.google.redirect');
+    }
+
     /**
      * Redirect the user to the Google authentication page.
      */
     public function redirect(): RedirectResponse
     {
         $driver = Socialite::driver('google')
-            ->redirectUrl(route('google.callback'));
+            ->redirectUrl($this->redirectUri());
+
+        Log::info('Google OAuth redirect initiated', [
+            'redirect_uri' => $this->redirectUri(),
+            'app_url' => config('app.url'),
+        ]);
 
         if (config('services.google.stateless')) {
             $driver = $driver->stateless();
@@ -35,7 +45,7 @@ class GoogleAuthController extends Controller
     {
         try {
             $driver = Socialite::driver('google')
-                ->redirectUrl(route('google.callback'));
+                ->redirectUrl($this->redirectUri());
 
             if (config('services.google.stateless')) {
                 $driver = $driver->stateless();
@@ -87,9 +97,12 @@ class GoogleAuthController extends Controller
             return redirect()->intended(route('home', absolute: false));
         } catch (Throwable $e) {
             Log::error('Google OAuth authentication failed', [
+                'exception' => get_class($e),
+                'code' => $e->getCode(),
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
+                'redirect_uri' => $this->redirectUri(),
             ]);
 
             return redirect()->route('login')
