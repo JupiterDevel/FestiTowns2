@@ -18,7 +18,8 @@ class GoogleAuthController extends Controller
      */
     public function redirect(): RedirectResponse
     {
-        $driver = Socialite::driver('google');
+        $driver = Socialite::driver('google')
+            ->redirectUrl(route('google.callback'));
 
         if (config('services.google.stateless')) {
             $driver = $driver->stateless();
@@ -33,7 +34,8 @@ class GoogleAuthController extends Controller
     public function callback(): RedirectResponse
     {
         try {
-            $driver = Socialite::driver('google');
+            $driver = Socialite::driver('google')
+                ->redirectUrl(route('google.callback'));
 
             if (config('services.google.stateless')) {
                 $driver = $driver->stateless();
