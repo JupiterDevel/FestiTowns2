@@ -7,7 +7,9 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Laravel\Socialite\Facades\Socialite;
+use Throwable;
 
 class GoogleAuthController extends Controller
 {
@@ -16,7 +18,13 @@ class GoogleAuthController extends Controller
      */
     public function redirect(): RedirectResponse
     {
-        return Socialite::driver('google')->redirect();
+        $driver = Socialite::driver('google');
+
+        if (config('services.google.stateless')) {
+            $driver = $driver->stateless();
+        }
+
+        return $driver->redirect();
     }
 
     /**
@@ -25,7 +33,13 @@ class GoogleAuthController extends Controller
     public function callback(): RedirectResponse
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
+            $driver = Socialite::driver('google');
+
+            if (config('services.google.stateless')) {
+                $driver = $driver->stateless();
+            }
+
+            $googleUser = $driver->user();
 
             // Check if user already exists
             $user = User::where('email', $googleUser->getEmail())->first();
@@ -69,9 +83,15 @@ class GoogleAuthController extends Controller
             Auth::login($user, true);
 
             return redirect()->intended(route('home', absolute: false));
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
+            Log::error('Google OAuth authentication failed', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ]);
+
             return redirect()->route('login')
-                ->with('error', 'Error al autenticarse con Google: ' . $e->getMessage());
+                ->with('error', 'Error al autenticarse con Google. Revisa la configuración OAuth y vuelve a intentarlo.');
         }
     }
 }
