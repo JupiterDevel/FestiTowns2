@@ -42,7 +42,7 @@
                 </div>
             </div>
         @endif
-        <!-- Close Button with Countdown -->
+        <!-- Countdown shown before automatic close -->
         <button type="button" 
                 class="btn btn-close-banner position-absolute" 
                 id="closeBannerBtn"
@@ -50,7 +50,6 @@
                 style="top: 10px; right: 10px; z-index: 11; width: 40px; height: 40px; border-radius: 50%; background: rgba(0, 0, 0, 0.6); border: 2px solid rgba(255, 255, 255, 0.8); color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; cursor: not-allowed; transition: all 0.3s ease; backdrop-filter: blur(5px); pointer-events: auto;"
                 title="Espera 5 segundos...">
             <span id="bannerCountdown">5</span>
-            <span id="bannerCloseIcon" style="display: none; font-size: 20px;">&times;</span>
         </button>
         @php
             $hasUrl = $ad && !empty($ad->url);
@@ -134,7 +133,6 @@
     (function() {
         let countdown = 5;
         const countdownElement = document.getElementById('bannerCountdown');
-        const closeIcon = document.getElementById('bannerCloseIcon');
         const closeBtn = document.getElementById('closeBannerBtn');
 
         // Disable button during countdown
@@ -151,18 +149,7 @@
 
             if (countdown <= 0) {
                 clearInterval(countdownInterval);
-                // Show close icon and enable button
-                if (countdownElement) {
-                    countdownElement.style.display = 'none';
-                }
-                if (closeIcon) {
-                    closeIcon.style.display = 'inline';
-                }
-                if (closeBtn) {
-                    closeBtn.disabled = false;
-                    closeBtn.style.cursor = 'pointer';
-                    closeBtn.title = 'Cerrar publicidad';
-                }
+                closeMainBanner();
             }
         }, 1000);
 
