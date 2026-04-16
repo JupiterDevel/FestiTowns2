@@ -54,7 +54,7 @@ class AdvertisementService
             2,
             $contextFestivities,
             $contextLocalities,
-            $main ? [$main->id] : []
+            $main?->id ? [$main->id] : []
         );
 
         if ($secondary->count() < 2) {
@@ -116,6 +116,11 @@ class AdvertisementService
             ->forContext($festivityIds, $localityIds)
             ->where('priority', $priority)
             ->inRandomOrder();
+
+        $excludeIds = array_values(array_filter(
+            $excludeIds,
+            fn ($id) => $id !== null && $id !== ''
+        ));
 
         if (!empty($excludeIds)) {
             $query->whereNotIn('id', $excludeIds);
